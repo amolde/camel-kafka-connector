@@ -106,7 +106,7 @@
         </plugins>
     </build>
     <modules>
-        <module>camel-activemq-kafka-connector</module>
+        <!-- <module>camel-activemq-kafka-connector</module>
         <module>camel-ahc-kafka-connector</module>
         <module>camel-ahc-ws-kafka-connector</module>
         <module>camel-amqp-kafka-connector</module>
@@ -128,9 +128,9 @@
         <module>camel-aws-kms-kafka-connector</module>
         <module>camel-aws-lambda-kafka-connector</module>
         <module>camel-aws-mq-kafka-connector</module>
-        <module>camel-aws-msk-kafka-connector</module>
+        <module>camel-aws-msk-kafka-connector</module> -->
         <module>camel-aws-s3-kafka-connector</module>
-        <module>camel-aws-sdb-kafka-connector</module>
+        <!-- <module>camel-aws-sdb-kafka-connector</module>
         <module>camel-aws-ses-kafka-connector</module>
         <module>camel-aws-sns-kafka-connector</module>
         <module>camel-aws-sqs-kafka-connector</module>
@@ -203,9 +203,9 @@
         <module>camel-flatpack-kafka-connector</module>
         <module>camel-flink-kafka-connector</module>
         <module>camel-fop-kafka-connector</module>
-        <module>camel-freemarker-kafka-connector</module>
+        <module>camel-freemarker-kafka-connector</module>-->
         <module>camel-ftp-kafka-connector</module>
-        <module>camel-ganglia-kafka-connector</module>
+        <!-- <module>camel-ganglia-kafka-connector</module>
         <module>camel-geocoder-kafka-connector</module>
         <module>camel-git-kafka-connector</module>
         <module>camel-github-kafka-connector</module>
@@ -277,9 +277,9 @@
         <module>camel-mvel-kafka-connector</module>
         <module>camel-mybatis-kafka-connector</module>
         <module>camel-nagios-kafka-connector</module>
-        <module>camel-nats-kafka-connector</module>
+        <module>camel-nats-kafka-connector</module>-->
         <module>camel-netty-http-kafka-connector</module>
-        <module>camel-netty-kafka-connector</module>
+        <!-- <module>camel-netty-kafka-connector</module>
         <module>camel-nitrite-kafka-connector</module>
         <module>camel-nsq-kafka-connector</module>
         <module>camel-olingo2-kafka-connector</module>
@@ -367,6 +367,6 @@
         <module>camel-yammer-kafka-connector</module>
         <module>camel-zendesk-kafka-connector</module>
         <module>camel-zookeeper-kafka-connector</module>
-        <module>camel-zookeeper-master-kafka-connector</module>
+        <module>camel-zookeeper-master-kafka-connector</module> -->
     </modules>
 </project>

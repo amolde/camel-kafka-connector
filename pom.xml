@@ -50,6 +50,8 @@
         <module>buildingtools</module>
         <module>tooling</module>
         <module>connectors</module>
+        <module>transformers</module>
+        <module>custom-package</module>
     </modules>
 
     <developers>
