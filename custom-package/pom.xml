@@ -28,11 +28,21 @@
   <artifactId>custom-camel-kafka-connector</artifactId>
   <name>Camel-Kafka-Connector :: custom</name>
   <description>Custom Camel Kafka Connector</description>
+  <properties>
+    <confluent.version>5.4.1</confluent.version>
+    <confluent.maven.repo>http://packages.confluent.io/maven/</confluent.maven.repo>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.camel.kafkaconnector</groupId>
       <artifactId>camel-kafka-connector</artifactId>
       <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.confluent</groupId>
+      <artifactId>kafka-connect-avro-converter</artifactId>
+      <version>${confluent.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.camel.kafkaconnector</groupId>
@@ -103,8 +113,12 @@
       </plugin>
     </plugins>
   </build>
-  <!--START OF GENERATED CODE-->
   <repositories>
+    <repository>
+      <id>confluent</id>
+      <name>Confluent</name>
+      <url>${confluent.maven.repo}</url>
+    </repository>
     <!-- camel-jira -->
     <repository>
       <id>atlassian-public</id>
@@ -118,5 +132,4 @@
       </releases>
     </repository>
   </repositories>
-  <!--END OF GENERATED CODE-->
 </project>
