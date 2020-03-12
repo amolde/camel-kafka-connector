@@ -16,8 +16,11 @@
  */
 package org.apache.camel.kafkaconnector.utils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
@@ -29,12 +32,16 @@ import org.apache.camel.CamelContextAware;
 import org.apache.camel.ConsumerTemplate;
 import org.apache.camel.Endpoint;
 import org.apache.camel.ProducerTemplate;
+import org.apache.camel.builder.ExpressionClause;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.main.BaseMainSupport;
 import org.apache.camel.main.Main;
 import org.apache.camel.main.MainListener;
+import org.apache.camel.model.FilterDefinition;
+import org.apache.camel.model.ProcessorDefinition;
 import org.apache.camel.model.RouteDefinition;
+import org.apache.camel.model.SplitDefinition;
 import org.apache.camel.spi.DataFormat;
 import org.apache.camel.support.PropertyBindingSupport;
 import org.apache.camel.util.OrderedProperties;
@@ -56,6 +63,7 @@ public class CamelMainSupport {
     }
 
     public CamelMainSupport(Map<String, String> props, String fromUrl, String toUrl, String marshal, String unmarshal, CamelContext camelContext) throws Exception {
+        log.info("Properties received: [{}]", props);
         camel = camelContext;
         camelMain = new Main() {
             @Override
@@ -73,22 +81,84 @@ public class CamelMainSupport {
 
         // reordering properties to place the one starting with "#class:" first
         Map<String, String> orderedProps = new LinkedHashMap<>();
-        props.keySet().stream()
-                .filter(k -> props.get(k).startsWith("#class:"))
+        props.keySet().stream().filter(k -> props.get(k).startsWith("#class:"))
                 .forEach(k -> orderedProps.put(k, props.get(k)));
-        props.keySet().stream()
-                .filter(k -> !props.get(k).startsWith("#class:"))
+        props.keySet().stream().filter(k -> !props.get(k).startsWith("#class:"))
                 .forEach(k -> orderedProps.put(k, props.get(k)));
 
         Properties camelProperties = new OrderedProperties();
+        log.info("OrderedProperties: [{}]", orderedProps);
         camelProperties.putAll(orderedProps);
 
         log.info("Setting initial properties in Camel context: [{}]", camelProperties);
         this.camel.getPropertiesComponent().setInitialProperties(camelProperties);
 
-        //creating the actual route
+        log.info("fromUrl received: [{}]", fromUrl);
+        // creating the actual route
         this.camel.addRoutes(new RouteBuilder() {
+            private static final String CUSTOM_CAMEL_ROUTE_CONFIGURATION_LIST_CONF = "_camel.custom.route.configuration.list";
+            private static final String FILTER_CONFIG_KEY = "_camel.filter.expression";
+            private static final String TRANSFORM_CONFIG_KEY = "_camel.transform.expression";
+            private static final String SPLITTER_CONFIG_KEY = "_camel.splitter.expression";
+
+            private String getToUrl(String feature, int index) {
+                String toUrl;
+                switch(feature) {
+                    case SPLITTER_CONFIG_KEY:
+                        toUrl = "direct:splitter_";
+                        break;
+                    case TRANSFORM_CONFIG_KEY:
+                        toUrl = "direct:transform_";
+                        break;
+                    case FILTER_CONFIG_KEY:
+                        toUrl = "direct:filter_";
+                        break;
+                    default:
+                        toUrl = "direct:" + feature + "_";
+                }
+                return toUrl + index;
+            }
+
+            private RouteDefinition getFeatureRouteDefinition(String feature, String fromUrl) {
+                String featureExpression = props.get(feature);
+                RouteDefinition rd = from(fromUrl);
+                if(feature.startsWith(SPLITTER_CONFIG_KEY)) {
+                    ExpressionClause<SplitDefinition> splitExpressionClause = rd.split();
+                    splitExpressionClause.simple(featureExpression);
+                }
+                if(feature.startsWith(TRANSFORM_CONFIG_KEY)) {
+                    ExpressionClause<ProcessorDefinition<RouteDefinition>> transformExpressionClause = rd.transform();
+                    transformExpressionClause.simple(featureExpression);
+                }
+                if(feature.startsWith(FILTER_CONFIG_KEY)) {
+                    ExpressionClause<? extends FilterDefinition> featureExpressionClause = rd.filter();
+                    featureExpressionClause.simple(featureExpression);
+                }
+                return rd;
+            }
+
+            private void configureCustomRoutes(RouteDefinition rd, String toUrl) {
+                final String camelCustomConfigurations = props.get(CUSTOM_CAMEL_ROUTE_CONFIGURATION_LIST_CONF);
+                if(camelCustomConfigurations != null && camelCustomConfigurations.length() > 0) {
+                    // final List<String> camelRouteConfigurationList = Arrays.asList(SPLITTER_CONFIG_KEY, FILTER_CONFIG_KEY, TRANSFORM_CONFIG_KEY);
+                    final List<String> camelRouteConfigurationList = Arrays.asList(camelCustomConfigurations.split("\\s*,\\s*"));
+                    if(camelRouteConfigurationList != null && camelRouteConfigurationList.size() > 0) {
+                        int totalCustomRoutes = camelRouteConfigurationList.size();
+                        RouteDefinition priorRoute = rd;
+                        for(int i = 0; i < totalCustomRoutes; i++) {
+                            String urlForRoute = getToUrl(camelRouteConfigurationList.get(i), i);
+                            priorRoute.to(urlForRoute);
+                            priorRoute = getFeatureRouteDefinition(camelRouteConfigurationList.get(i), urlForRoute);
+                        }
+                        priorRoute.to(toUrl);
+                        return;
+                    }
+                }
+                rd.to(toUrl);
+            }
+
             public void configure() {
+                log.info("fromUrl value: [{}]", fromUrl);
                 RouteDefinition rd = from(fromUrl);
                 if (marshal != null && unmarshal != null) {
                     throw new UnsupportedOperationException("Uses of both marshal (i.e. " + marshal + ") and unmarshal (i.e. " + unmarshal + ") is not supported");
@@ -103,7 +173,7 @@ public class CamelMainSupport {
                 } else {
                     log.info("Creating Camel route from({}).to({})", fromUrl, toUrl);
                 }
-                rd.to(toUrl);
+                configureCustomRoutes(rd, toUrl);
             }
         });
     }
@@ -160,13 +230,7 @@ public class CamelMainSupport {
             CamelContextAware.trySetCamelContext(df, camel);
 
             if (!props.isEmpty()) {
-                PropertyBindingSupport.build()
-                        .withCamelContext(camel)
-                        .withOptionPrefix(prefix)
-                        .withRemoveParameters(false)
-                        .withProperties((Map) props)
-                        .withTarget(df)
-                        .bind();
+                PropertyBindingSupport.build().withCamelContext(camel).withOptionPrefix(prefix).withRemoveParameters(false).withProperties((Map) props).withTarget(df).bind();
             }
         }
 
