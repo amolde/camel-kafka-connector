@@ -119,22 +119,23 @@ public class CamelMainSupport {
                 return toUrl + index;
             }
 
-            private RouteDefinition getFeatureRouteDefinition(String feature, String fromUrl) {
+            private void addFeatureRouteDefinition(String feature, String fromUrl, String toUrl) {
                 String featureExpression = props.get(feature);
                 RouteDefinition rd = from(fromUrl);
                 if(feature.startsWith(SPLITTER_CONFIG_KEY)) {
-                    ExpressionClause<SplitDefinition> splitExpressionClause = rd.split();
-                    splitExpressionClause.simple(featureExpression);
+                    rd.split().simple(featureExpression).to(toUrl);
+                    return;
                 }
                 if(feature.startsWith(TRANSFORM_CONFIG_KEY)) {
-                    ExpressionClause<ProcessorDefinition<RouteDefinition>> transformExpressionClause = rd.transform();
-                    transformExpressionClause.simple(featureExpression);
+                    rd.transform().simple(featureExpression).to(toUrl);
+                    return;
                 }
                 if(feature.startsWith(FILTER_CONFIG_KEY)) {
-                    ExpressionClause<? extends FilterDefinition> featureExpressionClause = rd.filter();
-                    featureExpressionClause.simple(featureExpression);
+                    rd.filter().simple(featureExpression).to(toUrl);
+                    return;
                 }
-                return rd;
+                rd.to(toUrl);
+                return;
             }
 
             private void configureCustomRoutes(RouteDefinition rd, String toUrl) {
@@ -143,14 +144,20 @@ public class CamelMainSupport {
                     // final List<String> camelRouteConfigurationList = Arrays.asList(SPLITTER_CONFIG_KEY, FILTER_CONFIG_KEY, TRANSFORM_CONFIG_KEY);
                     final List<String> camelRouteConfigurationList = Arrays.asList(camelCustomConfigurations.split("\\s*,\\s*"));
                     if(camelRouteConfigurationList != null && camelRouteConfigurationList.size() > 0) {
-                        int totalCustomRoutes = camelRouteConfigurationList.size();
-                        RouteDefinition priorRoute = rd;
-                        for(int i = 0; i < totalCustomRoutes; i++) {
-                            String urlForRoute = getToUrl(camelRouteConfigurationList.get(i), i);
-                            priorRoute.to(urlForRoute);
-                            priorRoute = getFeatureRouteDefinition(camelRouteConfigurationList.get(i), urlForRoute);
+                        rd.to(getToUrl(camelRouteConfigurationList.get(0), 0));
+                        for(int i = 0; i < camelRouteConfigurationList.size(); i++) {
+                            String customRouteFromUrl = getToUrl(camelRouteConfigurationList.get(i), i);
+                            String customRouteToUrl = toUrl;
+                            int nextIndex = i + 1;
+                            if(nextIndex < camelRouteConfigurationList.size()) {
+                                toUrl = getToUrl(camelRouteConfigurationList.get(nextIndex), nextIndex);
+                            }
+                            addFeatureRouteDefinition(
+                                camelRouteConfigurationList.get(i),
+                                customRouteFromUrl,
+                                customRouteToUrl
+                            );
                         }
-                        priorRoute.to(toUrl);
                         return;
                     }
                 }
