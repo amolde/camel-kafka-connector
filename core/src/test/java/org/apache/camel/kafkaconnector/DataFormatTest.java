@@ -48,7 +48,7 @@ public class DataFormatTest {
         Map<String, String> props = new HashMap<>();
         props.put("camel.sink.url", "direct://test");
         props.put("camel.sink.kafka.topic", "mytopic");
-        props.put("test", "file:///Users/adeshmukh/kafka/camel-kafka-connector/route.xml");
+        props.put("camel.routes.dsl", "file:///Users/adeshmukh/kafka/camel-kafka-connector/route.xml");
         props.put("camel.sink.unmarshal", "syslog");
 
         CamelSinkTask camelsinkTask = new CamelSinkTask();

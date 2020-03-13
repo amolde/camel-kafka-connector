@@ -45,9 +45,10 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 public class CamelMainSupport {
     public static final String CAMEL_DATAFORMAT_PROPERTIES_PREFIX = "camel.dataformat.";
+    public static final String CAMEL_SPRING_CONTEXT_BEAN_ID = "camelContext";
     public static final String CAMEL_FIRST_CUSTOM_ROUTE_ID = "direct:customRoute00";
     public static final String CAMEL_LAST_CUSTOM_ROUTE_ID = "direct:customRoute99";
-    public static final String CAMEL_SPRING_CONTEXT_BEAN_ID = "camelContext";
+    public static final String CAMEL_ROUTES_DSL = "camel.routes.dsl";
     private static Logger log = LoggerFactory.getLogger(CamelMainSupport.class);
 
     private Main camelMain;
@@ -57,7 +58,7 @@ public class CamelMainSupport {
     private final CountDownLatch startFinishedSignal = new CountDownLatch(1);
 
     private static String getCustomRoutesFile(Map<String, String> props) {
-        String customRoutesFile = props.get("test");
+        String customRoutesFile = props.get(CAMEL_ROUTES_DSL);
         if(customRoutesFile != null && customRoutesFile.length() > 0) {
             return customRoutesFile;
         }
