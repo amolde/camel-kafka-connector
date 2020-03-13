@@ -31,6 +31,7 @@ import org.apache.camel.Endpoint;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.DefaultCamelContext;
+import org.apache.camel.kafkaconnector.CamelSourceConnectorConfig;
 import org.apache.camel.main.BaseMainSupport;
 import org.apache.camel.main.Main;
 import org.apache.camel.main.MainListener;
@@ -48,7 +49,7 @@ public class CamelMainSupport {
     public static final String CAMEL_SPRING_CONTEXT_BEAN_ID = "camelContext";
     public static final String CAMEL_FIRST_CUSTOM_ROUTE_ID = "direct:customRoute00";
     public static final String CAMEL_LAST_CUSTOM_ROUTE_ID = "direct:customRoute99";
-    public static final String CAMEL_ROUTES_DSL = "camel.routes.dsl";
+    public static final String CAMEL_ROUTES_DSL = "camel.routes.xml.dsl";
     private static Logger log = LoggerFactory.getLogger(CamelMainSupport.class);
 
     private Main camelMain;
@@ -65,11 +66,18 @@ public class CamelMainSupport {
         return null;
     }
 
+    private static boolean isSourceConnector(Map<String, String> props) {
+        String camelSourceUrl = props.get(CamelSourceConnectorConfig.CAMEL_SOURCE_URL_CONF);
+        return (camelSourceUrl != null && camelSourceUrl.length() > 0);
+    }
+
     private static CamelContext getCamelContext(Map<String, String> props, CamelContext camelContext) {
         String customRoutesFile = getCustomRoutesFile(props);
         if(customRoutesFile != null) {
             AbstractApplicationContext ctx = new FileSystemXmlApplicationContext(customRoutesFile);
-            return (CamelContext) ctx.getBean(CAMEL_SPRING_CONTEXT_BEAN_ID);
+            CamelContext camelCtx = (CamelContext) ctx.getBean(CAMEL_SPRING_CONTEXT_BEAN_ID);
+            camelCtx.stop();
+            return camelCtx;
         }
         return camelContext == null ? new DefaultCamelContext() : camelContext;
     }
@@ -111,12 +119,15 @@ public class CamelMainSupport {
 
         // creating the actual route
         this.camel.addRoutes(new RouteBuilder() {
-            private RouteDefinition getNextRoute(RouteDefinition rd) {
+            private void setCustomRoute(RouteDefinition rd, String toUrl) {
                 if(getCustomRoutesFile(props) != null) {
                     rd.to(CAMEL_FIRST_CUSTOM_ROUTE_ID);
-                    return from(CAMEL_LAST_CUSTOM_ROUTE_ID);
+                    if(isSourceConnector(props)) {
+                        from(CAMEL_LAST_CUSTOM_ROUTE_ID).to(toUrl);
+                    }
+                    return;
                 }
-                return rd;
+                rd.to(toUrl);
             }
             public void configure() {
                 RouteDefinition rd = from(fromUrl);
@@ -133,7 +144,7 @@ public class CamelMainSupport {
                 } else {
                     log.info("Creating Camel route from({}).to({})", fromUrl, toUrl);
                 }
-                getNextRoute(rd).to(toUrl);
+                setCustomRoute(rd, toUrl);
             }
         });
     }
