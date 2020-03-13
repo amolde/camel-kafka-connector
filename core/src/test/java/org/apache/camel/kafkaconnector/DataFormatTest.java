@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+
+import org.apache.camel.CamelContext;
 import org.apache.camel.component.hl7.HL7DataFormat;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.kafkaconnector.utils.CamelMainSupport;
@@ -48,8 +50,9 @@ public class DataFormatTest {
         Map<String, String> props = new HashMap<>();
         props.put("camel.sink.url", "direct://test");
         props.put("camel.sink.kafka.topic", "mytopic");
-        props.put("_camel.custom.route.configuration.list", "_camel.filter.expression");
-        props.put("_camel.filter.expression", "${body} contains 'abcd'");
+        props.put("test", "<route xmlns=\"http://camel.apache.org/schema/spring\" id=\"bar\"><from uri=\"direct:bar\"/><to uri=\"mock:bar\"/></route>");
+        // props.put("_camel.custom.route.configuration.list", "_camel.filter.expression");
+        // props.put("_camel.filter.expression", "${body} contains 'abcd'");
         props.put("camel.sink.unmarshal", "syslog");
 
         CamelSinkTask camelsinkTask = new CamelSinkTask();
