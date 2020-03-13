@@ -16,12 +16,8 @@
  */
 package org.apache.camel.kafkaconnector.utils;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
@@ -32,30 +28,26 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.CamelContextAware;
 import org.apache.camel.ConsumerTemplate;
 import org.apache.camel.Endpoint;
-import org.apache.camel.ExtendedCamelContext;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.main.BaseMainSupport;
 import org.apache.camel.main.Main;
 import org.apache.camel.main.MainListener;
-import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.model.RouteDefinition;
-import org.apache.camel.model.RoutesDefinition;
 import org.apache.camel.spi.DataFormat;
 import org.apache.camel.support.PropertyBindingSupport;
 import org.apache.camel.util.OrderedProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.support.PropertiesBeanDefinitionReader;
-import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
-import org.springframework.context.support.GenericApplicationContext;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.ClassPathResource;
-import org.xml.sax.InputSource;
+import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 public class CamelMainSupport {
     public static final String CAMEL_DATAFORMAT_PROPERTIES_PREFIX = "camel.dataformat.";
+    public static final String CAMEL_FIRST_CUSTOM_ROUTE_ID = "direct:customRoute00";
+    public static final String CAMEL_LAST_CUSTOM_ROUTE_ID = "direct:customRoute99";
+    public static final String CAMEL_SPRING_CONTEXT_BEAN_ID = "camelContext";
     private static Logger log = LoggerFactory.getLogger(CamelMainSupport.class);
 
     private Main camelMain;
@@ -64,33 +56,29 @@ public class CamelMainSupport {
     private final ExecutorService exService = Executors.newSingleThreadExecutor();
     private final CountDownLatch startFinishedSignal = new CountDownLatch(1);
 
-    public CamelMainSupport(Map<String, String> props, String fromUrl, String toUrl, String marshal, String unmarshal) throws Exception {
-        String customRoutes = props.get("test");
-        if(customRoutes != null && customRoutes.length() > 0) {
-            String completeCustomRoutes = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-            "<beans xmlns=\"http://www.springframework.org/schema/beans\" " +
-                "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " + 
-                "xmlns:util=\"http://www.springframework.org/schema/util\" " + 
-                "xsi:schemaLocation=\"http://www.springframework.org/schema/beans " +
-                      "http://www.springframework.org/schema/beans/spring-beans-4.2.xsd  " +
-                      "http://camel.apache.org/schema/spring " +
-                      "http://camel.apache.org/schema/spring/camel-spring.xsd " +
-                      "http://www.springframework.org/schema/util " +
-                      "http://www.springframework.org/schema/util/spring-util-4.2.xsd\">" +
-                "<camelContext xmlns=\"http://camel.apache.org/schema/spring\">" + customRoutes + "</camelContext></beans>";
-            
-            GenericApplicationContext ctx = new GenericApplicationContext();
-            XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(ctx);
-            xmlReader.loadBeanDefinitions(new ByteArrayResource(completeCustomRoutes.getBytes()));                    
-            ctx.refresh();
-            System.out.println(ctx.getBeanDefinitionNames());
+    private static String getCustomRoutesFile(Map<String, String> props) {
+        String customRoutesFile = props.get("test");
+        if(customRoutesFile != null && customRoutesFile.length() > 0) {
+            return customRoutesFile;
         }
-        this(props, fromUrl, toUrl, marshal, unmarshal, new DefaultCamelContext());
+        return null;
+    }
+
+    private static CamelContext getCamelContext(Map<String, String> props, CamelContext camelContext) {
+        String customRoutesFile = getCustomRoutesFile(props);
+        if(customRoutesFile != null) {
+            AbstractApplicationContext ctx = new FileSystemXmlApplicationContext(customRoutesFile);
+            return (CamelContext) ctx.getBean(CAMEL_SPRING_CONTEXT_BEAN_ID);
+        }
+        return camelContext == null ? new DefaultCamelContext() : camelContext;
+    }
+
+    public CamelMainSupport(Map<String, String> props, String fromUrl, String toUrl, String marshal, String unmarshal) throws Exception {
+        this(props, fromUrl, toUrl, marshal, unmarshal, null);
     }
 
     public CamelMainSupport(Map<String, String> props, String fromUrl, String toUrl, String marshal, String unmarshal, CamelContext camelContext) throws Exception {
-        log.info("Properties received: [{}]", props);
-        camel = camelContext;
+        camel = getCamelContext(props, camelContext);
         camelMain = new Main() {
             @Override
             protected ProducerTemplate findOrCreateCamelTemplate() {
@@ -107,112 +95,29 @@ public class CamelMainSupport {
 
         // reordering properties to place the one starting with "#class:" first
         Map<String, String> orderedProps = new LinkedHashMap<>();
-        props.keySet().stream().filter(k -> props.get(k).startsWith("#class:"))
+        props.keySet().stream()
+                .filter(k -> props.get(k).startsWith("#class:"))
                 .forEach(k -> orderedProps.put(k, props.get(k)));
-        props.keySet().stream().filter(k -> !props.get(k).startsWith("#class:"))
+        props.keySet().stream()
+                .filter(k -> !props.get(k).startsWith("#class:"))
                 .forEach(k -> orderedProps.put(k, props.get(k)));
 
         Properties camelProperties = new OrderedProperties();
-        log.info("OrderedProperties: [{}]", orderedProps);
         camelProperties.putAll(orderedProps);
 
         log.info("Setting initial properties in Camel context: [{}]", camelProperties);
         this.camel.getPropertiesComponent().setInitialProperties(camelProperties);
 
-        log.info("fromUrl received: [{}]", fromUrl);
         // creating the actual route
         this.camel.addRoutes(new RouteBuilder() {
-            private static final String CUSTOM_CAMEL_ROUTE_CONFIGURATION_LIST_CONF = "_camel.custom.route.configuration.list";
-            private static final String FILTER_CONFIG_KEY = "_camel.filter.expression";
-            private static final String TRANSFORM_CONFIG_KEY = "_camel.transform.expression";
-            private static final String SPLITTER_CONFIG_KEY = "_camel.splitter.expression";
-
-            private String getToUrl(String feature, int index) {
-                String toUrl;
-                switch(feature) {
-                    case SPLITTER_CONFIG_KEY:
-                        toUrl = "direct:splitter_";
-                        break;
-                    case TRANSFORM_CONFIG_KEY:
-                        toUrl = "direct:transform_";
-                        break;
-                    case FILTER_CONFIG_KEY:
-                        toUrl = "direct:filter_";
-                        break;
-                    default:
-                        toUrl = "direct:" + feature + "_";
+            private RouteDefinition getNextRoute(RouteDefinition rd) {
+                if(getCustomRoutesFile(props) != null) {
+                    rd.to(CAMEL_FIRST_CUSTOM_ROUTE_ID);
+                    return from(CAMEL_LAST_CUSTOM_ROUTE_ID);
                 }
-                return toUrl + index;
+                return rd;
             }
-
-            private void addFeatureRouteDefinition(String feature, String fromUrl, String toUrl) {
-                String featureExpression = props.get(feature);
-                RouteDefinition rd = from(fromUrl);
-                if(feature.startsWith(SPLITTER_CONFIG_KEY)) {
-                    rd.split().simple(featureExpression).to(toUrl);
-                    return;
-                }
-                if(feature.startsWith(TRANSFORM_CONFIG_KEY)) {
-                    rd.transform().simple(featureExpression).to(toUrl);
-                    return;
-                }
-                if(feature.startsWith(FILTER_CONFIG_KEY)) {
-                    rd.filter().simple(featureExpression).to(toUrl);
-                    return;
-                }
-                rd.to(toUrl);
-                return;
-            }
-
-            private void configureCustomRoutes(CamelContext context, RouteDefinition rd, String toUrl) {
-                String customRoutes = props.get("test");
-                if(customRoutes != null && customRoutes.length() > 0) {
-                    String completeCustomRoutes = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-                    "<beans xmlns=\"http://www.springframework.org/schema/beans\" " +
-                        "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " + 
-                        "xmlns:util=\"http://www.springframework.org/schema/util\" " + 
-                        "xsi:schemaLocation=\"http://www.springframework.org/schema/beans " +
-                              "http://www.springframework.org/schema/beans/spring-beans-4.2.xsd  " +
-                              "http://camel.apache.org/schema/spring " +
-                              "http://camel.apache.org/schema/spring/camel-spring.xsd " +
-                              "http://www.springframework.org/schema/util " +
-                              "http://www.springframework.org/schema/util/spring-util-4.2.xsd\">" +
-                        "<camelContext xmlns=\"http://camel.apache.org/schema/spring\">" + customRoutes + "</camelContext></beans>";
-                    GenericApplicationContext ctx = new GenericApplicationContext();
-                    XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(ctx);
-                    xmlReader.loadBeanDefinitions(new ByteArrayResource(completeCustomRoutes.getBytes()));                    
-                    ctx.refresh();
-                    System.out.println(ctx.getBeanDefinitionNames());
-                }
-                /*
-                final String camelCustomConfigurations = props.get(CUSTOM_CAMEL_ROUTE_CONFIGURATION_LIST_CONF);
-                if(camelCustomConfigurations != null && camelCustomConfigurations.length() > 0) {
-                    // final List<String> camelRouteConfigurationList = Arrays.asList(SPLITTER_CONFIG_KEY, FILTER_CONFIG_KEY, TRANSFORM_CONFIG_KEY);
-                    final List<String> camelRouteConfigurationList = Arrays.asList(camelCustomConfigurations.split("\\s*,\\s*"));
-                    if(camelRouteConfigurationList != null && camelRouteConfigurationList.size() > 0) {
-                        rd.to(getToUrl(camelRouteConfigurationList.get(0), 0));
-                        for(int i = 0; i < camelRouteConfigurationList.size(); i++) {
-                            String customRouteFromUrl = getToUrl(camelRouteConfigurationList.get(i), i);
-                            String customRouteToUrl = toUrl;
-                            int nextIndex = i + 1;
-                            if(nextIndex < camelRouteConfigurationList.size()) {
-                                toUrl = getToUrl(camelRouteConfigurationList.get(nextIndex), nextIndex);
-                            }
-                            addFeatureRouteDefinition(
-                                camelRouteConfigurationList.get(i),
-                                customRouteFromUrl,
-                                customRouteToUrl
-                            );
-                        }
-                        return;
-                    }
-                }
-                */
-                rd.to(toUrl);
-            }
-
             public void configure() {
-                log.info("fromUrl value: [{}]", fromUrl);
                 RouteDefinition rd = from(fromUrl);
                 if (marshal != null && unmarshal != null) {
                     throw new UnsupportedOperationException("Uses of both marshal (i.e. " + marshal + ") and unmarshal (i.e. " + unmarshal + ") is not supported");
@@ -227,7 +132,7 @@ public class CamelMainSupport {
                 } else {
                     log.info("Creating Camel route from({}).to({})", fromUrl, toUrl);
                 }
-                configureCustomRoutes(camel, rd, toUrl);
+                getNextRoute(rd).to(toUrl);
             }
         });
     }
@@ -284,7 +189,13 @@ public class CamelMainSupport {
             CamelContextAware.trySetCamelContext(df, camel);
 
             if (!props.isEmpty()) {
-                PropertyBindingSupport.build().withCamelContext(camel).withOptionPrefix(prefix).withRemoveParameters(false).withProperties((Map) props).withTarget(df).bind();
+                PropertyBindingSupport.build()
+                        .withCamelContext(camel)
+                        .withOptionPrefix(prefix)
+                        .withRemoveParameters(false)
+                        .withProperties((Map) props)
+                        .withTarget(df)
+                        .bind();
             }
         }
 
