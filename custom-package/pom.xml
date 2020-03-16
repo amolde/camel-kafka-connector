@@ -104,6 +104,11 @@
       <artifactId>camel-xslt-kafka-connector</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.camel.kafkaconnector</groupId>
+      <artifactId>camel-xslt-saxon-kafka-connector</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <!-- <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-xstream</artifactId>
@@ -126,6 +131,24 @@
         <configuration>
           <failIfNoTests>false</failIfNoTests>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.googlecode.maven-download-plugin</groupId>
+        <artifactId>download-maven-plugin</artifactId>
+        <version>1.5.0</version>
+        <executions>
+          <execution>
+            <id>download-functx-xslt-library</id>
+            <phase>package</phase>
+            <goals>
+              <goal>wget</goal>
+            </goals>
+            <configuration>
+              <url>http://www.xsltfunctions.com/xsl/functx-1.0.1-nodoc.xsl</url>
+              <outputDirectory>${project.build.directory}/external-resources/</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

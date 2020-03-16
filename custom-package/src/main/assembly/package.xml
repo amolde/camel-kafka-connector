@@ -36,6 +36,13 @@
       </includes>
     </fileSet>
     <fileSet>
+      <directory>${project.build.directory}/external-resources</directory>
+      <outputDirectory>share/java/${project.artifactId}/external-resources/</outputDirectory>
+      <includes>
+        <include>*.xsl</include>
+      </includes>
+    </fileSet>
+    <fileSet>
       <directory>${project.basedir}/config</directory>
       <outputDirectory>etc/${project.artifactId}</outputDirectory>
       <includes>
