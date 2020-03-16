@@ -16,9 +16,9 @@
  */
 package org.apache.camel.kafkaconnector.converters;
 
+import java.io.InputStream;
 import java.util.Map;
 
-import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.SchemaAndValue;
 import org.apache.kafka.connect.storage.Converter;
@@ -33,7 +33,7 @@ public class StreamConverter implements Converter {
 
     @Override
     public byte[] fromConnectData(String topic, Schema schema, Object value) {
-        return serializer.serialize(topic, (S3ObjectInputStream) value);
+        return serializer.serialize(topic, (InputStream) value);
     }
 
     @Override

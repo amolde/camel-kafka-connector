@@ -16,9 +16,9 @@
  */
 package org.apache.camel.kafkaconnector.converters;
 
+import java.io.InputStream;
 import java.util.Map;
 
-import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.connect.connector.ConnectRecord;
 import org.apache.kafka.connect.data.Schema;
@@ -37,7 +37,7 @@ public class InputStreamTransformer<R extends ConnectRecord<R>> implements Trans
 
     @Override
     public R apply(R record) {
-        byte[] v = serializer.serialize(record.topic(), (S3ObjectInputStream) record.value());
+        byte[] v = serializer.serialize(record.topic(), (InputStream) record.value());
         String finalValue = new String(v);
         return record.newRecord(record.topic(), record.kafkaPartition(), null, record.key(), Schema.STRING_SCHEMA, finalValue, record.timestamp());
     }
