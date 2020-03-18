@@ -1,15 +1,12 @@
 How to set environment variables like this?
 https://camel.apache.org/components/latest/servicenow-component.html
+through configmap and secrets?
 
 configmaps and secrets
 
 Salesforce
 CDC et al
 https://camel.apache.org/components/latest/salesforce-component.html
-
-
-How to prettify XML?
-There are new line characters et al in the output
 
 
 JSONata component?
@@ -25,6 +22,7 @@ https://camel.apache.org/components/latest/jolt-component.html
 
 XML2JSON
 https://camel.apache.org/components/latest/dozer-component.html
+
 
 scp/sftp/ftp/ftps
 https://camel.apache.org/components/latest/scp-component.html
