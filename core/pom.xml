@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.camel.kafkaconnector</groupId>
         <artifactId>parent</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>0.4.0-SNAPSHOT</version>
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
 
@@ -37,7 +37,11 @@
         <!--  Camel -->
         <dependency>
             <groupId>org.apache.camel</groupId>
-            <artifactId>camel-core</artifactId>
+            <artifactId>camel-core-engine</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-core-catalog</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
@@ -45,64 +49,23 @@
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
-            <artifactId>camel-spring</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-        </dependency>
-
-        <!--  Camel components  -->
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-cassandraql</artifactId>
-            <exclusions>
-               <exclusion>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-               </exclusion>
-            </exclusions>
-            <scope>provided</scope>
+            <artifactId>camel-seda</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
-            <artifactId>camel-telegram</artifactId>
-            <scope>provided</scope>
+            <artifactId>camel-direct</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
-            <artifactId>camel-aws-sqs</artifactId>
-            <scope>provided</scope>
+            <artifactId>camel-timer</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
-            <artifactId>camel-aws-s3</artifactId>
-            <scope>provided</scope>
+            <artifactId>camel-log</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
-            <artifactId>camel-aws-sns</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-aws-kinesis</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-syslog</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-http</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-elasticsearch-rest</artifactId>
-            <scope>test</scope>
+            <artifactId>camel-core-languages</artifactId>
         </dependency>
         <!-- Kafka -->
         <dependency>
@@ -125,6 +88,11 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-ext</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -157,7 +125,11 @@
             <artifactId>camel-debezium-common</artifactId>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-cassandraql</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

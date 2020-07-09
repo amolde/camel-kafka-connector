@@ -22,11 +22,11 @@
   <parent>
     <groupId>org.apache.camel.kafkaconnector</groupId>
     <artifactId>connectors</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.4.0-SNAPSHOT</version>
   </parent>
   <artifactId>camel-stomp-kafka-connector</artifactId>
   <name>Camel-Kafka-Connector :: stomp</name>
-  <description>Camel Kafka Connector for camel-stomp</description>
+  <description>Camel Kafka Connector for stomp</description>
   <dependencies>
     <!-- Kafka -->
     <dependency>
@@ -111,6 +111,18 @@
       <id>atlassian-public</id>
       <url>https://packages.atlassian.com/maven-external</url>
       <name>Atlassian Public Repo</name>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+    </repository>
+    <!-- camel-ipfs and camel-weka -->
+    <repository>
+      <id>jboss.thirdparty</id>
+      <name>JBoss Thirdparty Repository</name>
+      <url>https://repository.jboss.org/nexus/service/local/repositories/thirdparty-releases/content/</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>

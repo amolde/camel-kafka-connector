@@ -19,16 +19,17 @@
 
 -->
 <assembly>
-  <!-- Assembles a packaged version targeting OS installation. XXXX-->
+  <!-- Assembles a packaged version targeting OS installation. -->
   <id>package</id>
   <formats>
-    <format>dir</format>
+    <format>zip</format>
+    <format>tar.gz</format>
   </formats>
   <includeBaseDirectory>false</includeBaseDirectory>
   <fileSets>
     <fileSet>
       <directory><#noparse>${project.basedir}/../..</#noparse></directory>
-      <outputDirectory><#noparse>share/doc/${project.artifactId}/</#noparse></outputDirectory>
+      <outputDirectory><#noparse>${project.artifactId}/</#noparse></outputDirectory>
       <includes>
         <include>README*</include>
         <include>LICENSE*</include>
@@ -37,16 +38,16 @@
       </includes>
     </fileSet>
     <fileSet>
-      <directory><#noparse>${project.basedir}/config</#noparse></directory>
-      <outputDirectory><#noparse>etc/${project.artifactId}</#noparse></outputDirectory>
+      <directory><#noparse>${project.basedir}/src/main/docs</#noparse></directory>
+      <outputDirectory><#noparse>docs/</#noparse></outputDirectory>
       <includes>
-        <include>*</include>
+        <include>**/*</include>
       </includes>
     </fileSet>
   </fileSets>
   <dependencySets>
     <dependencySet>
-      <outputDirectory><#noparse>share/java/${project.artifactId}</#noparse></outputDirectory>
+      <outputDirectory><#noparse>${project.artifactId}/</#noparse></outputDirectory>
       <useProjectArtifact>true</useProjectArtifact>
       <useTransitiveFiltering>true</useTransitiveFiltering>
       <excludes>

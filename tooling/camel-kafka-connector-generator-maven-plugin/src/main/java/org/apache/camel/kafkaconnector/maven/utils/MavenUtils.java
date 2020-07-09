@@ -18,9 +18,11 @@ package org.apache.camel.kafkaconnector.maven.utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -56,8 +58,13 @@ import freemarker.cache.URLTemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import org.apache.camel.tooling.util.PackageHelper;
+import org.apache.camel.tooling.util.srcgen.JavaClass;
 import org.apache.commons.io.IOUtils;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
+
+import static org.apache.camel.maven.packaging.AbstractGeneratorMojo.updateResource;
 
 public final class MavenUtils {
 
@@ -183,7 +190,8 @@ public final class MavenUtils {
                 String[] comps = dep.split("\\:");
                 String groupIdStr = comps[0];
                 String artifactIdStr = comps[1];
-                String versionStr = comps.length > 2 ? comps[2] : null;
+                String versionStr = comps.length > 2 && !comps[2].isEmpty() ? comps[2] : null;
+                String scopeStr = comps.length > 3 ? comps[3] : null;
 
                 Element groupId = pom.createElement("groupId");
                 groupId.setTextContent(groupIdStr);
@@ -197,6 +205,12 @@ public final class MavenUtils {
                     Element version = pom.createElement("version");
                     version.setTextContent(versionStr);
                     dependency.appendChild(version);
+                }
+
+                if (scopeStr != null) {
+                    Element scope = pom.createElement("scope");
+                    scope.setTextContent(scopeStr);
+                    dependency.appendChild(scope);
                 }
 
             }
@@ -218,21 +232,6 @@ public final class MavenUtils {
         DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         return builder.parse(bin);
     }
-
-//    public static Template getTemplate(String name) throws IOException {
-//        Configuration cfg = new Configuration(Configuration.getVersion());
-//
-//        cfg.setTemplateLoader(new URLTemplateLoader() {
-//            @Override
-//            protected URL getURL(String name) {
-//                return CamelKafkaConnectorUpdateMojo.class.getResource("/" + name);
-//            }
-//        });
-//
-//        cfg.setDefaultEncoding("UTF-8");
-//        Template template = cfg.getTemplate(name);
-//        return template;
-//    }
 
     public static Template getTemplate(File templateFile) throws IOException {
         Configuration cfg = new Configuration(Configuration.getVersion());
@@ -265,5 +264,43 @@ public final class MavenUtils {
             set.add(s.trim());
         }
         return set;
+    }
+
+    public static void writeSourceIfChanged(JavaClass source, String fileName, boolean innerClassesLast, File baseDir, File javaFileHeader) throws MojoFailureException {
+        writeSourceIfChanged(source.printClass(innerClassesLast), fileName, baseDir, javaFileHeader);
+    }
+
+    public static void writeSourceIfChanged(String source, String fileName, File baseDir, File javaFileHeader) throws MojoFailureException {
+        //TODO: Do not write class if a class already exist and has no @generated annotation.
+        File target = new File(new File(baseDir, "src/main/java"), fileName);
+
+        deleteFile(baseDir, target);
+
+        try {
+            String header;
+            try (InputStream is = new FileInputStream(javaFileHeader)) {
+                header = PackageHelper.loadText(is);
+            }
+            String code = header + source;
+
+            updateResource(null, target.toPath(), code);
+        } catch (Exception e) {
+            throw new MojoFailureException("IOError with file " + target, e);
+        }
+    }
+
+    public static void deleteFile(File baseDir, File targetFile) {
+        String relativePath = baseDir.toPath().relativize(targetFile.toPath()).toString();
+        File mainArtifactFile = new File(baseDir, relativePath);
+        if (mainArtifactFile.exists()) {
+            boolean deleted = mainArtifactFile.delete();
+            if (!deleted) {
+                throw new IllegalStateException("Cannot delete file " + mainArtifactFile);
+            }
+        }
+    }
+
+    public static String sanitizeMavenArtifactId(String toBesanitizedArtifactId) {
+        return toBesanitizedArtifactId != null ? toBesanitizedArtifactId.toLowerCase().replaceAll("[^A-Za-z0-9]", "-") : null;
     }
 }

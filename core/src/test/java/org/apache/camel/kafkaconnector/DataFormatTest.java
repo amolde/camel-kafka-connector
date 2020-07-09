@@ -19,7 +19,6 @@ package org.apache.camel.kafkaconnector;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.camel.component.hl7.HL7DataFormat;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.kafkaconnector.utils.CamelMainSupport;
@@ -28,14 +27,15 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DataFormatTest {
 
     @Test
-    public void testDataFormatSource() throws JsonProcessingException, InterruptedException {
+    public void testDataFormatSource() {
         Map<String, String> props = new HashMap<>();
         props.put("camel.source.url", "direct://test");
-        props.put("camel.source.kafka.topic", "mytopic");
+        props.put("topics", "mytopic");
         props.put("camel.source.marshal", "syslog");
 
         CamelSourceTask camelsourceTask = new CamelSourceTask();
@@ -44,7 +44,7 @@ public class DataFormatTest {
     }
 
     @Test
-    public void testDataFormatSink() throws JsonProcessingException, InterruptedException {
+    public void testDataFormatSink() {
         Map<String, String> props = new HashMap<>();
         props.put("camel.sink.url", "direct://test");
         props.put("camel.sink.kafka.topic", "mytopic");
@@ -75,7 +75,7 @@ public class DataFormatTest {
 
 
         assertThrows(UnsupportedOperationException.class, () -> new CamelMainSupport(props, "direct://start",
-                "log://test", "syslog", "syslog"));
+                "log://test", "syslog", "syslog", 10, 500));
     }
 
     @Test
@@ -87,7 +87,7 @@ public class DataFormatTest {
         props.put("camel.source.marshal", "hl7");
 
         DefaultCamelContext dcc = new DefaultCamelContext();
-        CamelMainSupport cms = new CamelMainSupport(props, "direct://start", "log://test", null, "hl7", dcc);
+        CamelMainSupport cms = new CamelMainSupport(props, "direct://start", "log://test", null, "hl7", 10, 500, dcc);
 
         HL7DataFormat hl7df = new HL7DataFormat();
         hl7df.setValidate(false);
@@ -103,16 +103,16 @@ public class DataFormatTest {
     public void testDataFormatConfiguration() throws Exception {
         Map<String, String> props = new HashMap<>();
         props.put("camel.source.url", "direct://test");
-        props.put("camel.source.kafka.topic", "mytopic");
+        props.put("topics", "mytopic");
         props.put("camel.source.marshal", "hl7");
         props.put("camel.dataformat.hl7.validate", "false");
 
         DefaultCamelContext dcc = new DefaultCamelContext();
-        CamelMainSupport cms = new CamelMainSupport(props, "direct://start", "log://test", null, "hl7", dcc);
+        CamelMainSupport cms = new CamelMainSupport(props, "direct://start", "log://test", null, "hl7", 10, 500, dcc);
 
         cms.start();
         HL7DataFormat hl7dfLoaded = dcc.getRegistry().lookupByNameAndType("hl7", HL7DataFormat.class);
-        assertFalse(hl7dfLoaded.isValidate());
+        assertTrue(hl7dfLoaded.isValidate());
         cms.stop();
     }
 }

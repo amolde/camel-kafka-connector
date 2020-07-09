@@ -21,14 +21,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache</groupId>
-        <artifactId>apache</artifactId>
-        <version>21</version>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-dependencies</artifactId>
+        <version>3.4.0</version>
     </parent>
 
     <groupId>org.apache.camel.kafkaconnector</groupId>
     <artifactId>camel-kafka-connector-aggregator</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.4.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Camel-Kafka-Connector :: Root</name>
@@ -39,14 +39,16 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
         <maven-deploy-plugin.version>3.0.0-M1</maven-deploy-plugin.version>
+        <maven-surefire-plugin.version>3.0.0-M4</maven-surefire-plugin.version>
         <maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
+        <maven-assembly-plugin.version>3.1.1</maven-assembly-plugin.version>
         <maven-source-plugin.version>3.1.0</maven-source-plugin.version>
+        <maven-checksum-maven-plugin.version>1.7</maven-checksum-maven-plugin.version>
     </properties>
 
     <modules>
         <module>parent</module>
         <module>core</module>
-        <module>tests</module>
         <module>buildingtools</module>
         <module>tooling</module>
         <module>connectors</module>
@@ -284,7 +286,7 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <additionalOptions>${javadoc.opts}</additionalOptions>
+                            <doclint>none</doclint>
                         </configuration>
                     </plugin>
                     <!-- We want to sign the artifact, the POM, and all attached artifacts -->
@@ -301,6 +303,61 @@
                                 <goals>
                                     <goal>sign</goal>
                                 </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>net.nicoulaj.maven.plugins</groupId>
+                        <artifactId>checksum-maven-plugin</artifactId>
+                        <version>${maven-checksum-maven-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>source-release-checksum</id>
+                                <goals>
+                                    <goal>files</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <algorithms>
+                                <algorithm>SHA-512</algorithm>
+                            </algorithms>
+                            <csvSummary>false</csvSummary>
+                            <fileSets>
+                                <fileSet>
+                                    <directory>${project.build.directory}</directory>
+                                    <includes>
+                                        <include>${project.artifactId}-${project.version}.jar</include>
+                                        <include>${project.artifactId}-${project.version}-package.zip</include>
+                                        <include>${project.artifactId}-${project.version}-package.tar*</include>
+                                    </includes>
+                                </fileSet>
+                            </fileSets>
+                            <failIfNoFiles>false</failIfNoFiles><!-- usually, no file to do checksum: don't consider error -->
+                        </configuration>
+                    </plugin>
+                <plugin>
+                     <groupId>org.apache.maven.plugins</groupId>
+                     <artifactId>maven-assembly-plugin</artifactId>
+                     <version>${maven-assembly-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>camel-kafka-connector-assembly</id>
+                                <phase />
+                            </execution>
+                            <execution>
+                                <id>camel-kafka-connector-source-assembly</id>
+                                <phase>package</phase>
+                                <inherited>false</inherited>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                                <configuration>
+                                    <descriptors>
+                                        <descriptor>tooling/descriptors/src.xml</descriptor>
+                                    </descriptors>
+                                    <tarLongFileMode>gnu</tarLongFileMode>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>

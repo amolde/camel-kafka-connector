@@ -19,6 +19,7 @@ package org.apache.camel.kafkaconnector.maven;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -67,6 +68,9 @@ public class GenerateCamelKafkaConnectorsMojo extends AbstractCamelKafkaConnecto
     private static final String GENERATED_SECTION_END = "END OF GENERATED CODE";
     private static final String GENERATED_SECTION_END_COMMENT = "<!--" + GENERATED_SECTION_END + "-->";
 
+    @Parameter(property = "overridePomFile", required = false, defaultValue = "false")
+    protected Boolean overridePomFile;
+
     /**
      * The maven session.
      */
@@ -75,12 +79,18 @@ public class GenerateCamelKafkaConnectorsMojo extends AbstractCamelKafkaConnecto
 
     @Component
     private BuildPluginManager pluginManager;
-
+    
     /**
      * The Camel Component Filter to select for which components generate the corresponding camel kafka connector.
      */
     @Parameter(defaultValue = "", readonly = true)
     private String filter;
+
+    /**
+     * The Camel Component Exclusion List to select for which components must be skipped while generating kafka connector.
+     */
+    @Parameter(defaultValue = "", readonly = true)
+    private List excludedComponents = Collections.EMPTY_LIST;
 
     @Component
     private ProjectDependenciesResolver projectDependenciesResolver;
@@ -97,22 +107,34 @@ public class GenerateCamelKafkaConnectorsMojo extends AbstractCamelKafkaConnecto
     protected void executeAll() throws MojoExecutionException, IOException, ResourceNotFoundException, FileResourceCreationException {
         CamelCatalog cc = new DefaultCamelCatalog();
         List<String> components;
+        List<String> filteredComponents;
         if (filter == null || filter.isEmpty()) {
             components = cc.findComponentNames();
         } else {
             Set<String> filterComponentNames = new HashSet<>(Arrays.asList(filter.split(",")));
             components = cc.findComponentNames().stream().filter(componentName -> filterComponentNames.contains(componentName)).collect(Collectors.toList());
         }
-        getLog().debug("Components found to be generated/updated: " + components);
+        if (excludedComponents == null || excludedComponents.isEmpty()) {
+            filteredComponents = components;
+        } else {
+            filteredComponents = components.stream().filter(component -> !excludedComponents.contains(component)).collect(Collectors.toList());
+        }
+        if (filter != null && !filter.isEmpty()) {
+            getLog().info("Filtered Components that will be generated: " + filter);
+        }
+        if (excludedComponents != null && !excludedComponents.isEmpty()) {
+            getLog().info("Excluded Components that won't be generated: " + excludedComponents);
+        }
+        getLog().info("Components found to be generated/updated: " + filteredComponents);
 
-        //TODO: evaluate dataformats to include in each camel kafka connector generated placing them as a
-        // commma separatev GAV in:
+        //TODO: evaluate dataformats to include in each camel kafka connector generated placing them as a comma separated GAV in:
         String additionalDependencies = "";
 
         final Properties properties = new Properties();
         properties.load(new FileInputStream(rm.getResourceAsFile("project.properties")));
-        for (String component : components) {
-            ComponentModel cm = JsonMapper.generateComponentModel(cc.componentJSonSchema(component));
+        for (String component : filteredComponents) {
+            String cJson = cc.componentJSonSchema(component);
+            ComponentModel cm = JsonMapper.generateComponentModel(cJson);
 
             executeMojo(
                     plugin(
@@ -122,14 +144,14 @@ public class GenerateCamelKafkaConnectorsMojo extends AbstractCamelKafkaConnecto
                     ),
                     goal("camel-kafka-connector-create"),
                     configuration(
-                            element(name("name"), cm.getArtifactId().substring("camel-".length())),
+                            element(name("name"), component),
+                            element(name("componentJson"), cJson),
                             element(name("initialPomTemplate"), initialPomTemplate),
                             element(name("noticeTemplate"), noticeTemplate),
                             element(name("licenseTemplate"), licenseTemplate),
                             element(name("fixDependenciesProperties"), fixDependenciesProperties),
-                            element(name("packageFileTemplate"), packageFileTemplate)
-
-
+                            element(name("packageFileTemplate"), packageFileTemplate),
+                            element(name("overridePomFile"), overridePomFile.toString())
                     ),
                     executionEnvironment(
                             project,
@@ -147,7 +169,8 @@ public class GenerateCamelKafkaConnectorsMojo extends AbstractCamelKafkaConnecto
                     goal("camel-kafka-connector-update"),
                     configuration(
                             element(name("additionalDependencies"), additionalDependencies),
-                            element(name("name"), cm.getArtifactId().substring("camel-".length())),
+                            element(name("name"), component),
+                            element(name("componentJson"), cJson),
                             element(name("initialPomTemplate"), initialPomTemplate),
                             element(name("noticeTemplate"), noticeTemplate),
                             element(name("licenseTemplate"), licenseTemplate),

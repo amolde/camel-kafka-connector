@@ -80,14 +80,38 @@ public abstract class AbstractCamelKafkaConnectorMojo extends AbstractMojo {
     /**
      * Package file template to be placed in src/main/assembly/package.xml.
      */
-    @Parameter(defaultValue = "camel-kafka-connecotr-template-package.template")
+    @Parameter(defaultValue = "camel-kafka-connector-template-package.template")
     protected String packageFileTemplate;
+
+    /**
+     * Example Connector Source file template.
+     */
+    @Parameter(defaultValue = "camel-kafka-connector-template-example-source-properties.template")
+    protected String exampleSourcePropertiesFileTemplate;
+
+    /**
+     * Example Connector Sink file template.
+     */
+    @Parameter(defaultValue = "camel-kafka-connector-template-example-sink-properties.template")
+    protected String exampleSinkPropertiesFileTemplate;
+
+    /**
+     * Java file header to be placed at the start of every generated .java file.
+     */
+    @Parameter(defaultValue = "camel-kafka-connector-java-header.txt")
+    protected String javaFilesHeader;
 
     /**
      * The project directory
      */
     @Parameter(defaultValue = "${basedir}")
     protected File projectDir;
+    
+    /**
+     * The project directory
+     */
+    @Parameter(defaultValue = "${basedir}/../")
+    protected File projectBaseDir;
 
     /**
      * The maven project.
@@ -106,14 +130,9 @@ public abstract class AbstractCamelKafkaConnectorMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         configureResourceManager();
         if (!project.getArtifactId().equals(connectorsProjectName)) {
+            getLog().debug("Skipping project " + project.getArtifactId() + " since it is not " + connectorsProjectName + " can be configured with <connectors-project-name> option.");
             return;
         }
-        //TODO: Do not generate code for ignored module
-        //        if (isIgnore(getMainDepArtifactId())) {
-        //            getLog().info("Skipping module contained in the ignore list");
-        //            return;
-        //        }
-
         try {
             executeAll();
         } catch (IOException | ResourceNotFoundException | FileResourceCreationException e) {
@@ -126,10 +145,6 @@ public abstract class AbstractCamelKafkaConnectorMojo extends AbstractMojo {
         File dir = project.getFile().getParentFile();
         rm.addSearchPath(FileResourceLoader.ID, dir.getAbsolutePath());
         rm.addSearchPath("url", "");
-    }
-
-    protected boolean isIgnore(String artifactId) {
-        return false;
     }
 
     protected abstract String getMainDepArtifactId();
@@ -151,18 +166,6 @@ public abstract class AbstractCamelKafkaConnectorMojo extends AbstractMojo {
     protected JarFile getJarFile(String groupId, String artifactId) throws IOException {
         return new JarFile(project.getArtifactMap().get(groupId + ":" + artifactId).getFile());
     }
-
-    //TODO: reneamble this if needed to generate connector classes
-//    protected Map<String, Supplier<String>> getJSonFiles(JarFile componentJar) {
-//        Artifact mainDep = getMainDep();
-//        Map<String, Supplier<String>> files;
-//        files = componentJar.stream()
-//                .filter(je -> je.getName().endsWith(".json"))
-//                .collect(Collectors.toMap(
-//                    je -> "jar:" + mainDep.getFile().toURI().toString() + "!" + je.getName(),
-//                    je -> cache(() -> loadJson(componentJar, je))));
-//        return files;
-//    }
 
     protected List<String> findComponentNames(JarFile componentJar) {
         return findNames(componentJar, "META-INF/services/org/apache/camel/component/");

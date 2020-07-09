@@ -22,11 +22,11 @@
   <parent>
     <groupId>org.apache.camel.kafkaconnector</groupId>
     <artifactId>connectors</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.4.0-SNAPSHOT</version>
   </parent>
   <artifactId>camel-elytron-kafka-connector</artifactId>
   <name>Camel-Kafka-Connector :: elytron</name>
-  <description>Camel Kafka Connector for camel-elytron</description>
+  <description>Camel Kafka Connector for elytron</description>
   <dependencies>
     <!-- Kafka -->
     <dependency>

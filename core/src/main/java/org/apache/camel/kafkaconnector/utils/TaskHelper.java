@@ -16,14 +16,32 @@
  */
 package org.apache.camel.kafkaconnector.utils;
 
+import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.camel.LoggingLevel;
+import org.apache.camel.catalog.RuntimeCamelCatalog;
+import org.apache.camel.kafkaconnector.CamelSinkConnectorConfig;
+import org.apache.camel.kafkaconnector.CamelSourceConnectorConfig;
+import org.apache.kafka.common.config.AbstractConfig;
+import org.apache.kafka.connect.connector.ConnectRecord;
+import org.apache.kafka.connect.source.SourceRecord;
+import org.slf4j.Logger;
+
 public final class TaskHelper {
 
     private TaskHelper() {
+    }
+
+    public static String buildUrl(RuntimeCamelCatalog rcc, Map<String, String> props, String componentSchema, String endpointPropertiesPrefix, String pathPropertiesPrefix) throws URISyntaxException {
+        Map<String, String> filteredProps = new HashMap<>();
+        props.keySet().stream()
+                .filter(k -> k.startsWith(endpointPropertiesPrefix) || k.startsWith(pathPropertiesPrefix))
+                .forEach(k -> filteredProps.put(k.replace(endpointPropertiesPrefix, "").replace(pathPropertiesPrefix, ""), props.get(k)));
+        return rcc.asEndpointUri(componentSchema, filteredProps, false);
     }
 
     public static String buildUrl(Map<String, String> props, String componentSchema, String endpointPropertiesPrefix, String pathPropertiesPrefix) {
@@ -82,4 +100,39 @@ public final class TaskHelper {
         }
         return false;
     }
+
+    public static <CFG extends AbstractConfig> void logRecordContent(Logger logger, ConnectRecord<?> record, CFG config) {
+        if (logger != null && record != null && config != null) {
+            // do not log record's content by default, as it may contain sensitive information
+            LoggingLevel level = LoggingLevel.OFF;
+            try {
+                final String key = (record instanceof SourceRecord)
+                    ? CamelSourceConnectorConfig.CAMEL_SOURCE_CONTENT_LOG_LEVEL_CONF
+                    : CamelSinkConnectorConfig.CAMEL_SINK_CONTENT_LOG_LEVEL_CONF;
+                level = LoggingLevel.valueOf(config.getString(key).toUpperCase());
+            } catch (Exception e) {
+                logger.warn("Invalid value for contentLogLevel property");
+            }
+            switch (level) {
+                case TRACE:
+                    logger.trace(record.toString());
+                    break;
+                case DEBUG:
+                    logger.debug(record.toString());
+                    break;
+                case INFO:
+                    logger.info(record.toString());
+                    break;
+                case WARN:
+                    logger.warn(record.toString());
+                    break;
+                case ERROR:
+                    logger.error(record.toString());
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
 }
