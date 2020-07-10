@@ -22,8 +22,8 @@
   <parent>
     <groupId>org.apache.camel.kafkaconnector</groupId>
     <artifactId>connectors</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <relativePath>../connectors/pom.xml</relativePath>    
+    <version>0.4.0-SNAPSHOT</version>
+    <relativePath>../connectors/pom.xml</relativePath>
   </parent>
   <artifactId>custom-camel-kafka-connector</artifactId>
   <name>Camel-Kafka-Connector :: custom</name>
@@ -142,24 +142,7 @@
           <failIfNoTests>false</failIfNoTests>
         </configuration>
       </plugin>
-      <plugin>
-        <groupId>com.googlecode.maven-download-plugin</groupId>
-        <artifactId>download-maven-plugin</artifactId>
-        <version>1.5.0</version>
-        <executions>
-          <execution>
-            <id>download-functx-xslt-library</id>
-            <phase>package</phase>
-            <goals>
-              <goal>wget</goal>
-            </goals>
-            <configuration>
-              <url>http://www.xsltfunctions.com/xsl/functx-1.0.1-nodoc.xsl</url>
-              <outputDirectory>${project.build.directory}/external-resources/</outputDirectory>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
+
       <plugin>
         <groupId>org.apache.camel.maven</groupId>
         <artifactId>camel-salesforce-maven-plugin</artifactId>
@@ -284,11 +267,6 @@
     </plugins>
   </build>
   <repositories>
-    <repository>
-      <id>confluent</id>
-      <name>Confluent</name>
-      <url>${confluent.maven.repo}</url>
-    </repository>
     <!-- camel-jira -->
     <repository>
       <id>atlassian-public</id>
@@ -300,6 +278,23 @@
       <releases>
         <enabled>true</enabled>
       </releases>
+    </repository>
+    <!-- camel-ipfs and camel-weka -->
+    <repository>
+      <id>jboss.thirdparty</id>
+      <name>JBoss Thirdparty Repository</name>
+      <url>https://repository.jboss.org/nexus/service/local/repositories/thirdparty-releases/content/</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+    </repository>
+    <repository>
+      <id>confluent</id>
+      <name>Confluent</name>
+      <url>${confluent.maven.repo}</url>
     </repository>
   </repositories>
 </project>

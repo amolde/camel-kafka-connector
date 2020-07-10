@@ -73,8 +73,9 @@ public class CamelSinkTask extends SinkTask {
             final int size = config.getInt(CamelSinkConnectorConfig.CAMEL_SINK_AGGREGATE_SIZE_CONF);
             final long timeout = config.getLong(CamelSinkConnectorConfig.CAMEL_SINK_AGGREGATE_TIMEOUT_CONF);
 
-            CamelContext camelContext = new DefaultCamelContext();
+            CamelContext camelContext = null;
             if (remoteUrl == null) {
+                camelContext = new DefaultCamelContext();
                 remoteUrl = TaskHelper.buildUrl(camelContext.adapt(ExtendedCamelContext.class).getRuntimeCamelCatalog(),
                                                 actualProps,
                                                 config.getString(CamelSinkConnectorConfig.CAMEL_SINK_COMPONENT_CONF),

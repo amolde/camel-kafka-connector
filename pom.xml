@@ -54,7 +54,7 @@
         <module>connectors</module>
         <module>transformers</module>
         <module>custom-package</module>
-	<module>tests</module>
+        <module>tests</module>
     </modules>
 
     <developers>

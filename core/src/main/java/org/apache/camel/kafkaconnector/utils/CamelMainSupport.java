@@ -84,12 +84,13 @@ public class CamelMainSupport {
         }
         return camelContext == null ? new DefaultCamelContext() : camelContext;
     }
+
     public CamelMainSupport(Map<String, String> props, String fromUrl, String toUrl, String marshal, String unmarshal, int aggregationSize, long aggregationTimeout) throws Exception {
-        this(props, fromUrl, toUrl, marshal, unmarshal, aggregationSize, aggregationTimeout, new DefaultCamelContext());
+        this(props, fromUrl, toUrl, marshal, unmarshal, aggregationSize, aggregationTimeout, null);
     }
 
     public CamelMainSupport(Map<String, String> props, String fromUrl, String toUrl, String marshal, String unmarshal, int aggregationSize, long aggregationTimeout, CamelContext camelContext) throws Exception {
-	camel = getCamelContext(props, camelContext);
+        camel = getCamelContext(props, camelContext);
         camelMain = new Main() {
             @Override
             protected ProducerTemplate findOrCreateCamelTemplate() {
@@ -131,7 +132,7 @@ public class CamelMainSupport {
                     }
                     return;
                 }
-                rd.to(toUrl);
+                rd.toD(toUrl);
             }
             public void configure() {
                 RouteDefinition rd = from(fromUrl);
@@ -150,11 +151,10 @@ public class CamelMainSupport {
                 }
                 if (camel.getRegistry().lookupByName("aggregate") != null) {
                     AggregationStrategy s = (AggregationStrategy) camel.getRegistry().lookupByName("aggregate");
-                    rd.aggregate(s).constant(true).completionSize(aggregationSize).completionTimeout(aggregationTimeout).toD(toUrl);
+                    setCustomRoute(rd.aggregate(s).constant(true).completionSize(aggregationSize).completionTimeout(aggregationTimeout), toUrl);
                 } else {
-                    rd.toD(toUrl);
+                    setCustomRoute(rd, toUrl);
                 }
-                setCustomRoute(rd, toUrl);
             }
         });
     }

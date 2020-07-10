@@ -29,6 +29,9 @@ mvn --projects custom-package --also-make clean package \
     -DcamelSalesforce.userName=${userName} \
     -DcamelSalesforce.clientSecret=${clientSecret}
 
+# Do we also need this?
+# mvn clean package 
+
 docker build -t amolde/strimzi-kafka-connect:${docker_tag} -t amolde/strimzi-kafka-connect:latest .
 docker login
 docker push amolde/strimzi-kafka-connect
