@@ -79,7 +79,7 @@ public class CamelMainSupport {
         if(customRoutesFile != null) {
             AbstractApplicationContext ctx = new FileSystemXmlApplicationContext(customRoutesFile);
             CamelContext camelCtx = (CamelContext) ctx.getBean(CAMEL_SPRING_CONTEXT_BEAN_ID);
-            camelCtx.stop();
+            // camelCtx.stop();
             return camelCtx;
         }
         return camelContext == null ? new DefaultCamelContext() : camelContext;
@@ -128,7 +128,7 @@ public class CamelMainSupport {
                 if(getCustomRoutesFile(props) != null) {
                     rd.to(CAMEL_FIRST_CUSTOM_ROUTE_ID);
                     if(isSourceConnector(props)) {
-                        from(CAMEL_LAST_CUSTOM_ROUTE_ID).to(toUrl);
+                        from(CAMEL_LAST_CUSTOM_ROUTE_ID).toD(toUrl);
                     }
                     return;
                 }
@@ -151,12 +151,13 @@ public class CamelMainSupport {
                 }
                 if (camel.getRegistry().lookupByName("aggregate") != null) {
                     AggregationStrategy s = (AggregationStrategy) camel.getRegistry().lookupByName("aggregate");
-                    setCustomRoute(rd.aggregate(s).constant(true).completionSize(aggregationSize).completionTimeout(aggregationTimeout), toUrl);
+                    rd.aggregate(s).constant(true).completionSize(aggregationSize).completionTimeout(aggregationTimeout).toD(toUrl);
                 } else {
                     setCustomRoute(rd, toUrl);
                 }
             }
         });
+        LOG.info("Routes have been added to CamelContext");
     }
 
     public void start() throws Exception {

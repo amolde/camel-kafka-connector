@@ -38,6 +38,7 @@ public class DataFormatTest {
         props.put("camel.source.url", "direct://test");
         props.put("topics", "mytopic");
         props.put("camel.source.marshal", "syslog");
+        props.put("camel.routes.xml.dsl", "file:///Users/adeshmukh/kafka/camel-kafka-connector/route.xml");
 
         CamelSourceTask camelsourceTask = new CamelSourceTask();
         camelsourceTask.start(props);
