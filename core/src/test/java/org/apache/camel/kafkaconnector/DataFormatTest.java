@@ -35,7 +35,7 @@ public class DataFormatTest {
     public void testDataFormatSource() {
         Map<String, String> props = new HashMap<>();
         props.put("camel.source.url", "direct://test");
-        props.put("topics", "mytopic");
+        props.put("camel.source.kafka.topic", "mytopic");
         props.put("camel.source.marshal", "syslog");
 
         CamelSourceTask camelsourceTask = new CamelSourceTask();
@@ -103,7 +103,7 @@ public class DataFormatTest {
     public void testDataFormatConfiguration() throws Exception {
         Map<String, String> props = new HashMap<>();
         props.put("camel.source.url", "direct://test");
-        props.put("topics", "mytopic");
+        props.put("camel.source.kafka.topic", "mytopic");
         props.put("camel.source.marshal", "hl7");
         props.put("camel.dataformat.hl7.validate", "false");
 

@@ -53,7 +53,7 @@ public class CamelMainSupport {
     public static final String CAMEL_FIRST_CUSTOM_ROUTE_ID = "direct:customRoute00";
     public static final String CAMEL_LAST_CUSTOM_ROUTE_ID = "direct:customRoute99";
     public static final String CAMEL_ROUTES_DSL = "camel.routes.xml.dsl";
-    private static Logger log = LoggerFactory.getLogger(CamelMainSupport.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CamelMainSupport.class);
 
     private Main camelMain;
     private CamelContext camel;
@@ -84,13 +84,12 @@ public class CamelMainSupport {
         }
         return camelContext == null ? new DefaultCamelContext() : camelContext;
     }
-
-    public CamelMainSupport(Map<String, String> props, String fromUrl, String toUrl, String marshal, String unmarshal) throws Exception {
-        this(props, fromUrl, toUrl, marshal, unmarshal, null);
+    public CamelMainSupport(Map<String, String> props, String fromUrl, String toUrl, String marshal, String unmarshal, int aggregationSize, long aggregationTimeout) throws Exception {
+        this(props, fromUrl, toUrl, marshal, unmarshal, aggregationSize, aggregationTimeout, new DefaultCamelContext());
     }
 
-    public CamelMainSupport(Map<String, String> props, String fromUrl, String toUrl, String marshal, String unmarshal, CamelContext camelContext) throws Exception {
-        camel = getCamelContext(props, camelContext);
+    public CamelMainSupport(Map<String, String> props, String fromUrl, String toUrl, String marshal, String unmarshal, int aggregationSize, long aggregationTimeout, CamelContext camelContext) throws Exception {
+	camel = getCamelContext(props, camelContext);
         camelMain = new Main() {
             @Override
             protected ProducerTemplate findOrCreateCamelTemplate() {
@@ -121,7 +120,8 @@ public class CamelMainSupport {
         LOG.info("Setting initial properties in Camel context: [{}]", camelProperties);
         this.camel.getPropertiesComponent().setInitialProperties(camelProperties);
 
-        // creating the actual route
+        camelMain.init();
+        //creating the actual route
         this.camel.addRoutes(new RouteBuilder() {
             private void setCustomRoute(RouteDefinition rd, String toUrl) {
                 if(getCustomRoutesFile(props) != null) {
