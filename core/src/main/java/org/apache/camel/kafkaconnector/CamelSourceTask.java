@@ -86,7 +86,7 @@ public class CamelSourceTask extends SourceTask {
 
             CamelContext camelContext = null;
             if (remoteUrl == null) {
-                camelContext = new DefaultCamelContext();
+                camelContext = CamelMainSupport.getCamelContext(actualProps, null);
                 remoteUrl = TaskHelper.buildUrl(camelContext.adapt(ExtendedCamelContext.class).getRuntimeCamelCatalog(),
                         actualProps, config.getString(CamelSourceConnectorConfig.CAMEL_SOURCE_COMPONENT_CONF),
                         CAMEL_SOURCE_ENDPOINT_PROPERTIES_PREFIX, CAMEL_SOURCE_PATH_PROPERTIES_PREFIX);

@@ -74,7 +74,7 @@ public class CamelMainSupport {
         return (camelSourceUrl != null && camelSourceUrl.length() > 0);
     }
 
-    private static CamelContext getCamelContext(Map<String, String> props, CamelContext camelContext) {
+    public static CamelContext getCamelContext(Map<String, String> props, CamelContext camelContext) {
         String customRoutesFile = getCustomRoutesFile(props);
         if(customRoutesFile != null) {
             AbstractApplicationContext ctx = new FileSystemXmlApplicationContext(customRoutesFile);
