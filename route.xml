@@ -13,7 +13,7 @@
     <camelContext id="camelContext" xmlns="http://camel.apache.org/schema/spring">
         <route xmlns="http://camel.apache.org/schema/spring" id="bar">
             <from uri="direct:customRoute00"/>
-            <to uri="direct:customRoute99"/>
+            <to uri="direct:end"/>
         </route>
     </camelContext>
 </beans>

@@ -75,7 +75,7 @@ public class CamelSinkTask extends SinkTask {
 
             CamelContext camelContext = null;
             if (remoteUrl == null) {
-                camelContext = CamelMainSupport.getCamelContext(actualProps, null);
+                camelContext = new DefaultCamelContext();
                 remoteUrl = TaskHelper.buildUrl(camelContext.adapt(ExtendedCamelContext.class).getRuntimeCamelCatalog(),
                                                 actualProps,
                                                 config.getString(CamelSinkConnectorConfig.CAMEL_SINK_COMPONENT_CONF),

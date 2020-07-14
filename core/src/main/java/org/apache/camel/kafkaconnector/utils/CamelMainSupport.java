@@ -51,7 +51,6 @@ public class CamelMainSupport {
     public static final String CAMEL_DATAFORMAT_PROPERTIES_PREFIX = "camel.dataformat.";
     public static final String CAMEL_SPRING_CONTEXT_BEAN_ID = "camelContext";
     public static final String CAMEL_FIRST_CUSTOM_ROUTE_ID = "direct:customRoute00";
-    public static final String CAMEL_LAST_CUSTOM_ROUTE_ID = "direct:customRoute99";
     public static final String CAMEL_ROUTES_DSL = "camel.routes.xml.dsl";
     private static final Logger LOG = LoggerFactory.getLogger(CamelMainSupport.class);
 
@@ -74,7 +73,7 @@ public class CamelMainSupport {
         return (camelSourceUrl != null && camelSourceUrl.length() > 0);
     }
 
-    public static CamelContext getCamelContext(Map<String, String> props, CamelContext camelContext) {
+    private static CamelContext getCamelContext(Map<String, String> props, CamelContext camelContext) {
         String customRoutesFile = getCustomRoutesFile(props);
         if(customRoutesFile != null) {
             AbstractApplicationContext ctx = new FileSystemXmlApplicationContext(customRoutesFile);
@@ -127,9 +126,6 @@ public class CamelMainSupport {
             private void setCustomRoute(RouteDefinition rd, String toUrl) {
                 if(getCustomRoutesFile(props) != null) {
                     rd.to(CAMEL_FIRST_CUSTOM_ROUTE_ID);
-                    if(isSourceConnector(props)) {
-                        from(CAMEL_LAST_CUSTOM_ROUTE_ID).toD(toUrl);
-                    }
                     return;
                 }
                 rd.toD(toUrl);
