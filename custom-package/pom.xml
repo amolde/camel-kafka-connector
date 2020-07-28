@@ -150,31 +150,7 @@
       <plugin>
         <groupId>org.apache.camel.maven</groupId>
         <artifactId>camel-salesforce-maven-plugin</artifactId>
-        <version>3.4.0</version>
-        <configuration>
-          <clientId>${camelSalesforce.clientId}</clientId>
-          <version>${camelSalesforce.version}</version>
-          <clientSecret>${camelSalesforce.clientSecret}</clientSecret>
-          <userName>${camelSalesforce.userName}</userName>
-          <password>${camelSalesforce.password}</password>
-          <loginUrl default-value="https://login.salesforce.com">${camelSalesforce.loginUrl}</loginUrl>
-          <!-- <useStringsForPicklists>true</useStringsForPicklists> -->
-          <includes>
-            <include>Account</include>
-            <include>Contacts</include>            
-            <include>Lead</include>            
-            <include>Opportunity</include>            
-          </includes>
-          <!-- <excludes>
-            <exclude>SocialPost</exclude>
-            <exclude>QueryRecordsNote</exclude>
-            <exclude>MatchingRuleItem</exclude>
-            <exclude>Publisher</exclude>
-            <exclude>FieldHistoryArchive</exclude>
-            <exclude>EntityDefinition</exclude>
-          </excludes> -->
-          <includePattern>.*__c</includePattern>
-        </configuration>
+        <version>3.4.2</version>
         <executions>
           <execution>
             <id>generate-salesforce-dto</id>
@@ -190,12 +166,17 @@
               <password>${camelSalesforce.password}</password>
               <loginUrl default-value="https://login.salesforce.com">${camelSalesforce.loginUrl}</loginUrl>
               <!-- <useStringsForPicklists>true</useStringsForPicklists> -->
-              <includes>
+              <!-- <includes>
                 <include>Account</include>
                 <include>Contacts</include>            
                 <include>Lead</include>            
-                <include>Opportunity</include>            
-              </includes>
+                <include>Opportunity</include>         
+              </includes> -->
+              <!-- <excludes>
+                <exclude>PhD_Student_Term_Funding__c</exclude>
+                <exclude>Faculty_Commitment__c</exclude>
+                <exclude>MSC_Outreach_Program__c</exclude>
+              </excludes> -->
               <!-- <excludes>
                 <exclude>SocialPost</exclude>
                 <exclude>QueryRecordsNote</exclude>
@@ -204,7 +185,7 @@
                 <exclude>FieldHistoryArchive</exclude>
                 <exclude>EntityDefinition</exclude>
               </excludes> -->
-              <includePattern>.*__c</includePattern>
+              <includePattern>ASC_Change__c</includePattern>
             </configuration>
           </execution>
         </executions>
@@ -227,6 +208,30 @@
           </execution>
         </executions>
       </plugin>
+      <!-- <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+            <execution>
+                <id>copy-resource-one</id>
+                <phase>generate-sources</phase>
+                <goals>
+                    <goal>copy-resources</goal>
+                </goals>
+                <configuration>
+                    <outputDirectory>${project.build.directory}/generated-sources/camel-salesforce/org/apache/camel/salesforce/dto</outputDirectory>
+                    <resources>
+                        <resource>
+                            <directory>/Users/adeshmukh/sfdc</directory>
+                            <includes>
+                                <include>*.java</include>
+                            </includes>
+                        </resource>
+                    </resources>
+                </configuration>
+            </execution>
+        </executions>
+      </plugin> -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>

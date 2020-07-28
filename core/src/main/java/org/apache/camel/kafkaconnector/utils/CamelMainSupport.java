@@ -73,7 +73,7 @@ public class CamelMainSupport {
         return (camelSourceUrl != null && camelSourceUrl.length() > 0);
     }
 
-    private static CamelContext getCamelContext(Map<String, String> props, CamelContext camelContext) {
+    public static CamelContext getCamelContext(Map<String, String> props) {
         String customRoutesFile = getCustomRoutesFile(props);
         if(customRoutesFile != null) {
             AbstractApplicationContext ctx = new FileSystemXmlApplicationContext(customRoutesFile);
@@ -81,7 +81,7 @@ public class CamelMainSupport {
             // camelCtx.stop();
             return camelCtx;
         }
-        return camelContext == null ? new DefaultCamelContext() : camelContext;
+        return new DefaultCamelContext();
     }
 
     public CamelMainSupport(Map<String, String> props, String fromUrl, String toUrl, String marshal, String unmarshal, int aggregationSize, long aggregationTimeout) throws Exception {
@@ -89,7 +89,7 @@ public class CamelMainSupport {
     }
 
     public CamelMainSupport(Map<String, String> props, String fromUrl, String toUrl, String marshal, String unmarshal, int aggregationSize, long aggregationTimeout, CamelContext camelContext) throws Exception {
-        camel = getCamelContext(props, camelContext);
+        camel = camelContext == null ? getCamelContext(props) : camelContext;
         camelMain = new Main() {
             @Override
             protected ProducerTemplate findOrCreateCamelTemplate() {
