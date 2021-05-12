@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 import org.apache.kafka.connect.runtime.ConnectorConfig;
 
 public abstract class BasicConnectorPropertyFactory<T extends BasicConnectorPropertyFactory<T>> implements ConnectorPropertyFactory {
-    private Properties connectorProps = new Properties();
+    private final Properties connectorProps = new Properties();
 
     public T withName(String name) {
         connectorProps.put(ConnectorConfig.NAME_CONFIG, name);
@@ -63,11 +63,34 @@ public abstract class BasicConnectorPropertyFactory<T extends BasicConnectorProp
         return (T) this;
     }
 
+    public IdempotencyConfigBuilder<T> withIdempotency() {
+        return new IdempotencyConfigBuilder<>((T) this, connectorProps);
+    }
+
+    /**
+     * This enables sending failed records to the DLQ. Note: it automatically configure other required/recommended
+     * options!
+     * @param topicName the DLQ topic name
+     * @return this object instance
+     */
+    public T withDeadLetterQueueTopicName(String topicName) {
+        // There's no constant for the DLQ settings
+        connectorProps.put("errors.deadletterqueue.topic.name", topicName);
+        connectorProps.put("errors.deadletterqueue.topic.replication.factor", 1);
+        connectorProps.put(ConnectorConfig.ERRORS_LOG_ENABLE_CONFIG, true);
+
+        return (T) this;
+    }
+
     public TransformsConfigBuilder<T> withTransformsConfig(String name) {
         return new TransformsConfigBuilder<>((T) this, getProperties(), name);
     }
 
-    protected T setProperty(String name, Object value) {
+    public ComponentConfigBuilder<T> withComponentConfig(String name, String value) {
+        return new ComponentConfigBuilder<>((T) this, getProperties(), name, value);
+    }
+
+    public T setProperty(String name, Object value) {
         connectorProps.put(name, value);
 
         return (T) this;
@@ -75,6 +98,10 @@ public abstract class BasicConnectorPropertyFactory<T extends BasicConnectorProp
 
     public static String classRef(String className) {
         return "#class:" + className;
+    }
+
+    public static String classRef(Class<?> clazz) {
+        return "#class:" + clazz.getName();
     }
 
     public T merge(Properties properties) {

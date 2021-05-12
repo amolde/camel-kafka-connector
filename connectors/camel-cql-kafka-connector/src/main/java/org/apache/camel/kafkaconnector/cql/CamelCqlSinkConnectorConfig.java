@@ -28,29 +28,29 @@ public class CamelCqlSinkConnectorConfig extends CamelSinkConnectorConfig {
     public static final String CAMEL_SINK_CQL_PATH_BEAN_REF_DOC = "beanRef is defined using bean:id";
     public static final String CAMEL_SINK_CQL_PATH_BEAN_REF_DEFAULT = null;
     public static final String CAMEL_SINK_CQL_PATH_HOSTS_CONF = "camel.sink.path.hosts";
-    public static final String CAMEL_SINK_CQL_PATH_HOSTS_DOC = "Hostname(s) cassansdra server(s). Multiple hosts can be separated by comma.";
+    public static final String CAMEL_SINK_CQL_PATH_HOSTS_DOC = "Hostname(s) Cassandra server(s). Multiple hosts can be separated by comma.";
     public static final String CAMEL_SINK_CQL_PATH_HOSTS_DEFAULT = null;
     public static final String CAMEL_SINK_CQL_PATH_PORT_CONF = "camel.sink.path.port";
-    public static final String CAMEL_SINK_CQL_PATH_PORT_DOC = "Port number of cassansdra server(s)";
+    public static final String CAMEL_SINK_CQL_PATH_PORT_DOC = "Port number of Cassandra server(s)";
     public static final String CAMEL_SINK_CQL_PATH_PORT_DEFAULT = null;
     public static final String CAMEL_SINK_CQL_PATH_KEYSPACE_CONF = "camel.sink.path.keyspace";
     public static final String CAMEL_SINK_CQL_PATH_KEYSPACE_DOC = "Keyspace to use";
     public static final String CAMEL_SINK_CQL_PATH_KEYSPACE_DEFAULT = null;
-    public static final String CAMEL_SINK_CQL_ENDPOINT_CLUSTER_CONF = "camel.sink.endpoint.cluster";
-    public static final String CAMEL_SINK_CQL_ENDPOINT_CLUSTER_DOC = "To use the Cluster instance (you would normally not use this option)";
-    public static final String CAMEL_SINK_CQL_ENDPOINT_CLUSTER_DEFAULT = null;
     public static final String CAMEL_SINK_CQL_ENDPOINT_CLUSTER_NAME_CONF = "camel.sink.endpoint.clusterName";
     public static final String CAMEL_SINK_CQL_ENDPOINT_CLUSTER_NAME_DOC = "Cluster name";
     public static final String CAMEL_SINK_CQL_ENDPOINT_CLUSTER_NAME_DEFAULT = null;
     public static final String CAMEL_SINK_CQL_ENDPOINT_CONSISTENCY_LEVEL_CONF = "camel.sink.endpoint.consistencyLevel";
-    public static final String CAMEL_SINK_CQL_ENDPOINT_CONSISTENCY_LEVEL_DOC = "Consistency level to use One of: [ANY] [ONE] [TWO] [THREE] [QUORUM] [ALL] [LOCAL_QUORUM] [EACH_QUORUM] [SERIAL] [LOCAL_SERIAL] [LOCAL_ONE]";
+    public static final String CAMEL_SINK_CQL_ENDPOINT_CONSISTENCY_LEVEL_DOC = "Consistency level to use One of: [ANY] [ONE] [TWO] [THREE] [QUORUM] [ALL] [LOCAL_ONE] [LOCAL_QUORUM] [EACH_QUORUM] [SERIAL] [LOCAL_SERIAL]";
     public static final String CAMEL_SINK_CQL_ENDPOINT_CONSISTENCY_LEVEL_DEFAULT = null;
     public static final String CAMEL_SINK_CQL_ENDPOINT_CQL_CONF = "camel.sink.endpoint.cql";
     public static final String CAMEL_SINK_CQL_ENDPOINT_CQL_DOC = "CQL query to perform. Can be overridden with the message header with key CamelCqlQuery.";
     public static final String CAMEL_SINK_CQL_ENDPOINT_CQL_DEFAULT = null;
-    public static final String CAMEL_SINK_CQL_ENDPOINT_LOAD_BALANCING_POLICY_CONF = "camel.sink.endpoint.loadBalancingPolicy";
-    public static final String CAMEL_SINK_CQL_ENDPOINT_LOAD_BALANCING_POLICY_DOC = "To use a specific LoadBalancingPolicy";
-    public static final String CAMEL_SINK_CQL_ENDPOINT_LOAD_BALANCING_POLICY_DEFAULT = null;
+    public static final String CAMEL_SINK_CQL_ENDPOINT_DATACENTER_CONF = "camel.sink.endpoint.datacenter";
+    public static final String CAMEL_SINK_CQL_ENDPOINT_DATACENTER_DOC = "Datacenter to use";
+    public static final String CAMEL_SINK_CQL_ENDPOINT_DATACENTER_DEFAULT = "datacenter1";
+    public static final String CAMEL_SINK_CQL_ENDPOINT_LOAD_BALANCING_POLICY_CLASS_CONF = "camel.sink.endpoint.loadBalancingPolicyClass";
+    public static final String CAMEL_SINK_CQL_ENDPOINT_LOAD_BALANCING_POLICY_CLASS_DOC = "To use a specific LoadBalancingPolicyClass";
+    public static final String CAMEL_SINK_CQL_ENDPOINT_LOAD_BALANCING_POLICY_CLASS_DEFAULT = null;
     public static final String CAMEL_SINK_CQL_ENDPOINT_PASSWORD_CONF = "camel.sink.endpoint.password";
     public static final String CAMEL_SINK_CQL_ENDPOINT_PASSWORD_DOC = "Password for session authentication";
     public static final String CAMEL_SINK_CQL_ENDPOINT_PASSWORD_DEFAULT = null;
@@ -69,18 +69,12 @@ public class CamelCqlSinkConnectorConfig extends CamelSinkConnectorConfig {
     public static final String CAMEL_SINK_CQL_ENDPOINT_LAZY_START_PRODUCER_CONF = "camel.sink.endpoint.lazyStartProducer";
     public static final String CAMEL_SINK_CQL_ENDPOINT_LAZY_START_PRODUCER_DOC = "Whether the producer should be started lazy (on the first message). By starting lazy you can use this to allow CamelContext and routes to startup in situations where a producer may otherwise fail during starting and cause the route to fail being started. By deferring this startup to be lazy then the startup failure can be handled during routing messages via Camel's routing error handlers. Beware that when the first message is processed then creating and starting the producer may take a little time and prolong the total processing time of the processing.";
     public static final Boolean CAMEL_SINK_CQL_ENDPOINT_LAZY_START_PRODUCER_DEFAULT = false;
-    public static final String CAMEL_SINK_CQL_ENDPOINT_BASIC_PROPERTY_BINDING_CONF = "camel.sink.endpoint.basicPropertyBinding";
-    public static final String CAMEL_SINK_CQL_ENDPOINT_BASIC_PROPERTY_BINDING_DOC = "Whether the endpoint should use basic property binding (Camel 2.x) or the newer property binding with additional capabilities";
-    public static final Boolean CAMEL_SINK_CQL_ENDPOINT_BASIC_PROPERTY_BINDING_DEFAULT = false;
-    public static final String CAMEL_SINK_CQL_ENDPOINT_SYNCHRONOUS_CONF = "camel.sink.endpoint.synchronous";
-    public static final String CAMEL_SINK_CQL_ENDPOINT_SYNCHRONOUS_DOC = "Sets whether synchronous processing should be strictly used, or Camel is allowed to use asynchronous processing (if supported).";
-    public static final Boolean CAMEL_SINK_CQL_ENDPOINT_SYNCHRONOUS_DEFAULT = false;
     public static final String CAMEL_SINK_CQL_COMPONENT_LAZY_START_PRODUCER_CONF = "camel.component.cql.lazyStartProducer";
     public static final String CAMEL_SINK_CQL_COMPONENT_LAZY_START_PRODUCER_DOC = "Whether the producer should be started lazy (on the first message). By starting lazy you can use this to allow CamelContext and routes to startup in situations where a producer may otherwise fail during starting and cause the route to fail being started. By deferring this startup to be lazy then the startup failure can be handled during routing messages via Camel's routing error handlers. Beware that when the first message is processed then creating and starting the producer may take a little time and prolong the total processing time of the processing.";
     public static final Boolean CAMEL_SINK_CQL_COMPONENT_LAZY_START_PRODUCER_DEFAULT = false;
-    public static final String CAMEL_SINK_CQL_COMPONENT_BASIC_PROPERTY_BINDING_CONF = "camel.component.cql.basicPropertyBinding";
-    public static final String CAMEL_SINK_CQL_COMPONENT_BASIC_PROPERTY_BINDING_DOC = "Whether the component should use basic property binding (Camel 2.x) or the newer property binding with additional capabilities";
-    public static final Boolean CAMEL_SINK_CQL_COMPONENT_BASIC_PROPERTY_BINDING_DEFAULT = false;
+    public static final String CAMEL_SINK_CQL_COMPONENT_AUTOWIRED_ENABLED_CONF = "camel.component.cql.autowiredEnabled";
+    public static final String CAMEL_SINK_CQL_COMPONENT_AUTOWIRED_ENABLED_DOC = "Whether autowiring is enabled. This is used for automatic autowiring options (the option must be marked as autowired) by looking up in the registry to find if there is a single instance of matching type, which then gets configured on the component. This can be used for automatic configuring JDBC data sources, JMS connection factories, AWS Clients, etc.";
+    public static final Boolean CAMEL_SINK_CQL_COMPONENT_AUTOWIRED_ENABLED_DEFAULT = true;
 
     public CamelCqlSinkConnectorConfig(
             ConfigDef config,
@@ -98,21 +92,19 @@ public class CamelCqlSinkConnectorConfig extends CamelSinkConnectorConfig {
         conf.define(CAMEL_SINK_CQL_PATH_HOSTS_CONF, ConfigDef.Type.STRING, CAMEL_SINK_CQL_PATH_HOSTS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_CQL_PATH_HOSTS_DOC);
         conf.define(CAMEL_SINK_CQL_PATH_PORT_CONF, ConfigDef.Type.STRING, CAMEL_SINK_CQL_PATH_PORT_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_CQL_PATH_PORT_DOC);
         conf.define(CAMEL_SINK_CQL_PATH_KEYSPACE_CONF, ConfigDef.Type.STRING, CAMEL_SINK_CQL_PATH_KEYSPACE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_CQL_PATH_KEYSPACE_DOC);
-        conf.define(CAMEL_SINK_CQL_ENDPOINT_CLUSTER_CONF, ConfigDef.Type.STRING, CAMEL_SINK_CQL_ENDPOINT_CLUSTER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_CQL_ENDPOINT_CLUSTER_DOC);
         conf.define(CAMEL_SINK_CQL_ENDPOINT_CLUSTER_NAME_CONF, ConfigDef.Type.STRING, CAMEL_SINK_CQL_ENDPOINT_CLUSTER_NAME_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_CQL_ENDPOINT_CLUSTER_NAME_DOC);
         conf.define(CAMEL_SINK_CQL_ENDPOINT_CONSISTENCY_LEVEL_CONF, ConfigDef.Type.STRING, CAMEL_SINK_CQL_ENDPOINT_CONSISTENCY_LEVEL_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_CQL_ENDPOINT_CONSISTENCY_LEVEL_DOC);
         conf.define(CAMEL_SINK_CQL_ENDPOINT_CQL_CONF, ConfigDef.Type.STRING, CAMEL_SINK_CQL_ENDPOINT_CQL_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_CQL_ENDPOINT_CQL_DOC);
-        conf.define(CAMEL_SINK_CQL_ENDPOINT_LOAD_BALANCING_POLICY_CONF, ConfigDef.Type.STRING, CAMEL_SINK_CQL_ENDPOINT_LOAD_BALANCING_POLICY_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_CQL_ENDPOINT_LOAD_BALANCING_POLICY_DOC);
+        conf.define(CAMEL_SINK_CQL_ENDPOINT_DATACENTER_CONF, ConfigDef.Type.STRING, CAMEL_SINK_CQL_ENDPOINT_DATACENTER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_CQL_ENDPOINT_DATACENTER_DOC);
+        conf.define(CAMEL_SINK_CQL_ENDPOINT_LOAD_BALANCING_POLICY_CLASS_CONF, ConfigDef.Type.STRING, CAMEL_SINK_CQL_ENDPOINT_LOAD_BALANCING_POLICY_CLASS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_CQL_ENDPOINT_LOAD_BALANCING_POLICY_CLASS_DOC);
         conf.define(CAMEL_SINK_CQL_ENDPOINT_PASSWORD_CONF, ConfigDef.Type.STRING, CAMEL_SINK_CQL_ENDPOINT_PASSWORD_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_CQL_ENDPOINT_PASSWORD_DOC);
         conf.define(CAMEL_SINK_CQL_ENDPOINT_PREPARE_STATEMENTS_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_CQL_ENDPOINT_PREPARE_STATEMENTS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_CQL_ENDPOINT_PREPARE_STATEMENTS_DOC);
         conf.define(CAMEL_SINK_CQL_ENDPOINT_RESULT_SET_CONVERSION_STRATEGY_CONF, ConfigDef.Type.STRING, CAMEL_SINK_CQL_ENDPOINT_RESULT_SET_CONVERSION_STRATEGY_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_CQL_ENDPOINT_RESULT_SET_CONVERSION_STRATEGY_DOC);
         conf.define(CAMEL_SINK_CQL_ENDPOINT_SESSION_CONF, ConfigDef.Type.STRING, CAMEL_SINK_CQL_ENDPOINT_SESSION_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_CQL_ENDPOINT_SESSION_DOC);
         conf.define(CAMEL_SINK_CQL_ENDPOINT_USERNAME_CONF, ConfigDef.Type.STRING, CAMEL_SINK_CQL_ENDPOINT_USERNAME_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_CQL_ENDPOINT_USERNAME_DOC);
         conf.define(CAMEL_SINK_CQL_ENDPOINT_LAZY_START_PRODUCER_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_CQL_ENDPOINT_LAZY_START_PRODUCER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_CQL_ENDPOINT_LAZY_START_PRODUCER_DOC);
-        conf.define(CAMEL_SINK_CQL_ENDPOINT_BASIC_PROPERTY_BINDING_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_CQL_ENDPOINT_BASIC_PROPERTY_BINDING_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_CQL_ENDPOINT_BASIC_PROPERTY_BINDING_DOC);
-        conf.define(CAMEL_SINK_CQL_ENDPOINT_SYNCHRONOUS_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_CQL_ENDPOINT_SYNCHRONOUS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_CQL_ENDPOINT_SYNCHRONOUS_DOC);
         conf.define(CAMEL_SINK_CQL_COMPONENT_LAZY_START_PRODUCER_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_CQL_COMPONENT_LAZY_START_PRODUCER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_CQL_COMPONENT_LAZY_START_PRODUCER_DOC);
-        conf.define(CAMEL_SINK_CQL_COMPONENT_BASIC_PROPERTY_BINDING_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_CQL_COMPONENT_BASIC_PROPERTY_BINDING_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_CQL_COMPONENT_BASIC_PROPERTY_BINDING_DOC);
+        conf.define(CAMEL_SINK_CQL_COMPONENT_AUTOWIRED_ENABLED_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_CQL_COMPONENT_AUTOWIRED_ENABLED_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_CQL_COMPONENT_AUTOWIRED_ENABLED_DOC);
         return conf;
     }
 }

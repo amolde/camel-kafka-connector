@@ -48,9 +48,6 @@ public class CamelCxfSourceConnectorConfig extends CamelSourceConnectorConfig {
     public static final String CAMEL_SOURCE_CXF_ENDPOINT_ALLOW_STREAMING_CONF = "camel.source.endpoint.allowStreaming";
     public static final String CAMEL_SOURCE_CXF_ENDPOINT_ALLOW_STREAMING_DOC = "This option controls whether the CXF component, when running in PAYLOAD mode, will DOM parse the incoming messages into DOM Elements or keep the payload as a javax.xml.transform.Source object that would allow streaming in some cases.";
     public static final String CAMEL_SOURCE_CXF_ENDPOINT_ALLOW_STREAMING_DEFAULT = null;
-    public static final String CAMEL_SOURCE_CXF_ENDPOINT_BASIC_PROPERTY_BINDING_CONF = "camel.source.endpoint.basicPropertyBinding";
-    public static final String CAMEL_SOURCE_CXF_ENDPOINT_BASIC_PROPERTY_BINDING_DOC = "Whether the endpoint should use basic property binding (Camel 2.x) or the newer property binding with additional capabilities";
-    public static final Boolean CAMEL_SOURCE_CXF_ENDPOINT_BASIC_PROPERTY_BINDING_DEFAULT = false;
     public static final String CAMEL_SOURCE_CXF_ENDPOINT_BUS_CONF = "camel.source.endpoint.bus";
     public static final String CAMEL_SOURCE_CXF_ENDPOINT_BUS_DOC = "To use a custom configured CXF Bus.";
     public static final String CAMEL_SOURCE_CXF_ENDPOINT_BUS_DEFAULT = null;
@@ -81,9 +78,6 @@ public class CamelCxfSourceConnectorConfig extends CamelSourceConnectorConfig {
     public static final String CAMEL_SOURCE_CXF_ENDPOINT_SKIP_PAYLOAD_MESSAGE_PART_CHECK_CONF = "camel.source.endpoint.skipPayloadMessagePartCheck";
     public static final String CAMEL_SOURCE_CXF_ENDPOINT_SKIP_PAYLOAD_MESSAGE_PART_CHECK_DOC = "Sets whether SOAP message validation should be disabled.";
     public static final Boolean CAMEL_SOURCE_CXF_ENDPOINT_SKIP_PAYLOAD_MESSAGE_PART_CHECK_DEFAULT = false;
-    public static final String CAMEL_SOURCE_CXF_ENDPOINT_SYNCHRONOUS_CONF = "camel.source.endpoint.synchronous";
-    public static final String CAMEL_SOURCE_CXF_ENDPOINT_SYNCHRONOUS_DOC = "Sets whether synchronous processing should be strictly used, or Camel is allowed to use asynchronous processing (if supported).";
-    public static final Boolean CAMEL_SOURCE_CXF_ENDPOINT_SYNCHRONOUS_DEFAULT = false;
     public static final String CAMEL_SOURCE_CXF_ENDPOINT_LOGGING_FEATURE_ENABLED_CONF = "camel.source.endpoint.loggingFeatureEnabled";
     public static final String CAMEL_SOURCE_CXF_ENDPOINT_LOGGING_FEATURE_ENABLED_DOC = "This option enables CXF Logging Feature which writes inbound and outbound SOAP messages to log.";
     public static final Boolean CAMEL_SOURCE_CXF_ENDPOINT_LOGGING_FEATURE_ENABLED_DEFAULT = false;
@@ -123,9 +117,9 @@ public class CamelCxfSourceConnectorConfig extends CamelSourceConnectorConfig {
     public static final String CAMEL_SOURCE_CXF_COMPONENT_ALLOW_STREAMING_CONF = "camel.component.cxf.allowStreaming";
     public static final String CAMEL_SOURCE_CXF_COMPONENT_ALLOW_STREAMING_DOC = "This option controls whether the CXF component, when running in PAYLOAD mode, will DOM parse the incoming messages into DOM Elements or keep the payload as a javax.xml.transform.Source object that would allow streaming in some cases.";
     public static final String CAMEL_SOURCE_CXF_COMPONENT_ALLOW_STREAMING_DEFAULT = null;
-    public static final String CAMEL_SOURCE_CXF_COMPONENT_BASIC_PROPERTY_BINDING_CONF = "camel.component.cxf.basicPropertyBinding";
-    public static final String CAMEL_SOURCE_CXF_COMPONENT_BASIC_PROPERTY_BINDING_DOC = "Whether the component should use basic property binding (Camel 2.x) or the newer property binding with additional capabilities";
-    public static final Boolean CAMEL_SOURCE_CXF_COMPONENT_BASIC_PROPERTY_BINDING_DEFAULT = false;
+    public static final String CAMEL_SOURCE_CXF_COMPONENT_AUTOWIRED_ENABLED_CONF = "camel.component.cxf.autowiredEnabled";
+    public static final String CAMEL_SOURCE_CXF_COMPONENT_AUTOWIRED_ENABLED_DOC = "Whether autowiring is enabled. This is used for automatic autowiring options (the option must be marked as autowired) by looking up in the registry to find if there is a single instance of matching type, which then gets configured on the component. This can be used for automatic configuring JDBC data sources, JMS connection factories, AWS Clients, etc.";
+    public static final Boolean CAMEL_SOURCE_CXF_COMPONENT_AUTOWIRED_ENABLED_DEFAULT = true;
     public static final String CAMEL_SOURCE_CXF_COMPONENT_HEADER_FILTER_STRATEGY_CONF = "camel.component.cxf.headerFilterStrategy";
     public static final String CAMEL_SOURCE_CXF_COMPONENT_HEADER_FILTER_STRATEGY_DOC = "To use a custom org.apache.camel.spi.HeaderFilterStrategy to filter header to and from Camel message.";
     public static final String CAMEL_SOURCE_CXF_COMPONENT_HEADER_FILTER_STRATEGY_DEFAULT = null;
@@ -153,7 +147,6 @@ public class CamelCxfSourceConnectorConfig extends CamelSourceConnectorConfig {
         conf.define(CAMEL_SOURCE_CXF_ENDPOINT_EXCEPTION_HANDLER_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_CXF_ENDPOINT_EXCEPTION_HANDLER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_CXF_ENDPOINT_EXCEPTION_HANDLER_DOC);
         conf.define(CAMEL_SOURCE_CXF_ENDPOINT_EXCHANGE_PATTERN_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_CXF_ENDPOINT_EXCHANGE_PATTERN_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_CXF_ENDPOINT_EXCHANGE_PATTERN_DOC);
         conf.define(CAMEL_SOURCE_CXF_ENDPOINT_ALLOW_STREAMING_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_CXF_ENDPOINT_ALLOW_STREAMING_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_CXF_ENDPOINT_ALLOW_STREAMING_DOC);
-        conf.define(CAMEL_SOURCE_CXF_ENDPOINT_BASIC_PROPERTY_BINDING_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_CXF_ENDPOINT_BASIC_PROPERTY_BINDING_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_CXF_ENDPOINT_BASIC_PROPERTY_BINDING_DOC);
         conf.define(CAMEL_SOURCE_CXF_ENDPOINT_BUS_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_CXF_ENDPOINT_BUS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_CXF_ENDPOINT_BUS_DOC);
         conf.define(CAMEL_SOURCE_CXF_ENDPOINT_CONTINUATION_TIMEOUT_CONF, ConfigDef.Type.LONG, CAMEL_SOURCE_CXF_ENDPOINT_CONTINUATION_TIMEOUT_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_CXF_ENDPOINT_CONTINUATION_TIMEOUT_DOC);
         conf.define(CAMEL_SOURCE_CXF_ENDPOINT_CXF_BINDING_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_CXF_ENDPOINT_CXF_BINDING_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_CXF_ENDPOINT_CXF_BINDING_DOC);
@@ -164,12 +157,11 @@ public class CamelCxfSourceConnectorConfig extends CamelSourceConnectorConfig {
         conf.define(CAMEL_SOURCE_CXF_ENDPOINT_MTOM_ENABLED_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_CXF_ENDPOINT_MTOM_ENABLED_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_CXF_ENDPOINT_MTOM_ENABLED_DOC);
         conf.define(CAMEL_SOURCE_CXF_ENDPOINT_PROPERTIES_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_CXF_ENDPOINT_PROPERTIES_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_CXF_ENDPOINT_PROPERTIES_DOC);
         conf.define(CAMEL_SOURCE_CXF_ENDPOINT_SKIP_PAYLOAD_MESSAGE_PART_CHECK_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_CXF_ENDPOINT_SKIP_PAYLOAD_MESSAGE_PART_CHECK_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_CXF_ENDPOINT_SKIP_PAYLOAD_MESSAGE_PART_CHECK_DOC);
-        conf.define(CAMEL_SOURCE_CXF_ENDPOINT_SYNCHRONOUS_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_CXF_ENDPOINT_SYNCHRONOUS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_CXF_ENDPOINT_SYNCHRONOUS_DOC);
         conf.define(CAMEL_SOURCE_CXF_ENDPOINT_LOGGING_FEATURE_ENABLED_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_CXF_ENDPOINT_LOGGING_FEATURE_ENABLED_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_CXF_ENDPOINT_LOGGING_FEATURE_ENABLED_DOC);
         conf.define(CAMEL_SOURCE_CXF_ENDPOINT_LOGGING_SIZE_LIMIT_CONF, ConfigDef.Type.INT, CAMEL_SOURCE_CXF_ENDPOINT_LOGGING_SIZE_LIMIT_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_CXF_ENDPOINT_LOGGING_SIZE_LIMIT_DOC);
         conf.define(CAMEL_SOURCE_CXF_ENDPOINT_SKIP_FAULT_LOGGING_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_CXF_ENDPOINT_SKIP_FAULT_LOGGING_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_CXF_ENDPOINT_SKIP_FAULT_LOGGING_DOC);
-        conf.define(CAMEL_SOURCE_CXF_ENDPOINT_PASSWORD_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_CXF_ENDPOINT_PASSWORD_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_CXF_ENDPOINT_PASSWORD_DOC);
-        conf.define(CAMEL_SOURCE_CXF_ENDPOINT_USERNAME_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_CXF_ENDPOINT_USERNAME_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_CXF_ENDPOINT_USERNAME_DOC);
+        conf.define(CAMEL_SOURCE_CXF_ENDPOINT_PASSWORD_CONF, ConfigDef.Type.PASSWORD, CAMEL_SOURCE_CXF_ENDPOINT_PASSWORD_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_CXF_ENDPOINT_PASSWORD_DOC);
+        conf.define(CAMEL_SOURCE_CXF_ENDPOINT_USERNAME_CONF, ConfigDef.Type.PASSWORD, CAMEL_SOURCE_CXF_ENDPOINT_USERNAME_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_CXF_ENDPOINT_USERNAME_DOC);
         conf.define(CAMEL_SOURCE_CXF_ENDPOINT_BINDING_ID_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_CXF_ENDPOINT_BINDING_ID_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_CXF_ENDPOINT_BINDING_ID_DOC);
         conf.define(CAMEL_SOURCE_CXF_ENDPOINT_PORT_NAME_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_CXF_ENDPOINT_PORT_NAME_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_CXF_ENDPOINT_PORT_NAME_DOC);
         conf.define(CAMEL_SOURCE_CXF_ENDPOINT_PUBLISHED_ENDPOINT_URL_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_CXF_ENDPOINT_PUBLISHED_ENDPOINT_URL_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_CXF_ENDPOINT_PUBLISHED_ENDPOINT_URL_DOC);
@@ -178,7 +170,7 @@ public class CamelCxfSourceConnectorConfig extends CamelSourceConnectorConfig {
         conf.define(CAMEL_SOURCE_CXF_ENDPOINT_WSDL_URLCONF, ConfigDef.Type.STRING, CAMEL_SOURCE_CXF_ENDPOINT_WSDL_URLDEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_CXF_ENDPOINT_WSDL_URLDOC);
         conf.define(CAMEL_SOURCE_CXF_COMPONENT_BRIDGE_ERROR_HANDLER_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_CXF_COMPONENT_BRIDGE_ERROR_HANDLER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_CXF_COMPONENT_BRIDGE_ERROR_HANDLER_DOC);
         conf.define(CAMEL_SOURCE_CXF_COMPONENT_ALLOW_STREAMING_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_CXF_COMPONENT_ALLOW_STREAMING_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_CXF_COMPONENT_ALLOW_STREAMING_DOC);
-        conf.define(CAMEL_SOURCE_CXF_COMPONENT_BASIC_PROPERTY_BINDING_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_CXF_COMPONENT_BASIC_PROPERTY_BINDING_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_CXF_COMPONENT_BASIC_PROPERTY_BINDING_DOC);
+        conf.define(CAMEL_SOURCE_CXF_COMPONENT_AUTOWIRED_ENABLED_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_CXF_COMPONENT_AUTOWIRED_ENABLED_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_CXF_COMPONENT_AUTOWIRED_ENABLED_DOC);
         conf.define(CAMEL_SOURCE_CXF_COMPONENT_HEADER_FILTER_STRATEGY_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_CXF_COMPONENT_HEADER_FILTER_STRATEGY_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_CXF_COMPONENT_HEADER_FILTER_STRATEGY_DOC);
         conf.define(CAMEL_SOURCE_CXF_COMPONENT_USE_GLOBAL_SSL_CONTEXT_PARAMETERS_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_CXF_COMPONENT_USE_GLOBAL_SSL_CONTEXT_PARAMETERS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_CXF_COMPONENT_USE_GLOBAL_SSL_CONTEXT_PARAMETERS_DOC);
         return conf;

@@ -1,6 +1,8 @@
 [[@{title}-kafka-connector-source]]
 = @{title}-kafka-connector source configuration
 
+Connector description: @{description}
+
 When using @{title}-kafka-connector as source make sure to use the following Maven dependency to have support for the connector:
 
 [source,xml]
@@ -13,6 +15,13 @@ When using @{title}-kafka-connector as source make sure to use the following Mav
 </dependency>
 ----
 
+To use this Source connector in Kafka connect you'll need to set the following connector.class
+
+[source,java]
+----
+connector.class=@{connectorClass}
+----
+
 @if{options.isEmpty()}
 The @{title} source connector has no options.
 @else{}
@@ -20,9 +29,54 @@ The @{title} source connector supports @{options.size()} options, which are list
 @end{}
 
 @if{!options.isEmpty()}
-[width="100%",cols="2,5,^1,2",options="header"]
+[width="100%",cols="2,5,^1,1,1",options="header"]
 |===
-| Name | Description | Default | Priority
-@foreach{row : options}| *@{row.getShortName(50)}* | @{util.escape(row.description)} | @{row.defaultValue} | @{row.priority}
+| Name | Description | Default | Required | Priority
+@foreach{row : options}| *@{row.getShortName(50)}* | @{util.escape(row.description)} | @{row.defaultValue == "ConfigDef.NO_DEFAULT_VALUE" ? "none" : row.defaultValue} | @{row.required} | @{row.priority}
 @end{}|===
+@end{}
+
+@if{converters.isEmpty()}
+The @{title} source connector has no converters out of the box.
+@else{}
+The @{title} source connector supports @{converters.size()} converters out of the box, which are listed below.
+@end{}
+
+@if{!converters.isEmpty()}
+[source,java]
+----
+@foreach{row : converters}
+@{row}
+@end{}
+----
+@end{}
+
+@if{transforms.isEmpty()}
+The @{title} source connector has no transforms out of the box.
+@else{}
+The @{title} source connector supports @{transforms.size()} transforms out of the box, which are listed below.
+@end{}
+
+@if{!transforms.isEmpty()}
+[source,java]
+----
+@foreach{row : transforms}
+@{row}
+@end{}
+----
+@end{}
+
+@if{aggregationStrategies.isEmpty()}
+The @{title} source connector has no aggregation strategies out of the box.
+@else{}
+The @{title} source connector supports @{aggregationStrategies.size()} aggregation strategies out of the box, which are listed below.
+@end{}
+
+@if{!aggregationStrategies.isEmpty()}
+[source,java]
+----
+@foreach{row : aggregationStrategies}
+@{row}
+@end{}
+----
 @end{}

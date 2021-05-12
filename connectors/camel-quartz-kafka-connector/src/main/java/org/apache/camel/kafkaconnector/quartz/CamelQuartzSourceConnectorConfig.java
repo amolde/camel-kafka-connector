@@ -27,10 +27,10 @@ public class CamelQuartzSourceConnectorConfig
             CamelSourceConnectorConfig {
 
     public static final String CAMEL_SOURCE_QUARTZ_PATH_GROUP_NAME_CONF = "camel.source.path.groupName";
-    public static final String CAMEL_SOURCE_QUARTZ_PATH_GROUP_NAME_DOC = "The quartz group name to use. The combination of group name and timer name should be unique.";
+    public static final String CAMEL_SOURCE_QUARTZ_PATH_GROUP_NAME_DOC = "The quartz group name to use. The combination of group name and trigger name should be unique.";
     public static final String CAMEL_SOURCE_QUARTZ_PATH_GROUP_NAME_DEFAULT = "Camel";
     public static final String CAMEL_SOURCE_QUARTZ_PATH_TRIGGER_NAME_CONF = "camel.source.path.triggerName";
-    public static final String CAMEL_SOURCE_QUARTZ_PATH_TRIGGER_NAME_DOC = "The quartz timer name to use. The combination of group name and timer name should be unique.";
+    public static final String CAMEL_SOURCE_QUARTZ_PATH_TRIGGER_NAME_DOC = "The quartz trigger name to use. The combination of group name and trigger name should be unique.";
     public static final String CAMEL_SOURCE_QUARTZ_PATH_TRIGGER_NAME_DEFAULT = null;
     public static final String CAMEL_SOURCE_QUARTZ_ENDPOINT_BRIDGE_ERROR_HANDLER_CONF = "camel.source.endpoint.bridgeErrorHandler";
     public static final String CAMEL_SOURCE_QUARTZ_ENDPOINT_BRIDGE_ERROR_HANDLER_DOC = "Allows for bridging the consumer to the Camel routing Error Handler, which mean any exceptions occurred while the consumer is trying to pickup incoming messages, or the likes, will now be processed as a message and handled by the routing Error Handler. By default the consumer will use the org.apache.camel.spi.ExceptionHandler to deal with exceptions, that will be logged at WARN or ERROR level and ignored.";
@@ -59,9 +59,6 @@ public class CamelQuartzSourceConnectorConfig
     public static final String CAMEL_SOURCE_QUARTZ_ENDPOINT_EXCHANGE_PATTERN_CONF = "camel.source.endpoint.exchangePattern";
     public static final String CAMEL_SOURCE_QUARTZ_ENDPOINT_EXCHANGE_PATTERN_DOC = "Sets the exchange pattern when the consumer creates an exchange. One of: [InOnly] [InOut] [InOptionalOut]";
     public static final String CAMEL_SOURCE_QUARTZ_ENDPOINT_EXCHANGE_PATTERN_DEFAULT = null;
-    public static final String CAMEL_SOURCE_QUARTZ_ENDPOINT_BASIC_PROPERTY_BINDING_CONF = "camel.source.endpoint.basicPropertyBinding";
-    public static final String CAMEL_SOURCE_QUARTZ_ENDPOINT_BASIC_PROPERTY_BINDING_DOC = "Whether the endpoint should use basic property binding (Camel 2.x) or the newer property binding with additional capabilities";
-    public static final Boolean CAMEL_SOURCE_QUARTZ_ENDPOINT_BASIC_PROPERTY_BINDING_DEFAULT = false;
     public static final String CAMEL_SOURCE_QUARTZ_ENDPOINT_CUSTOM_CALENDAR_CONF = "camel.source.endpoint.customCalendar";
     public static final String CAMEL_SOURCE_QUARTZ_ENDPOINT_CUSTOM_CALENDAR_DOC = "Specifies a custom calendar to avoid specific range of date";
     public static final String CAMEL_SOURCE_QUARTZ_ENDPOINT_CUSTOM_CALENDAR_DEFAULT = null;
@@ -71,9 +68,6 @@ public class CamelQuartzSourceConnectorConfig
     public static final String CAMEL_SOURCE_QUARTZ_ENDPOINT_PREFIX_JOB_NAME_WITH_ENDPOINT_ID_CONF = "camel.source.endpoint.prefixJobNameWithEndpointId";
     public static final String CAMEL_SOURCE_QUARTZ_ENDPOINT_PREFIX_JOB_NAME_WITH_ENDPOINT_ID_DOC = "Whether the job name should be prefixed with endpoint id";
     public static final Boolean CAMEL_SOURCE_QUARTZ_ENDPOINT_PREFIX_JOB_NAME_WITH_ENDPOINT_ID_DEFAULT = false;
-    public static final String CAMEL_SOURCE_QUARTZ_ENDPOINT_SYNCHRONOUS_CONF = "camel.source.endpoint.synchronous";
-    public static final String CAMEL_SOURCE_QUARTZ_ENDPOINT_SYNCHRONOUS_DOC = "Sets whether synchronous processing should be strictly used, or Camel is allowed to use asynchronous processing (if supported).";
-    public static final Boolean CAMEL_SOURCE_QUARTZ_ENDPOINT_SYNCHRONOUS_DEFAULT = false;
     public static final String CAMEL_SOURCE_QUARTZ_ENDPOINT_TRIGGER_PARAMETERS_CONF = "camel.source.endpoint.triggerParameters";
     public static final String CAMEL_SOURCE_QUARTZ_ENDPOINT_TRIGGER_PARAMETERS_DOC = "To configure additional options on the trigger.";
     public static final String CAMEL_SOURCE_QUARTZ_ENDPOINT_TRIGGER_PARAMETERS_DEFAULT = null;
@@ -113,9 +107,9 @@ public class CamelQuartzSourceConnectorConfig
     public static final String CAMEL_SOURCE_QUARTZ_COMPONENT_PROPERTIES_REF_CONF = "camel.component.quartz.propertiesRef";
     public static final String CAMEL_SOURCE_QUARTZ_COMPONENT_PROPERTIES_REF_DOC = "References to an existing Properties or Map to lookup in the registry to use for configuring quartz.";
     public static final String CAMEL_SOURCE_QUARTZ_COMPONENT_PROPERTIES_REF_DEFAULT = null;
-    public static final String CAMEL_SOURCE_QUARTZ_COMPONENT_BASIC_PROPERTY_BINDING_CONF = "camel.component.quartz.basicPropertyBinding";
-    public static final String CAMEL_SOURCE_QUARTZ_COMPONENT_BASIC_PROPERTY_BINDING_DOC = "Whether the component should use basic property binding (Camel 2.x) or the newer property binding with additional capabilities";
-    public static final Boolean CAMEL_SOURCE_QUARTZ_COMPONENT_BASIC_PROPERTY_BINDING_DEFAULT = false;
+    public static final String CAMEL_SOURCE_QUARTZ_COMPONENT_AUTOWIRED_ENABLED_CONF = "camel.component.quartz.autowiredEnabled";
+    public static final String CAMEL_SOURCE_QUARTZ_COMPONENT_AUTOWIRED_ENABLED_DOC = "Whether autowiring is enabled. This is used for automatic autowiring options (the option must be marked as autowired) by looking up in the registry to find if there is a single instance of matching type, which then gets configured on the component. This can be used for automatic configuring JDBC data sources, JMS connection factories, AWS Clients, etc.";
+    public static final Boolean CAMEL_SOURCE_QUARTZ_COMPONENT_AUTOWIRED_ENABLED_DEFAULT = true;
     public static final String CAMEL_SOURCE_QUARTZ_COMPONENT_SCHEDULER_CONF = "camel.component.quartz.scheduler";
     public static final String CAMEL_SOURCE_QUARTZ_COMPONENT_SCHEDULER_DOC = "To use the custom configured Quartz scheduler, instead of creating a new Scheduler.";
     public static final String CAMEL_SOURCE_QUARTZ_COMPONENT_SCHEDULER_DEFAULT = null;
@@ -155,11 +149,9 @@ public class CamelQuartzSourceConnectorConfig
         conf.define(CAMEL_SOURCE_QUARTZ_ENDPOINT_STATEFUL_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_QUARTZ_ENDPOINT_STATEFUL_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_QUARTZ_ENDPOINT_STATEFUL_DOC);
         conf.define(CAMEL_SOURCE_QUARTZ_ENDPOINT_EXCEPTION_HANDLER_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_QUARTZ_ENDPOINT_EXCEPTION_HANDLER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_QUARTZ_ENDPOINT_EXCEPTION_HANDLER_DOC);
         conf.define(CAMEL_SOURCE_QUARTZ_ENDPOINT_EXCHANGE_PATTERN_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_QUARTZ_ENDPOINT_EXCHANGE_PATTERN_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_QUARTZ_ENDPOINT_EXCHANGE_PATTERN_DOC);
-        conf.define(CAMEL_SOURCE_QUARTZ_ENDPOINT_BASIC_PROPERTY_BINDING_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_QUARTZ_ENDPOINT_BASIC_PROPERTY_BINDING_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_QUARTZ_ENDPOINT_BASIC_PROPERTY_BINDING_DOC);
         conf.define(CAMEL_SOURCE_QUARTZ_ENDPOINT_CUSTOM_CALENDAR_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_QUARTZ_ENDPOINT_CUSTOM_CALENDAR_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_QUARTZ_ENDPOINT_CUSTOM_CALENDAR_DOC);
         conf.define(CAMEL_SOURCE_QUARTZ_ENDPOINT_JOB_PARAMETERS_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_QUARTZ_ENDPOINT_JOB_PARAMETERS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_QUARTZ_ENDPOINT_JOB_PARAMETERS_DOC);
         conf.define(CAMEL_SOURCE_QUARTZ_ENDPOINT_PREFIX_JOB_NAME_WITH_ENDPOINT_ID_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_QUARTZ_ENDPOINT_PREFIX_JOB_NAME_WITH_ENDPOINT_ID_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_QUARTZ_ENDPOINT_PREFIX_JOB_NAME_WITH_ENDPOINT_ID_DOC);
-        conf.define(CAMEL_SOURCE_QUARTZ_ENDPOINT_SYNCHRONOUS_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_QUARTZ_ENDPOINT_SYNCHRONOUS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_QUARTZ_ENDPOINT_SYNCHRONOUS_DOC);
         conf.define(CAMEL_SOURCE_QUARTZ_ENDPOINT_TRIGGER_PARAMETERS_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_QUARTZ_ENDPOINT_TRIGGER_PARAMETERS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_QUARTZ_ENDPOINT_TRIGGER_PARAMETERS_DOC);
         conf.define(CAMEL_SOURCE_QUARTZ_ENDPOINT_USING_FIXED_CAMEL_CONTEXT_NAME_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_QUARTZ_ENDPOINT_USING_FIXED_CAMEL_CONTEXT_NAME_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_QUARTZ_ENDPOINT_USING_FIXED_CAMEL_CONTEXT_NAME_DOC);
         conf.define(CAMEL_SOURCE_QUARTZ_ENDPOINT_AUTO_START_SCHEDULER_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_QUARTZ_ENDPOINT_AUTO_START_SCHEDULER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_QUARTZ_ENDPOINT_AUTO_START_SCHEDULER_DOC);
@@ -173,7 +165,7 @@ public class CamelQuartzSourceConnectorConfig
         conf.define(CAMEL_SOURCE_QUARTZ_COMPONENT_PROPERTIES_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_QUARTZ_COMPONENT_PROPERTIES_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_QUARTZ_COMPONENT_PROPERTIES_DOC);
         conf.define(CAMEL_SOURCE_QUARTZ_COMPONENT_PROPERTIES_FILE_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_QUARTZ_COMPONENT_PROPERTIES_FILE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_QUARTZ_COMPONENT_PROPERTIES_FILE_DOC);
         conf.define(CAMEL_SOURCE_QUARTZ_COMPONENT_PROPERTIES_REF_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_QUARTZ_COMPONENT_PROPERTIES_REF_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_QUARTZ_COMPONENT_PROPERTIES_REF_DOC);
-        conf.define(CAMEL_SOURCE_QUARTZ_COMPONENT_BASIC_PROPERTY_BINDING_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_QUARTZ_COMPONENT_BASIC_PROPERTY_BINDING_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_QUARTZ_COMPONENT_BASIC_PROPERTY_BINDING_DOC);
+        conf.define(CAMEL_SOURCE_QUARTZ_COMPONENT_AUTOWIRED_ENABLED_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_QUARTZ_COMPONENT_AUTOWIRED_ENABLED_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_QUARTZ_COMPONENT_AUTOWIRED_ENABLED_DOC);
         conf.define(CAMEL_SOURCE_QUARTZ_COMPONENT_SCHEDULER_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_QUARTZ_COMPONENT_SCHEDULER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_QUARTZ_COMPONENT_SCHEDULER_DOC);
         conf.define(CAMEL_SOURCE_QUARTZ_COMPONENT_SCHEDULER_FACTORY_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_QUARTZ_COMPONENT_SCHEDULER_FACTORY_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_QUARTZ_COMPONENT_SCHEDULER_FACTORY_DOC);
         conf.define(CAMEL_SOURCE_QUARTZ_COMPONENT_AUTO_START_SCHEDULER_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_QUARTZ_COMPONENT_AUTO_START_SCHEDULER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_QUARTZ_COMPONENT_AUTO_START_SCHEDULER_DOC);

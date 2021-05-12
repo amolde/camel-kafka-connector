@@ -32,6 +32,12 @@ public class CamelSplunkhecSinkConnectorConfig
     public static final String CAMEL_SINK_SPLUNKHEC_PATH_TOKEN_CONF = "camel.sink.path.token";
     public static final String CAMEL_SINK_SPLUNKHEC_PATH_TOKEN_DOC = "Splunk authorization token";
     public static final String CAMEL_SINK_SPLUNKHEC_PATH_TOKEN_DEFAULT = null;
+    public static final String CAMEL_SINK_SPLUNKHEC_ENDPOINT_BODY_ONLY_CONF = "camel.sink.endpoint.bodyOnly";
+    public static final String CAMEL_SINK_SPLUNKHEC_ENDPOINT_BODY_ONLY_DOC = "Send only the message body";
+    public static final Boolean CAMEL_SINK_SPLUNKHEC_ENDPOINT_BODY_ONLY_DEFAULT = false;
+    public static final String CAMEL_SINK_SPLUNKHEC_ENDPOINT_HEADERS_ONLY_CONF = "camel.sink.endpoint.headersOnly";
+    public static final String CAMEL_SINK_SPLUNKHEC_ENDPOINT_HEADERS_ONLY_DOC = "Send only message headers";
+    public static final Boolean CAMEL_SINK_SPLUNKHEC_ENDPOINT_HEADERS_ONLY_DEFAULT = false;
     public static final String CAMEL_SINK_SPLUNKHEC_ENDPOINT_HOST_CONF = "camel.sink.endpoint.host";
     public static final String CAMEL_SINK_SPLUNKHEC_ENDPOINT_HOST_DOC = "Splunk host.";
     public static final String CAMEL_SINK_SPLUNKHEC_ENDPOINT_HOST_DEFAULT = null;
@@ -47,12 +53,6 @@ public class CamelSplunkhecSinkConnectorConfig
     public static final String CAMEL_SINK_SPLUNKHEC_ENDPOINT_SOURCE_TYPE_CONF = "camel.sink.endpoint.sourceType";
     public static final String CAMEL_SINK_SPLUNKHEC_ENDPOINT_SOURCE_TYPE_DOC = "Splunk sourcetype argument";
     public static final String CAMEL_SINK_SPLUNKHEC_ENDPOINT_SOURCE_TYPE_DEFAULT = "camel";
-    public static final String CAMEL_SINK_SPLUNKHEC_ENDPOINT_BASIC_PROPERTY_BINDING_CONF = "camel.sink.endpoint.basicPropertyBinding";
-    public static final String CAMEL_SINK_SPLUNKHEC_ENDPOINT_BASIC_PROPERTY_BINDING_DOC = "Whether the endpoint should use basic property binding (Camel 2.x) or the newer property binding with additional capabilities";
-    public static final Boolean CAMEL_SINK_SPLUNKHEC_ENDPOINT_BASIC_PROPERTY_BINDING_DEFAULT = false;
-    public static final String CAMEL_SINK_SPLUNKHEC_ENDPOINT_SYNCHRONOUS_CONF = "camel.sink.endpoint.synchronous";
-    public static final String CAMEL_SINK_SPLUNKHEC_ENDPOINT_SYNCHRONOUS_DOC = "Sets whether synchronous processing should be strictly used, or Camel is allowed to use asynchronous processing (if supported).";
-    public static final Boolean CAMEL_SINK_SPLUNKHEC_ENDPOINT_SYNCHRONOUS_DEFAULT = false;
     public static final String CAMEL_SINK_SPLUNKHEC_ENDPOINT_HTTPS_CONF = "camel.sink.endpoint.https";
     public static final String CAMEL_SINK_SPLUNKHEC_ENDPOINT_HTTPS_DOC = "Contact HEC over https.";
     public static final Boolean CAMEL_SINK_SPLUNKHEC_ENDPOINT_HTTPS_DEFAULT = true;
@@ -62,9 +62,9 @@ public class CamelSplunkhecSinkConnectorConfig
     public static final String CAMEL_SINK_SPLUNKHEC_COMPONENT_LAZY_START_PRODUCER_CONF = "camel.component.splunk-hec.lazyStartProducer";
     public static final String CAMEL_SINK_SPLUNKHEC_COMPONENT_LAZY_START_PRODUCER_DOC = "Whether the producer should be started lazy (on the first message). By starting lazy you can use this to allow CamelContext and routes to startup in situations where a producer may otherwise fail during starting and cause the route to fail being started. By deferring this startup to be lazy then the startup failure can be handled during routing messages via Camel's routing error handlers. Beware that when the first message is processed then creating and starting the producer may take a little time and prolong the total processing time of the processing.";
     public static final Boolean CAMEL_SINK_SPLUNKHEC_COMPONENT_LAZY_START_PRODUCER_DEFAULT = false;
-    public static final String CAMEL_SINK_SPLUNKHEC_COMPONENT_BASIC_PROPERTY_BINDING_CONF = "camel.component.splunk-hec.basicPropertyBinding";
-    public static final String CAMEL_SINK_SPLUNKHEC_COMPONENT_BASIC_PROPERTY_BINDING_DOC = "Whether the component should use basic property binding (Camel 2.x) or the newer property binding with additional capabilities";
-    public static final Boolean CAMEL_SINK_SPLUNKHEC_COMPONENT_BASIC_PROPERTY_BINDING_DEFAULT = false;
+    public static final String CAMEL_SINK_SPLUNKHEC_COMPONENT_AUTOWIRED_ENABLED_CONF = "camel.component.splunk-hec.autowiredEnabled";
+    public static final String CAMEL_SINK_SPLUNKHEC_COMPONENT_AUTOWIRED_ENABLED_DOC = "Whether autowiring is enabled. This is used for automatic autowiring options (the option must be marked as autowired) by looking up in the registry to find if there is a single instance of matching type, which then gets configured on the component. This can be used for automatic configuring JDBC data sources, JMS connection factories, AWS Clients, etc.";
+    public static final Boolean CAMEL_SINK_SPLUNKHEC_COMPONENT_AUTOWIRED_ENABLED_DEFAULT = true;
 
     public CamelSplunkhecSinkConnectorConfig(
             ConfigDef config,
@@ -80,17 +80,17 @@ public class CamelSplunkhecSinkConnectorConfig
         ConfigDef conf = new ConfigDef(CamelSinkConnectorConfig.conf());
         conf.define(CAMEL_SINK_SPLUNKHEC_PATH_SPLUNK_URLCONF, ConfigDef.Type.STRING, CAMEL_SINK_SPLUNKHEC_PATH_SPLUNK_URLDEFAULT, ConfigDef.Importance.HIGH, CAMEL_SINK_SPLUNKHEC_PATH_SPLUNK_URLDOC);
         conf.define(CAMEL_SINK_SPLUNKHEC_PATH_TOKEN_CONF, ConfigDef.Type.STRING, CAMEL_SINK_SPLUNKHEC_PATH_TOKEN_DEFAULT, ConfigDef.Importance.HIGH, CAMEL_SINK_SPLUNKHEC_PATH_TOKEN_DOC);
+        conf.define(CAMEL_SINK_SPLUNKHEC_ENDPOINT_BODY_ONLY_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_SPLUNKHEC_ENDPOINT_BODY_ONLY_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SPLUNKHEC_ENDPOINT_BODY_ONLY_DOC);
+        conf.define(CAMEL_SINK_SPLUNKHEC_ENDPOINT_HEADERS_ONLY_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_SPLUNKHEC_ENDPOINT_HEADERS_ONLY_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SPLUNKHEC_ENDPOINT_HEADERS_ONLY_DOC);
         conf.define(CAMEL_SINK_SPLUNKHEC_ENDPOINT_HOST_CONF, ConfigDef.Type.STRING, CAMEL_SINK_SPLUNKHEC_ENDPOINT_HOST_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SPLUNKHEC_ENDPOINT_HOST_DOC);
         conf.define(CAMEL_SINK_SPLUNKHEC_ENDPOINT_INDEX_CONF, ConfigDef.Type.STRING, CAMEL_SINK_SPLUNKHEC_ENDPOINT_INDEX_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SPLUNKHEC_ENDPOINT_INDEX_DOC);
         conf.define(CAMEL_SINK_SPLUNKHEC_ENDPOINT_LAZY_START_PRODUCER_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_SPLUNKHEC_ENDPOINT_LAZY_START_PRODUCER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SPLUNKHEC_ENDPOINT_LAZY_START_PRODUCER_DOC);
         conf.define(CAMEL_SINK_SPLUNKHEC_ENDPOINT_SOURCE_CONF, ConfigDef.Type.STRING, CAMEL_SINK_SPLUNKHEC_ENDPOINT_SOURCE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SPLUNKHEC_ENDPOINT_SOURCE_DOC);
         conf.define(CAMEL_SINK_SPLUNKHEC_ENDPOINT_SOURCE_TYPE_CONF, ConfigDef.Type.STRING, CAMEL_SINK_SPLUNKHEC_ENDPOINT_SOURCE_TYPE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SPLUNKHEC_ENDPOINT_SOURCE_TYPE_DOC);
-        conf.define(CAMEL_SINK_SPLUNKHEC_ENDPOINT_BASIC_PROPERTY_BINDING_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_SPLUNKHEC_ENDPOINT_BASIC_PROPERTY_BINDING_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SPLUNKHEC_ENDPOINT_BASIC_PROPERTY_BINDING_DOC);
-        conf.define(CAMEL_SINK_SPLUNKHEC_ENDPOINT_SYNCHRONOUS_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_SPLUNKHEC_ENDPOINT_SYNCHRONOUS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SPLUNKHEC_ENDPOINT_SYNCHRONOUS_DOC);
         conf.define(CAMEL_SINK_SPLUNKHEC_ENDPOINT_HTTPS_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_SPLUNKHEC_ENDPOINT_HTTPS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SPLUNKHEC_ENDPOINT_HTTPS_DOC);
         conf.define(CAMEL_SINK_SPLUNKHEC_ENDPOINT_SKIP_TLS_VERIFY_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_SPLUNKHEC_ENDPOINT_SKIP_TLS_VERIFY_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SPLUNKHEC_ENDPOINT_SKIP_TLS_VERIFY_DOC);
         conf.define(CAMEL_SINK_SPLUNKHEC_COMPONENT_LAZY_START_PRODUCER_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_SPLUNKHEC_COMPONENT_LAZY_START_PRODUCER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SPLUNKHEC_COMPONENT_LAZY_START_PRODUCER_DOC);
-        conf.define(CAMEL_SINK_SPLUNKHEC_COMPONENT_BASIC_PROPERTY_BINDING_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_SPLUNKHEC_COMPONENT_BASIC_PROPERTY_BINDING_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SPLUNKHEC_COMPONENT_BASIC_PROPERTY_BINDING_DOC);
+        conf.define(CAMEL_SINK_SPLUNKHEC_COMPONENT_AUTOWIRED_ENABLED_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_SPLUNKHEC_COMPONENT_AUTOWIRED_ENABLED_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SPLUNKHEC_COMPONENT_AUTOWIRED_ENABLED_DOC);
         return conf;
     }
 }

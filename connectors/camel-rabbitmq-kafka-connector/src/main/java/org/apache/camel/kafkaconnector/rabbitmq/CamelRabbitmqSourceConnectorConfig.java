@@ -80,6 +80,9 @@ public class CamelRabbitmqSourceConnectorConfig
     public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_ROUTING_KEY_CONF = "camel.source.endpoint.routingKey";
     public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_ROUTING_KEY_DOC = "The routing key to use when binding a consumer queue to the exchange. For producer routing keys, you set the header rabbitmq.ROUTING_KEY.";
     public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_ROUTING_KEY_DEFAULT = null;
+    public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_SKIP_DLQ_DECLARE_CONF = "camel.source.endpoint.skipDlqDeclare";
+    public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_SKIP_DLQ_DECLARE_DOC = "If true the producer will not declare and bind a dead letter queue. This can be used if you have also DLQ rabbitmq consumer and you want to avoid argument clashing between Producer and Consumer. This option have no effect, if DLQ configured (deadLetterExchange option is not set).";
+    public static final Boolean CAMEL_SOURCE_RABBITMQ_ENDPOINT_SKIP_DLQ_DECLARE_DEFAULT = false;
     public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_SKIP_EXCHANGE_DECLARE_CONF = "camel.source.endpoint.skipExchangeDeclare";
     public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_SKIP_EXCHANGE_DECLARE_DOC = "This can be used if we need to declare the queue but not the exchange";
     public static final Boolean CAMEL_SOURCE_RABBITMQ_ENDPOINT_SKIP_EXCHANGE_DECLARE_DEFAULT = false;
@@ -119,6 +122,9 @@ public class CamelRabbitmqSourceConnectorConfig
     public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_PREFETCH_SIZE_CONF = "camel.source.endpoint.prefetchSize";
     public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_PREFETCH_SIZE_DOC = "The maximum amount of content (measured in octets) that the server will deliver, 0 if unlimited. You need to specify the option of prefetchSize, prefetchCount, prefetchGlobal at the same time";
     public static final Integer CAMEL_SOURCE_RABBITMQ_ENDPOINT_PREFETCH_SIZE_DEFAULT = null;
+    public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_RE_QUEUE_CONF = "camel.source.endpoint.reQueue";
+    public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_RE_QUEUE_DOC = "This is used by the consumer to control rejection of the message. When the consumer is complete processing the exchange, and if the exchange failed, then the consumer is going to reject the message from the RabbitMQ broker. If the header CamelRabbitmqRequeue is present then the value of the header will be used, otherwise this endpoint value is used as fallback. If the value is false (by default) then the message is discarded/dead-lettered. If the value is true, then the message is re-queued.";
+    public static final Boolean CAMEL_SOURCE_RABBITMQ_ENDPOINT_RE_QUEUE_DEFAULT = false;
     public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_EXCEPTION_HANDLER_CONF = "camel.source.endpoint.exceptionHandler";
     public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_EXCEPTION_HANDLER_DOC = "To let the consumer use a custom ExceptionHandler. Notice if the option bridgeErrorHandler is enabled then this option is not in use. By default the consumer will deal with exceptions, that will be logged at WARN or ERROR level and ignored.";
     public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_EXCEPTION_HANDLER_DEFAULT = null;
@@ -128,12 +134,12 @@ public class CamelRabbitmqSourceConnectorConfig
     public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_THREAD_POOL_SIZE_CONF = "camel.source.endpoint.threadPoolSize";
     public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_THREAD_POOL_SIZE_DOC = "The consumer uses a Thread Pool Executor with a fixed number of threads. This setting allows you to set that number of threads.";
     public static final Integer CAMEL_SOURCE_RABBITMQ_ENDPOINT_THREAD_POOL_SIZE_DEFAULT = 10;
+    public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_ALLOW_MESSAGE_BODY_SERIALIZATION_CONF = "camel.source.endpoint.allowMessageBodySerialization";
+    public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_ALLOW_MESSAGE_BODY_SERIALIZATION_DOC = "Whether to allow Java serialization of the message body or not. If this value is true, the message body will be serialized on the producer side using Java serialization, if no type converter can handle the message body. On the consumer side, it will deserialize the message body if this value is true and the message contains a CamelSerialize header. Setting this value to true may introduce a security vulnerability as it allows an attacker to attempt to deserialize to a gadget object which could result in a RCE or other security vulnerability.";
+    public static final Boolean CAMEL_SOURCE_RABBITMQ_ENDPOINT_ALLOW_MESSAGE_BODY_SERIALIZATION_DEFAULT = false;
     public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_ARGS_CONF = "camel.source.endpoint.args";
-    public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_ARGS_DOC = "Specify arguments for configuring the different RabbitMQ concepts, a different prefix is required for each: Exchange: arg.exchange. Queue: arg.queue. Binding: arg.binding. For example to declare a queue with message ttl argument: http://localhost:5672/exchange/queueargs=arg.queue.x-message-ttl=60000";
+    public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_ARGS_DOC = "Specify arguments for configuring the different RabbitMQ concepts, a different prefix is required for each: Exchange: arg.exchange. Queue: arg.queue. Binding: arg.binding. DLQ: arg.dlq.queue. DLQ binding: arg.dlq.binding. For example to declare a queue with message ttl argument: http://localhost:5672/exchange/queueargs=arg.queue.x-message-ttl=60000";
     public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_ARGS_DEFAULT = null;
-    public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_BASIC_PROPERTY_BINDING_CONF = "camel.source.endpoint.basicPropertyBinding";
-    public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_BASIC_PROPERTY_BINDING_DOC = "Whether the endpoint should use basic property binding (Camel 2.x) or the newer property binding with additional capabilities";
-    public static final Boolean CAMEL_SOURCE_RABBITMQ_ENDPOINT_BASIC_PROPERTY_BINDING_DEFAULT = false;
     public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_CLIENT_PROPERTIES_CONF = "camel.source.endpoint.clientProperties";
     public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_CLIENT_PROPERTIES_DOC = "Connection client properties (client info used in negotiating with the server)";
     public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_CLIENT_PROPERTIES_DEFAULT = null;
@@ -161,18 +167,12 @@ public class CamelRabbitmqSourceConnectorConfig
     public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_REQUEST_TIMEOUT_CHECKER_INTERVAL_CONF = "camel.source.endpoint.requestTimeoutCheckerInterval";
     public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_REQUEST_TIMEOUT_CHECKER_INTERVAL_DOC = "Set requestTimeoutCheckerInterval for inOut exchange";
     public static final Long CAMEL_SOURCE_RABBITMQ_ENDPOINT_REQUEST_TIMEOUT_CHECKER_INTERVAL_DEFAULT = 1000L;
-    public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_SYNCHRONOUS_CONF = "camel.source.endpoint.synchronous";
-    public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_SYNCHRONOUS_DOC = "Sets whether synchronous processing should be strictly used, or Camel is allowed to use asynchronous processing (if supported).";
-    public static final Boolean CAMEL_SOURCE_RABBITMQ_ENDPOINT_SYNCHRONOUS_DEFAULT = false;
     public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_TOPOLOGY_RECOVERY_ENABLED_CONF = "camel.source.endpoint.topologyRecoveryEnabled";
     public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_TOPOLOGY_RECOVERY_ENABLED_DOC = "Enables connection topology recovery (should topology recovery be performed)";
     public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_TOPOLOGY_RECOVERY_ENABLED_DEFAULT = null;
     public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_TRANSFER_EXCEPTION_CONF = "camel.source.endpoint.transferException";
     public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_TRANSFER_EXCEPTION_DOC = "When true and an inOut Exchange failed on the consumer side send the caused Exception back in the response";
     public static final Boolean CAMEL_SOURCE_RABBITMQ_ENDPOINT_TRANSFER_EXCEPTION_DEFAULT = false;
-    public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_ALLOW_MESSAGE_BODY_SERIALIZATION_CONF = "camel.source.endpoint.allowMessageBodySerialization";
-    public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_ALLOW_MESSAGE_BODY_SERIALIZATION_DOC = "Whether to allow Java serialization of the message body or not. If this value is true, the message body will be serialized on the producer side using Java serialization, if no type converter can handle the message body. On the consumer side, it will deserialize the message body if this value is true and the message contains a CamelSerialize header. Setting this value to true may introduce a security vulnerability as it allows an attacker to attempt to deserialize to a gadget object which could result in a RCE or other security vulnerability.";
-    public static final Boolean CAMEL_SOURCE_RABBITMQ_ENDPOINT_ALLOW_MESSAGE_BODY_SERIALIZATION_DEFAULT = false;
     public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_PASSWORD_CONF = "camel.source.endpoint.password";
     public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_PASSWORD_DOC = "Password for authenticated access";
     public static final String CAMEL_SOURCE_RABBITMQ_ENDPOINT_PASSWORD_DEFAULT = "guest";
@@ -261,7 +261,7 @@ public class CamelRabbitmqSourceConnectorConfig
     public static final String CAMEL_SOURCE_RABBITMQ_COMPONENT_THREAD_POOL_SIZE_DOC = "The consumer uses a Thread Pool Executor with a fixed number of threads. This setting allows you to set that number of threads.";
     public static final Integer CAMEL_SOURCE_RABBITMQ_COMPONENT_THREAD_POOL_SIZE_DEFAULT = 10;
     public static final String CAMEL_SOURCE_RABBITMQ_COMPONENT_ARGS_CONF = "camel.component.rabbitmq.args";
-    public static final String CAMEL_SOURCE_RABBITMQ_COMPONENT_ARGS_DOC = "Specify arguments for configuring the different RabbitMQ concepts, a different prefix is required for each: Exchange: arg.exchange. Queue: arg.queue. Binding: arg.binding. For example to declare a queue with message ttl argument: http://localhost:5672/exchange/queueargs=arg.queue.x-message-ttl=60000";
+    public static final String CAMEL_SOURCE_RABBITMQ_COMPONENT_ARGS_DOC = "Specify arguments for configuring the different RabbitMQ concepts, a different prefix is required for each: Exchange: arg.exchange. Queue: arg.queue. Binding: arg.binding. DLQ: arg.dlq.queue. DLQ Binding: arg.dlq.binding. For example to declare a queue with message ttl argument: http://localhost:5672/exchange/queueargs=arg.queue.x-message-ttl=60000";
     public static final String CAMEL_SOURCE_RABBITMQ_COMPONENT_ARGS_DEFAULT = null;
     public static final String CAMEL_SOURCE_RABBITMQ_COMPONENT_AUTO_DETECT_CONNECTION_FACTORY_CONF = "camel.component.rabbitmq.autoDetectConnectionFactory";
     public static final String CAMEL_SOURCE_RABBITMQ_COMPONENT_AUTO_DETECT_CONNECTION_FACTORY_DOC = "Whether to auto-detect looking up RabbitMQ connection factory from the registry. When enabled and a single instance of the connection factory is found then it will be used. An explicit connection factory can be configured on the component or endpoint level which takes precedence.";
@@ -269,9 +269,9 @@ public class CamelRabbitmqSourceConnectorConfig
     public static final String CAMEL_SOURCE_RABBITMQ_COMPONENT_AUTOMATIC_RECOVERY_ENABLED_CONF = "camel.component.rabbitmq.automaticRecoveryEnabled";
     public static final String CAMEL_SOURCE_RABBITMQ_COMPONENT_AUTOMATIC_RECOVERY_ENABLED_DOC = "Enables connection automatic recovery (uses connection implementation that performs automatic recovery when connection shutdown is not initiated by the application)";
     public static final String CAMEL_SOURCE_RABBITMQ_COMPONENT_AUTOMATIC_RECOVERY_ENABLED_DEFAULT = null;
-    public static final String CAMEL_SOURCE_RABBITMQ_COMPONENT_BASIC_PROPERTY_BINDING_CONF = "camel.component.rabbitmq.basicPropertyBinding";
-    public static final String CAMEL_SOURCE_RABBITMQ_COMPONENT_BASIC_PROPERTY_BINDING_DOC = "Whether the component should use basic property binding (Camel 2.x) or the newer property binding with additional capabilities";
-    public static final Boolean CAMEL_SOURCE_RABBITMQ_COMPONENT_BASIC_PROPERTY_BINDING_DEFAULT = false;
+    public static final String CAMEL_SOURCE_RABBITMQ_COMPONENT_AUTOWIRED_ENABLED_CONF = "camel.component.rabbitmq.autowiredEnabled";
+    public static final String CAMEL_SOURCE_RABBITMQ_COMPONENT_AUTOWIRED_ENABLED_DOC = "Whether autowiring is enabled. This is used for automatic autowiring options (the option must be marked as autowired) by looking up in the registry to find if there is a single instance of matching type, which then gets configured on the component. This can be used for automatic configuring JDBC data sources, JMS connection factories, AWS Clients, etc.";
+    public static final Boolean CAMEL_SOURCE_RABBITMQ_COMPONENT_AUTOWIRED_ENABLED_DEFAULT = true;
     public static final String CAMEL_SOURCE_RABBITMQ_COMPONENT_CLIENT_PROPERTIES_CONF = "camel.component.rabbitmq.clientProperties";
     public static final String CAMEL_SOURCE_RABBITMQ_COMPONENT_CLIENT_PROPERTIES_DOC = "Connection client properties (client info used in negotiating with the server)";
     public static final String CAMEL_SOURCE_RABBITMQ_COMPONENT_CLIENT_PROPERTIES_DEFAULT = null;
@@ -348,6 +348,7 @@ public class CamelRabbitmqSourceConnectorConfig
         conf.define(CAMEL_SOURCE_RABBITMQ_ENDPOINT_PORT_NUMBER_CONF, ConfigDef.Type.INT, CAMEL_SOURCE_RABBITMQ_ENDPOINT_PORT_NUMBER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_ENDPOINT_PORT_NUMBER_DOC);
         conf.define(CAMEL_SOURCE_RABBITMQ_ENDPOINT_QUEUE_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_RABBITMQ_ENDPOINT_QUEUE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_ENDPOINT_QUEUE_DOC);
         conf.define(CAMEL_SOURCE_RABBITMQ_ENDPOINT_ROUTING_KEY_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_RABBITMQ_ENDPOINT_ROUTING_KEY_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_ENDPOINT_ROUTING_KEY_DOC);
+        conf.define(CAMEL_SOURCE_RABBITMQ_ENDPOINT_SKIP_DLQ_DECLARE_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_RABBITMQ_ENDPOINT_SKIP_DLQ_DECLARE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_ENDPOINT_SKIP_DLQ_DECLARE_DOC);
         conf.define(CAMEL_SOURCE_RABBITMQ_ENDPOINT_SKIP_EXCHANGE_DECLARE_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_RABBITMQ_ENDPOINT_SKIP_EXCHANGE_DECLARE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_ENDPOINT_SKIP_EXCHANGE_DECLARE_DOC);
         conf.define(CAMEL_SOURCE_RABBITMQ_ENDPOINT_SKIP_QUEUE_BIND_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_RABBITMQ_ENDPOINT_SKIP_QUEUE_BIND_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_ENDPOINT_SKIP_QUEUE_BIND_DOC);
         conf.define(CAMEL_SOURCE_RABBITMQ_ENDPOINT_SKIP_QUEUE_DECLARE_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_RABBITMQ_ENDPOINT_SKIP_QUEUE_DECLARE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_ENDPOINT_SKIP_QUEUE_DECLARE_DOC);
@@ -361,11 +362,12 @@ public class CamelRabbitmqSourceConnectorConfig
         conf.define(CAMEL_SOURCE_RABBITMQ_ENDPOINT_PREFETCH_ENABLED_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_RABBITMQ_ENDPOINT_PREFETCH_ENABLED_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_ENDPOINT_PREFETCH_ENABLED_DOC);
         conf.define(CAMEL_SOURCE_RABBITMQ_ENDPOINT_PREFETCH_GLOBAL_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_RABBITMQ_ENDPOINT_PREFETCH_GLOBAL_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_ENDPOINT_PREFETCH_GLOBAL_DOC);
         conf.define(CAMEL_SOURCE_RABBITMQ_ENDPOINT_PREFETCH_SIZE_CONF, ConfigDef.Type.INT, CAMEL_SOURCE_RABBITMQ_ENDPOINT_PREFETCH_SIZE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_ENDPOINT_PREFETCH_SIZE_DOC);
+        conf.define(CAMEL_SOURCE_RABBITMQ_ENDPOINT_RE_QUEUE_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_RABBITMQ_ENDPOINT_RE_QUEUE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_ENDPOINT_RE_QUEUE_DOC);
         conf.define(CAMEL_SOURCE_RABBITMQ_ENDPOINT_EXCEPTION_HANDLER_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_RABBITMQ_ENDPOINT_EXCEPTION_HANDLER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_ENDPOINT_EXCEPTION_HANDLER_DOC);
         conf.define(CAMEL_SOURCE_RABBITMQ_ENDPOINT_EXCHANGE_PATTERN_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_RABBITMQ_ENDPOINT_EXCHANGE_PATTERN_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_ENDPOINT_EXCHANGE_PATTERN_DOC);
         conf.define(CAMEL_SOURCE_RABBITMQ_ENDPOINT_THREAD_POOL_SIZE_CONF, ConfigDef.Type.INT, CAMEL_SOURCE_RABBITMQ_ENDPOINT_THREAD_POOL_SIZE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_ENDPOINT_THREAD_POOL_SIZE_DOC);
+        conf.define(CAMEL_SOURCE_RABBITMQ_ENDPOINT_ALLOW_MESSAGE_BODY_SERIALIZATION_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_RABBITMQ_ENDPOINT_ALLOW_MESSAGE_BODY_SERIALIZATION_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_ENDPOINT_ALLOW_MESSAGE_BODY_SERIALIZATION_DOC);
         conf.define(CAMEL_SOURCE_RABBITMQ_ENDPOINT_ARGS_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_RABBITMQ_ENDPOINT_ARGS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_ENDPOINT_ARGS_DOC);
-        conf.define(CAMEL_SOURCE_RABBITMQ_ENDPOINT_BASIC_PROPERTY_BINDING_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_RABBITMQ_ENDPOINT_BASIC_PROPERTY_BINDING_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_ENDPOINT_BASIC_PROPERTY_BINDING_DOC);
         conf.define(CAMEL_SOURCE_RABBITMQ_ENDPOINT_CLIENT_PROPERTIES_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_RABBITMQ_ENDPOINT_CLIENT_PROPERTIES_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_ENDPOINT_CLIENT_PROPERTIES_DOC);
         conf.define(CAMEL_SOURCE_RABBITMQ_ENDPOINT_CONNECTION_FACTORY_EXCEPTION_HANDLER_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_RABBITMQ_ENDPOINT_CONNECTION_FACTORY_EXCEPTION_HANDLER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_ENDPOINT_CONNECTION_FACTORY_EXCEPTION_HANDLER_DOC);
         conf.define(CAMEL_SOURCE_RABBITMQ_ENDPOINT_CONNECTION_TIMEOUT_CONF, ConfigDef.Type.INT, CAMEL_SOURCE_RABBITMQ_ENDPOINT_CONNECTION_TIMEOUT_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_ENDPOINT_CONNECTION_TIMEOUT_DOC);
@@ -375,14 +377,12 @@ public class CamelRabbitmqSourceConnectorConfig
         conf.define(CAMEL_SOURCE_RABBITMQ_ENDPOINT_REQUESTED_HEARTBEAT_CONF, ConfigDef.Type.INT, CAMEL_SOURCE_RABBITMQ_ENDPOINT_REQUESTED_HEARTBEAT_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_ENDPOINT_REQUESTED_HEARTBEAT_DOC);
         conf.define(CAMEL_SOURCE_RABBITMQ_ENDPOINT_REQUEST_TIMEOUT_CONF, ConfigDef.Type.LONG, CAMEL_SOURCE_RABBITMQ_ENDPOINT_REQUEST_TIMEOUT_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_ENDPOINT_REQUEST_TIMEOUT_DOC);
         conf.define(CAMEL_SOURCE_RABBITMQ_ENDPOINT_REQUEST_TIMEOUT_CHECKER_INTERVAL_CONF, ConfigDef.Type.LONG, CAMEL_SOURCE_RABBITMQ_ENDPOINT_REQUEST_TIMEOUT_CHECKER_INTERVAL_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_ENDPOINT_REQUEST_TIMEOUT_CHECKER_INTERVAL_DOC);
-        conf.define(CAMEL_SOURCE_RABBITMQ_ENDPOINT_SYNCHRONOUS_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_RABBITMQ_ENDPOINT_SYNCHRONOUS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_ENDPOINT_SYNCHRONOUS_DOC);
         conf.define(CAMEL_SOURCE_RABBITMQ_ENDPOINT_TOPOLOGY_RECOVERY_ENABLED_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_RABBITMQ_ENDPOINT_TOPOLOGY_RECOVERY_ENABLED_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_ENDPOINT_TOPOLOGY_RECOVERY_ENABLED_DOC);
         conf.define(CAMEL_SOURCE_RABBITMQ_ENDPOINT_TRANSFER_EXCEPTION_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_RABBITMQ_ENDPOINT_TRANSFER_EXCEPTION_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_ENDPOINT_TRANSFER_EXCEPTION_DOC);
-        conf.define(CAMEL_SOURCE_RABBITMQ_ENDPOINT_ALLOW_MESSAGE_BODY_SERIALIZATION_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_RABBITMQ_ENDPOINT_ALLOW_MESSAGE_BODY_SERIALIZATION_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_ENDPOINT_ALLOW_MESSAGE_BODY_SERIALIZATION_DOC);
-        conf.define(CAMEL_SOURCE_RABBITMQ_ENDPOINT_PASSWORD_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_RABBITMQ_ENDPOINT_PASSWORD_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_ENDPOINT_PASSWORD_DOC);
+        conf.define(CAMEL_SOURCE_RABBITMQ_ENDPOINT_PASSWORD_CONF, ConfigDef.Type.PASSWORD, CAMEL_SOURCE_RABBITMQ_ENDPOINT_PASSWORD_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_ENDPOINT_PASSWORD_DOC);
         conf.define(CAMEL_SOURCE_RABBITMQ_ENDPOINT_SSL_PROTOCOL_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_RABBITMQ_ENDPOINT_SSL_PROTOCOL_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_ENDPOINT_SSL_PROTOCOL_DOC);
         conf.define(CAMEL_SOURCE_RABBITMQ_ENDPOINT_TRUST_MANAGER_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_RABBITMQ_ENDPOINT_TRUST_MANAGER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_ENDPOINT_TRUST_MANAGER_DOC);
-        conf.define(CAMEL_SOURCE_RABBITMQ_ENDPOINT_USERNAME_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_RABBITMQ_ENDPOINT_USERNAME_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_ENDPOINT_USERNAME_DOC);
+        conf.define(CAMEL_SOURCE_RABBITMQ_ENDPOINT_USERNAME_CONF, ConfigDef.Type.PASSWORD, CAMEL_SOURCE_RABBITMQ_ENDPOINT_USERNAME_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_ENDPOINT_USERNAME_DOC);
         conf.define(CAMEL_SOURCE_RABBITMQ_COMPONENT_ADDRESSES_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_RABBITMQ_COMPONENT_ADDRESSES_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_COMPONENT_ADDRESSES_DOC);
         conf.define(CAMEL_SOURCE_RABBITMQ_COMPONENT_AUTO_DELETE_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_RABBITMQ_COMPONENT_AUTO_DELETE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_COMPONENT_AUTO_DELETE_DOC);
         conf.define(CAMEL_SOURCE_RABBITMQ_COMPONENT_CONNECTION_FACTORY_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_RABBITMQ_COMPONENT_CONNECTION_FACTORY_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_COMPONENT_CONNECTION_FACTORY_DOC);
@@ -411,7 +411,7 @@ public class CamelRabbitmqSourceConnectorConfig
         conf.define(CAMEL_SOURCE_RABBITMQ_COMPONENT_ARGS_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_RABBITMQ_COMPONENT_ARGS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_COMPONENT_ARGS_DOC);
         conf.define(CAMEL_SOURCE_RABBITMQ_COMPONENT_AUTO_DETECT_CONNECTION_FACTORY_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_RABBITMQ_COMPONENT_AUTO_DETECT_CONNECTION_FACTORY_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_COMPONENT_AUTO_DETECT_CONNECTION_FACTORY_DOC);
         conf.define(CAMEL_SOURCE_RABBITMQ_COMPONENT_AUTOMATIC_RECOVERY_ENABLED_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_RABBITMQ_COMPONENT_AUTOMATIC_RECOVERY_ENABLED_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_COMPONENT_AUTOMATIC_RECOVERY_ENABLED_DOC);
-        conf.define(CAMEL_SOURCE_RABBITMQ_COMPONENT_BASIC_PROPERTY_BINDING_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_RABBITMQ_COMPONENT_BASIC_PROPERTY_BINDING_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_COMPONENT_BASIC_PROPERTY_BINDING_DOC);
+        conf.define(CAMEL_SOURCE_RABBITMQ_COMPONENT_AUTOWIRED_ENABLED_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_RABBITMQ_COMPONENT_AUTOWIRED_ENABLED_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_COMPONENT_AUTOWIRED_ENABLED_DOC);
         conf.define(CAMEL_SOURCE_RABBITMQ_COMPONENT_CLIENT_PROPERTIES_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_RABBITMQ_COMPONENT_CLIENT_PROPERTIES_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_COMPONENT_CLIENT_PROPERTIES_DOC);
         conf.define(CAMEL_SOURCE_RABBITMQ_COMPONENT_CONNECTION_FACTORY_EXCEPTION_HANDLER_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_RABBITMQ_COMPONENT_CONNECTION_FACTORY_EXCEPTION_HANDLER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_COMPONENT_CONNECTION_FACTORY_EXCEPTION_HANDLER_DOC);
         conf.define(CAMEL_SOURCE_RABBITMQ_COMPONENT_CONNECTION_TIMEOUT_CONF, ConfigDef.Type.INT, CAMEL_SOURCE_RABBITMQ_COMPONENT_CONNECTION_TIMEOUT_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_COMPONENT_CONNECTION_TIMEOUT_DOC);
@@ -423,10 +423,10 @@ public class CamelRabbitmqSourceConnectorConfig
         conf.define(CAMEL_SOURCE_RABBITMQ_COMPONENT_REQUEST_TIMEOUT_CHECKER_INTERVAL_CONF, ConfigDef.Type.LONG, CAMEL_SOURCE_RABBITMQ_COMPONENT_REQUEST_TIMEOUT_CHECKER_INTERVAL_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_COMPONENT_REQUEST_TIMEOUT_CHECKER_INTERVAL_DOC);
         conf.define(CAMEL_SOURCE_RABBITMQ_COMPONENT_TOPOLOGY_RECOVERY_ENABLED_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_RABBITMQ_COMPONENT_TOPOLOGY_RECOVERY_ENABLED_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_COMPONENT_TOPOLOGY_RECOVERY_ENABLED_DOC);
         conf.define(CAMEL_SOURCE_RABBITMQ_COMPONENT_TRANSFER_EXCEPTION_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_RABBITMQ_COMPONENT_TRANSFER_EXCEPTION_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_COMPONENT_TRANSFER_EXCEPTION_DOC);
-        conf.define(CAMEL_SOURCE_RABBITMQ_COMPONENT_PASSWORD_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_RABBITMQ_COMPONENT_PASSWORD_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_COMPONENT_PASSWORD_DOC);
+        conf.define(CAMEL_SOURCE_RABBITMQ_COMPONENT_PASSWORD_CONF, ConfigDef.Type.PASSWORD, CAMEL_SOURCE_RABBITMQ_COMPONENT_PASSWORD_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_COMPONENT_PASSWORD_DOC);
         conf.define(CAMEL_SOURCE_RABBITMQ_COMPONENT_SSL_PROTOCOL_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_RABBITMQ_COMPONENT_SSL_PROTOCOL_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_COMPONENT_SSL_PROTOCOL_DOC);
         conf.define(CAMEL_SOURCE_RABBITMQ_COMPONENT_TRUST_MANAGER_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_RABBITMQ_COMPONENT_TRUST_MANAGER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_COMPONENT_TRUST_MANAGER_DOC);
-        conf.define(CAMEL_SOURCE_RABBITMQ_COMPONENT_USERNAME_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_RABBITMQ_COMPONENT_USERNAME_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_COMPONENT_USERNAME_DOC);
+        conf.define(CAMEL_SOURCE_RABBITMQ_COMPONENT_USERNAME_CONF, ConfigDef.Type.PASSWORD, CAMEL_SOURCE_RABBITMQ_COMPONENT_USERNAME_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_RABBITMQ_COMPONENT_USERNAME_DOC);
         return conf;
     }
 }

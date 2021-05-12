@@ -18,12 +18,11 @@
 package org.apache.camel.kafkaconnector.common.clients.kafka;
 
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import org.apache.kafka.clients.admin.AdminClient;
@@ -75,11 +74,36 @@ public class KafkaClient<K, V> {
      *                        PLAINTEXT://${address}:${port}
      */
     public KafkaClient(String bootstrapServer) {
-        consumerPropertyFactory = new DefaultConsumerPropertyFactory(bootstrapServer);
-        producerPropertyFactory = new DefaultProducerPropertyFactory(bootstrapServer);
+        this(new DefaultConsumerPropertyFactory(bootstrapServer), new DefaultProducerPropertyFactory(bootstrapServer));
+    }
+
+    /**
+     * Constructs the properties using the given bootstrap server
+     *
+     * @param consumerPropertyFactory a property factory for Kafka client consumers
+     * @param producerPropertyFactory a property factory for Kafka client producers
+     */
+    public KafkaClient(ConsumerPropertyFactory consumerPropertyFactory, ProducerPropertyFactory producerPropertyFactory) {
+        this.consumerPropertyFactory = consumerPropertyFactory;
+        this.producerPropertyFactory = producerPropertyFactory;
 
         producer = new KafkaProducer<>(producerPropertyFactory.getProperties());
         consumer = new KafkaConsumer<>(consumerPropertyFactory.getProperties());
+    }
+
+    /**
+     * Consumes message from the given topic
+     *
+     * @param topic     the topic to consume the messages from
+     * @param recordConsumer the a function to consume the received messages
+     */
+    public void consumeAvailable(String topic, Consumer<ConsumerRecord<K, V>> recordConsumer) {
+        consumer.subscribe(Collections.singletonList(topic));
+
+        ConsumerRecords<K, V> records = consumer.poll(Duration.ofMillis(100));
+        for (ConsumerRecord<K, V> record : records) {
+            recordConsumer.accept(record);
+        }
     }
 
 
@@ -90,7 +114,7 @@ public class KafkaClient<K, V> {
      * @param predicate the predicate to test when the messages arrive
      */
     public void consume(String topic, Predicate<ConsumerRecord<K, V>> predicate) {
-        consumer.subscribe(Arrays.asList(topic));
+        consumer.subscribe(Collections.singletonList(topic));
 
         // TODO: handle failures, timeouts, etc
         while (true) {
@@ -141,14 +165,18 @@ public class KafkaClient<K, V> {
         future.get();
     }
 
+    public AdminClient getAdminClient() {
+        return AdminClient.create(producerPropertyFactory.getProperties());
+    }
+
     /**
      * Delete a topic
      *
      * @param topic the topic to be deleted
      */
     public void deleteTopic(String topic) {
-        Properties props = producerPropertyFactory.getProperties();
-        AdminClient admClient = AdminClient.create(props);
-        admClient.deleteTopics(Collections.singleton(topic));
+        AdminClient adminClient = getAdminClient();
+
+        adminClient.deleteTopics(Collections.singleton(topic));
     }
 }

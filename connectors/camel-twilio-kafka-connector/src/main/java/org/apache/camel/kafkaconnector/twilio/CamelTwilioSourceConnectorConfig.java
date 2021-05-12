@@ -50,12 +50,6 @@ public class CamelTwilioSourceConnectorConfig
     public static final String CAMEL_SOURCE_TWILIO_ENDPOINT_POLL_STRATEGY_CONF = "camel.source.endpoint.pollStrategy";
     public static final String CAMEL_SOURCE_TWILIO_ENDPOINT_POLL_STRATEGY_DOC = "A pluggable org.apache.camel.PollingConsumerPollingStrategy allowing you to provide your custom implementation to control error handling usually occurred during the poll operation before an Exchange have been created and being routed in Camel.";
     public static final String CAMEL_SOURCE_TWILIO_ENDPOINT_POLL_STRATEGY_DEFAULT = null;
-    public static final String CAMEL_SOURCE_TWILIO_ENDPOINT_BASIC_PROPERTY_BINDING_CONF = "camel.source.endpoint.basicPropertyBinding";
-    public static final String CAMEL_SOURCE_TWILIO_ENDPOINT_BASIC_PROPERTY_BINDING_DOC = "Whether the endpoint should use basic property binding (Camel 2.x) or the newer property binding with additional capabilities";
-    public static final Boolean CAMEL_SOURCE_TWILIO_ENDPOINT_BASIC_PROPERTY_BINDING_DEFAULT = false;
-    public static final String CAMEL_SOURCE_TWILIO_ENDPOINT_SYNCHRONOUS_CONF = "camel.source.endpoint.synchronous";
-    public static final String CAMEL_SOURCE_TWILIO_ENDPOINT_SYNCHRONOUS_DOC = "Sets whether synchronous processing should be strictly used, or Camel is allowed to use asynchronous processing (if supported).";
-    public static final Boolean CAMEL_SOURCE_TWILIO_ENDPOINT_SYNCHRONOUS_DEFAULT = false;
     public static final String CAMEL_SOURCE_TWILIO_ENDPOINT_BACKOFF_ERROR_THRESHOLD_CONF = "camel.source.endpoint.backoffErrorThreshold";
     public static final String CAMEL_SOURCE_TWILIO_ENDPOINT_BACKOFF_ERROR_THRESHOLD_DOC = "The number of subsequent error polls (failed due some error) that should happen before the backoffMultipler should kick-in.";
     public static final Integer CAMEL_SOURCE_TWILIO_ENDPOINT_BACKOFF_ERROR_THRESHOLD_DEFAULT = null;
@@ -84,7 +78,7 @@ public class CamelTwilioSourceConnectorConfig
     public static final String CAMEL_SOURCE_TWILIO_ENDPOINT_SCHEDULED_EXECUTOR_SERVICE_DOC = "Allows for configuring a custom/shared thread pool to use for the consumer. By default each consumer has its own single threaded thread pool.";
     public static final String CAMEL_SOURCE_TWILIO_ENDPOINT_SCHEDULED_EXECUTOR_SERVICE_DEFAULT = null;
     public static final String CAMEL_SOURCE_TWILIO_ENDPOINT_SCHEDULER_CONF = "camel.source.endpoint.scheduler";
-    public static final String CAMEL_SOURCE_TWILIO_ENDPOINT_SCHEDULER_DOC = "To use a cron scheduler from either camel-spring or camel-quartz component One of: [none] [spring] [quartz]";
+    public static final String CAMEL_SOURCE_TWILIO_ENDPOINT_SCHEDULER_DOC = "To use a cron scheduler from either camel-spring or camel-quartz component. Use value spring or quartz for built in scheduler";
     public static final String CAMEL_SOURCE_TWILIO_ENDPOINT_SCHEDULER_DEFAULT = "none";
     public static final String CAMEL_SOURCE_TWILIO_ENDPOINT_SCHEDULER_PROPERTIES_CONF = "camel.source.endpoint.schedulerProperties";
     public static final String CAMEL_SOURCE_TWILIO_ENDPOINT_SCHEDULER_PROPERTIES_DOC = "To configure additional properties when using a custom scheduler or any of the Quartz, Spring based scheduler.";
@@ -98,15 +92,15 @@ public class CamelTwilioSourceConnectorConfig
     public static final String CAMEL_SOURCE_TWILIO_ENDPOINT_USE_FIXED_DELAY_CONF = "camel.source.endpoint.useFixedDelay";
     public static final String CAMEL_SOURCE_TWILIO_ENDPOINT_USE_FIXED_DELAY_DOC = "Controls if fixed delay or fixed rate is used. See ScheduledExecutorService in JDK for details.";
     public static final Boolean CAMEL_SOURCE_TWILIO_ENDPOINT_USE_FIXED_DELAY_DEFAULT = true;
-    public static final String CAMEL_SOURCE_TWILIO_COMPONENT_BRIDGE_ERROR_HANDLER_CONF = "camel.component.twilio.bridgeErrorHandler";
-    public static final String CAMEL_SOURCE_TWILIO_COMPONENT_BRIDGE_ERROR_HANDLER_DOC = "Allows for bridging the consumer to the Camel routing Error Handler, which mean any exceptions occurred while the consumer is trying to pickup incoming messages, or the likes, will now be processed as a message and handled by the routing Error Handler. By default the consumer will use the org.apache.camel.spi.ExceptionHandler to deal with exceptions, that will be logged at WARN or ERROR level and ignored.";
-    public static final Boolean CAMEL_SOURCE_TWILIO_COMPONENT_BRIDGE_ERROR_HANDLER_DEFAULT = false;
-    public static final String CAMEL_SOURCE_TWILIO_COMPONENT_BASIC_PROPERTY_BINDING_CONF = "camel.component.twilio.basicPropertyBinding";
-    public static final String CAMEL_SOURCE_TWILIO_COMPONENT_BASIC_PROPERTY_BINDING_DOC = "Whether the component should use basic property binding (Camel 2.x) or the newer property binding with additional capabilities";
-    public static final Boolean CAMEL_SOURCE_TWILIO_COMPONENT_BASIC_PROPERTY_BINDING_DEFAULT = false;
     public static final String CAMEL_SOURCE_TWILIO_COMPONENT_CONFIGURATION_CONF = "camel.component.twilio.configuration";
     public static final String CAMEL_SOURCE_TWILIO_COMPONENT_CONFIGURATION_DOC = "To use the shared configuration";
     public static final String CAMEL_SOURCE_TWILIO_COMPONENT_CONFIGURATION_DEFAULT = null;
+    public static final String CAMEL_SOURCE_TWILIO_COMPONENT_BRIDGE_ERROR_HANDLER_CONF = "camel.component.twilio.bridgeErrorHandler";
+    public static final String CAMEL_SOURCE_TWILIO_COMPONENT_BRIDGE_ERROR_HANDLER_DOC = "Allows for bridging the consumer to the Camel routing Error Handler, which mean any exceptions occurred while the consumer is trying to pickup incoming messages, or the likes, will now be processed as a message and handled by the routing Error Handler. By default the consumer will use the org.apache.camel.spi.ExceptionHandler to deal with exceptions, that will be logged at WARN or ERROR level and ignored.";
+    public static final Boolean CAMEL_SOURCE_TWILIO_COMPONENT_BRIDGE_ERROR_HANDLER_DEFAULT = false;
+    public static final String CAMEL_SOURCE_TWILIO_COMPONENT_AUTOWIRED_ENABLED_CONF = "camel.component.twilio.autowiredEnabled";
+    public static final String CAMEL_SOURCE_TWILIO_COMPONENT_AUTOWIRED_ENABLED_DOC = "Whether autowiring is enabled. This is used for automatic autowiring options (the option must be marked as autowired) by looking up in the registry to find if there is a single instance of matching type, which then gets configured on the component. This can be used for automatic configuring JDBC data sources, JMS connection factories, AWS Clients, etc.";
+    public static final Boolean CAMEL_SOURCE_TWILIO_COMPONENT_AUTOWIRED_ENABLED_DEFAULT = true;
     public static final String CAMEL_SOURCE_TWILIO_COMPONENT_REST_CLIENT_CONF = "camel.component.twilio.restClient";
     public static final String CAMEL_SOURCE_TWILIO_COMPONENT_REST_CLIENT_DOC = "To use the shared REST client";
     public static final String CAMEL_SOURCE_TWILIO_COMPONENT_REST_CLIENT_DEFAULT = null;
@@ -140,8 +134,6 @@ public class CamelTwilioSourceConnectorConfig
         conf.define(CAMEL_SOURCE_TWILIO_ENDPOINT_EXCEPTION_HANDLER_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_TWILIO_ENDPOINT_EXCEPTION_HANDLER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_TWILIO_ENDPOINT_EXCEPTION_HANDLER_DOC);
         conf.define(CAMEL_SOURCE_TWILIO_ENDPOINT_EXCHANGE_PATTERN_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_TWILIO_ENDPOINT_EXCHANGE_PATTERN_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_TWILIO_ENDPOINT_EXCHANGE_PATTERN_DOC);
         conf.define(CAMEL_SOURCE_TWILIO_ENDPOINT_POLL_STRATEGY_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_TWILIO_ENDPOINT_POLL_STRATEGY_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_TWILIO_ENDPOINT_POLL_STRATEGY_DOC);
-        conf.define(CAMEL_SOURCE_TWILIO_ENDPOINT_BASIC_PROPERTY_BINDING_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_TWILIO_ENDPOINT_BASIC_PROPERTY_BINDING_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_TWILIO_ENDPOINT_BASIC_PROPERTY_BINDING_DOC);
-        conf.define(CAMEL_SOURCE_TWILIO_ENDPOINT_SYNCHRONOUS_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_TWILIO_ENDPOINT_SYNCHRONOUS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_TWILIO_ENDPOINT_SYNCHRONOUS_DOC);
         conf.define(CAMEL_SOURCE_TWILIO_ENDPOINT_BACKOFF_ERROR_THRESHOLD_CONF, ConfigDef.Type.INT, CAMEL_SOURCE_TWILIO_ENDPOINT_BACKOFF_ERROR_THRESHOLD_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_TWILIO_ENDPOINT_BACKOFF_ERROR_THRESHOLD_DOC);
         conf.define(CAMEL_SOURCE_TWILIO_ENDPOINT_BACKOFF_IDLE_THRESHOLD_CONF, ConfigDef.Type.INT, CAMEL_SOURCE_TWILIO_ENDPOINT_BACKOFF_IDLE_THRESHOLD_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_TWILIO_ENDPOINT_BACKOFF_IDLE_THRESHOLD_DOC);
         conf.define(CAMEL_SOURCE_TWILIO_ENDPOINT_BACKOFF_MULTIPLIER_CONF, ConfigDef.Type.INT, CAMEL_SOURCE_TWILIO_ENDPOINT_BACKOFF_MULTIPLIER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_TWILIO_ENDPOINT_BACKOFF_MULTIPLIER_DOC);
@@ -156,13 +148,13 @@ public class CamelTwilioSourceConnectorConfig
         conf.define(CAMEL_SOURCE_TWILIO_ENDPOINT_START_SCHEDULER_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_TWILIO_ENDPOINT_START_SCHEDULER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_TWILIO_ENDPOINT_START_SCHEDULER_DOC);
         conf.define(CAMEL_SOURCE_TWILIO_ENDPOINT_TIME_UNIT_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_TWILIO_ENDPOINT_TIME_UNIT_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_TWILIO_ENDPOINT_TIME_UNIT_DOC);
         conf.define(CAMEL_SOURCE_TWILIO_ENDPOINT_USE_FIXED_DELAY_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_TWILIO_ENDPOINT_USE_FIXED_DELAY_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_TWILIO_ENDPOINT_USE_FIXED_DELAY_DOC);
-        conf.define(CAMEL_SOURCE_TWILIO_COMPONENT_BRIDGE_ERROR_HANDLER_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_TWILIO_COMPONENT_BRIDGE_ERROR_HANDLER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_TWILIO_COMPONENT_BRIDGE_ERROR_HANDLER_DOC);
-        conf.define(CAMEL_SOURCE_TWILIO_COMPONENT_BASIC_PROPERTY_BINDING_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_TWILIO_COMPONENT_BASIC_PROPERTY_BINDING_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_TWILIO_COMPONENT_BASIC_PROPERTY_BINDING_DOC);
         conf.define(CAMEL_SOURCE_TWILIO_COMPONENT_CONFIGURATION_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_TWILIO_COMPONENT_CONFIGURATION_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_TWILIO_COMPONENT_CONFIGURATION_DOC);
+        conf.define(CAMEL_SOURCE_TWILIO_COMPONENT_BRIDGE_ERROR_HANDLER_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_TWILIO_COMPONENT_BRIDGE_ERROR_HANDLER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_TWILIO_COMPONENT_BRIDGE_ERROR_HANDLER_DOC);
+        conf.define(CAMEL_SOURCE_TWILIO_COMPONENT_AUTOWIRED_ENABLED_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_TWILIO_COMPONENT_AUTOWIRED_ENABLED_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_TWILIO_COMPONENT_AUTOWIRED_ENABLED_DOC);
         conf.define(CAMEL_SOURCE_TWILIO_COMPONENT_REST_CLIENT_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_TWILIO_COMPONENT_REST_CLIENT_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_TWILIO_COMPONENT_REST_CLIENT_DOC);
-        conf.define(CAMEL_SOURCE_TWILIO_COMPONENT_ACCOUNT_SID_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_TWILIO_COMPONENT_ACCOUNT_SID_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_TWILIO_COMPONENT_ACCOUNT_SID_DOC);
-        conf.define(CAMEL_SOURCE_TWILIO_COMPONENT_PASSWORD_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_TWILIO_COMPONENT_PASSWORD_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_TWILIO_COMPONENT_PASSWORD_DOC);
-        conf.define(CAMEL_SOURCE_TWILIO_COMPONENT_USERNAME_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_TWILIO_COMPONENT_USERNAME_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_TWILIO_COMPONENT_USERNAME_DOC);
+        conf.define(CAMEL_SOURCE_TWILIO_COMPONENT_ACCOUNT_SID_CONF, ConfigDef.Type.PASSWORD, CAMEL_SOURCE_TWILIO_COMPONENT_ACCOUNT_SID_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_TWILIO_COMPONENT_ACCOUNT_SID_DOC);
+        conf.define(CAMEL_SOURCE_TWILIO_COMPONENT_PASSWORD_CONF, ConfigDef.Type.PASSWORD, CAMEL_SOURCE_TWILIO_COMPONENT_PASSWORD_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_TWILIO_COMPONENT_PASSWORD_DOC);
+        conf.define(CAMEL_SOURCE_TWILIO_COMPONENT_USERNAME_CONF, ConfigDef.Type.PASSWORD, CAMEL_SOURCE_TWILIO_COMPONENT_USERNAME_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_TWILIO_COMPONENT_USERNAME_DOC);
         return conf;
     }
 }

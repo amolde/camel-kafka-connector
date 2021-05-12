@@ -17,48 +17,57 @@
 
 package org.apache.camel.kafkaconnector.sjms2.sink;
 
+import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
+import javax.jms.MessageConsumer;
 import javax.jms.TextMessage;
 
-import org.apache.camel.kafkaconnector.common.AbstractKafkaTest;
 import org.apache.camel.kafkaconnector.common.ConnectorPropertyFactory;
-import org.apache.camel.kafkaconnector.common.clients.kafka.KafkaClient;
-import org.apache.camel.kafkaconnector.common.utils.TestUtils;
+import org.apache.camel.kafkaconnector.common.test.CamelSinkTestSupport;
 import org.apache.camel.kafkaconnector.sjms2.clients.JMSClient;
 import org.apache.camel.kafkaconnector.sjms2.common.SJMS2Common;
-import org.apache.camel.kafkaconnector.sjms2.services.JMSService;
-import org.apache.camel.kafkaconnector.sjms2.services.JMSServiceFactory;
-import org.junit.jupiter.api.AfterEach;
+import org.apache.camel.test.infra.messaging.services.MessagingService;
+import org.apache.camel.test.infra.messaging.services.MessagingServiceFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Integration tests for the JMS sink
  */
-@Testcontainers
-public class CamelSinkJMSITCase extends AbstractKafkaTest {
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class CamelSinkJMSITCase extends CamelSinkTestSupport {
     @RegisterExtension
-    public static JMSService jmsService = JMSServiceFactory.createService();
+    public static MessagingService jmsService = MessagingServiceFactory
+            .builder()
+            .addLocalMapping(SJMS2Common::createLocalService)
+            .build();
 
     private static final Logger LOG = LoggerFactory.getLogger(CamelSinkJMSITCase.class);
 
+    private String topicName;
     private int received;
     private final int expect = 10;
+
+    private Properties connectionProperties() {
+        Properties properties = new Properties();
+
+        properties.put("camel.component.sjms2.connection-factory", "#class:org.apache.qpid.jms.JmsConnectionFactory");
+        properties.put("camel.component.sjms2.connection-factory.remoteURI", jmsService.defaultEndpoint());
+
+        return properties;
+    }
 
     @Override
     protected String[] getConnectorsInTest() {
@@ -67,13 +76,19 @@ public class CamelSinkJMSITCase extends AbstractKafkaTest {
 
     @BeforeEach
     public void setUp() {
-        LOG.info("JMS service running at {}", jmsService.getDefaultEndpoint());
+        LOG.info("JMS service running at {}", jmsService.defaultEndpoint());
         received = 0;
+
+        topicName = getTopicForTest(this);
     }
 
-    @AfterEach
-    public void tearDown() {
-        deleteKafkaTopic(TestUtils.getDefaultTestTopic(this.getClass()));
+    @Override
+    protected void verifyMessages(CountDownLatch latch) throws InterruptedException {
+        if (latch.await(35, TimeUnit.SECONDS)) {
+            assertEquals(received, expect, "Didn't process the expected amount of messages: " + received + " != " + expect);
+        } else {
+            fail("Failed to receive the messages within the specified time");
+        }
     }
 
     private boolean checkRecord(Message jmsMessage) {
@@ -84,6 +99,7 @@ public class CamelSinkJMSITCase extends AbstractKafkaTest {
                 received++;
 
                 if (received == expect) {
+                    LOG.debug("All messages were received");
                     return false;
                 }
 
@@ -97,79 +113,16 @@ public class CamelSinkJMSITCase extends AbstractKafkaTest {
         return false;
     }
 
-    private void runTest(ConnectorPropertyFactory connectorPropertyFactory) throws ExecutionException, InterruptedException {
-        connectorPropertyFactory.log();
-        getKafkaConnectService().initializeConnector(connectorPropertyFactory);
-
-        CountDownLatch latch = new CountDownLatch(1);
-
-        ExecutorService service = Executors.newCachedThreadPool();
-
-        LOG.debug("Creating the consumer ...");
-        service.submit(() -> consumeJMSMessages(latch));
-
-        KafkaClient<String, String> kafkaClient = new KafkaClient<>(getKafkaService().getBootstrapServers());
-
-        for (int i = 0; i < expect; i++) {
-            kafkaClient.produce(TestUtils.getDefaultTestTopic(this.getClass()), "Sink test message " + i);
-        }
-
-        LOG.debug("Created the consumer ... About to receive messages");
-
-        if (latch.await(35, TimeUnit.SECONDS)) {
-            assertEquals(received, expect, "Didn't process the expected amount of messages: " + received + " != " + expect);
-        } else {
-            fail("Failed to receive the messages within the specified time");
-        }
-    }
-
-    @Test
-    @Timeout(90)
-    public void testBasicSendReceive() {
-        try {
-            ConnectorPropertyFactory connectorPropertyFactory = CamelJMSPropertyFactory
-                    .basic()
-                    .withTopics(TestUtils.getDefaultTestTopic(this.getClass()))
-                    .withConnectionProperties(jmsService.getConnectionProperties())
-                    .withDestinationName(SJMS2Common.DEFAULT_JMS_QUEUE);
-
-            runTest(connectorPropertyFactory);
-
-        } catch (Exception e) {
-            LOG.error("JMS test failed: {}", e.getMessage(), e);
-            fail(e.getMessage());
-        }
-    }
-
-    @Test
-    @Timeout(90)
-    public void testBasicSendReceiveUsingUrl() {
-        try {
-            ConnectorPropertyFactory connectorPropertyFactory = CamelJMSPropertyFactory
-                    .basic()
-                    .withTopics(TestUtils.getDefaultTestTopic(this.getClass()))
-                    .withConnectionProperties(jmsService.getConnectionProperties())
-                        .withUrl(SJMS2Common.DEFAULT_JMS_QUEUE)
-                        .buildUrl();
-
-            runTest(connectorPropertyFactory);
-
-        } catch (Exception e) {
-            LOG.error("JMS test failed: {}", e.getMessage(), e);
-            fail(e.getMessage());
-        }
-    }
-
-    private void consumeJMSMessages(CountDownLatch latch) {
+    @Override
+    protected void consumeMessages(CountDownLatch latch) {
         JMSClient jmsClient = null;
 
         try {
-            jmsClient = jmsService.getClient();
+            jmsClient = JMSClient.newClient(jmsService.defaultEndpoint());
 
             jmsClient.start();
-
-            for (int i = 0; i < expect; i++) {
-                jmsClient.receive(SJMS2Common.DEFAULT_JMS_QUEUE, this::checkRecord);
+            try (MessageConsumer consumer = jmsClient.createConsumer(SJMS2Common.DEFAULT_JMS_QUEUE)) {
+                jmsClient.receive(consumer, this::checkRecord);
             }
 
         } catch (Exception e) {
@@ -182,5 +135,30 @@ public class CamelSinkJMSITCase extends AbstractKafkaTest {
                 jmsClient.stop();
             }
         }
+    }
+
+    @Test
+    @Timeout(90)
+    public void testBasicSendReceive() throws Exception {
+        ConnectorPropertyFactory connectorPropertyFactory = CamelJMSPropertyFactory
+                .basic()
+                .withTopics(topicName)
+                .withConnectionProperties(connectionProperties())
+                .withDestinationName(SJMS2Common.DEFAULT_JMS_QUEUE);
+
+        runTest(connectorPropertyFactory, topicName, expect);
+    }
+
+    @Test
+    @Timeout(90)
+    public void testBasicSendReceiveUsingUrl() throws Exception {
+        ConnectorPropertyFactory connectorPropertyFactory = CamelJMSPropertyFactory
+                .basic()
+                .withTopics(topicName)
+                .withConnectionProperties(connectionProperties())
+                    .withUrl(SJMS2Common.DEFAULT_JMS_QUEUE)
+                    .buildUrl();
+
+        runTest(connectorPropertyFactory, topicName, expect);
     }
 }

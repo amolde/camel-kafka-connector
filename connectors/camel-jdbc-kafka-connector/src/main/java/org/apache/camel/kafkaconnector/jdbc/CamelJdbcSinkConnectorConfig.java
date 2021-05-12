@@ -60,27 +60,27 @@ public class CamelJdbcSinkConnectorConfig extends CamelSinkConnectorConfig {
     public static final String CAMEL_SINK_JDBC_ENDPOINT_USE_JDBC4COLUMN_NAME_AND_LABEL_SEMANTICS_CONF = "camel.sink.endpoint.useJDBC4ColumnNameAndLabelSemantics";
     public static final String CAMEL_SINK_JDBC_ENDPOINT_USE_JDBC4COLUMN_NAME_AND_LABEL_SEMANTICS_DOC = "Sets whether to use JDBC 4 or JDBC 3.0 or older semantic when retrieving column name. JDBC 4.0 uses columnLabel to get the column name where as JDBC 3.0 uses both columnName or columnLabel. Unfortunately JDBC drivers behave differently so you can use this option to work out issues around your JDBC driver if you get problem using this component This option is default true.";
     public static final Boolean CAMEL_SINK_JDBC_ENDPOINT_USE_JDBC4COLUMN_NAME_AND_LABEL_SEMANTICS_DEFAULT = true;
-    public static final String CAMEL_SINK_JDBC_ENDPOINT_BASIC_PROPERTY_BINDING_CONF = "camel.sink.endpoint.basicPropertyBinding";
-    public static final String CAMEL_SINK_JDBC_ENDPOINT_BASIC_PROPERTY_BINDING_DOC = "Whether the endpoint should use basic property binding (Camel 2.x) or the newer property binding with additional capabilities";
-    public static final Boolean CAMEL_SINK_JDBC_ENDPOINT_BASIC_PROPERTY_BINDING_DEFAULT = false;
     public static final String CAMEL_SINK_JDBC_ENDPOINT_BEAN_ROW_MAPPER_CONF = "camel.sink.endpoint.beanRowMapper";
     public static final String CAMEL_SINK_JDBC_ENDPOINT_BEAN_ROW_MAPPER_DOC = "To use a custom org.apache.camel.component.jdbc.BeanRowMapper when using outputClass. The default implementation will lower case the row names and skip underscores, and dashes. For example CUST_ID is mapped as custId.";
     public static final String CAMEL_SINK_JDBC_ENDPOINT_BEAN_ROW_MAPPER_DEFAULT = null;
+    public static final String CAMEL_SINK_JDBC_ENDPOINT_CONNECTION_STRATEGY_CONF = "camel.sink.endpoint.connectionStrategy";
+    public static final String CAMEL_SINK_JDBC_ENDPOINT_CONNECTION_STRATEGY_DOC = "To use a custom strategy for working with connections. Do not use a custom strategy when using the spring-jdbc component because a special Spring ConnectionStrategy is used by default to support Spring Transactions.";
+    public static final String CAMEL_SINK_JDBC_ENDPOINT_CONNECTION_STRATEGY_DEFAULT = null;
     public static final String CAMEL_SINK_JDBC_ENDPOINT_PREPARE_STATEMENT_STRATEGY_CONF = "camel.sink.endpoint.prepareStatementStrategy";
     public static final String CAMEL_SINK_JDBC_ENDPOINT_PREPARE_STATEMENT_STRATEGY_DOC = "Allows the plugin to use a custom org.apache.camel.component.jdbc.JdbcPrepareStatementStrategy to control preparation of the query and prepared statement.";
     public static final String CAMEL_SINK_JDBC_ENDPOINT_PREPARE_STATEMENT_STRATEGY_DEFAULT = null;
-    public static final String CAMEL_SINK_JDBC_ENDPOINT_SYNCHRONOUS_CONF = "camel.sink.endpoint.synchronous";
-    public static final String CAMEL_SINK_JDBC_ENDPOINT_SYNCHRONOUS_DOC = "Sets whether synchronous processing should be strictly used, or Camel is allowed to use asynchronous processing (if supported).";
-    public static final Boolean CAMEL_SINK_JDBC_ENDPOINT_SYNCHRONOUS_DEFAULT = false;
     public static final String CAMEL_SINK_JDBC_COMPONENT_DATA_SOURCE_CONF = "camel.component.jdbc.dataSource";
     public static final String CAMEL_SINK_JDBC_COMPONENT_DATA_SOURCE_DOC = "To use the DataSource instance instead of looking up the data source by name from the registry.";
     public static final String CAMEL_SINK_JDBC_COMPONENT_DATA_SOURCE_DEFAULT = null;
     public static final String CAMEL_SINK_JDBC_COMPONENT_LAZY_START_PRODUCER_CONF = "camel.component.jdbc.lazyStartProducer";
     public static final String CAMEL_SINK_JDBC_COMPONENT_LAZY_START_PRODUCER_DOC = "Whether the producer should be started lazy (on the first message). By starting lazy you can use this to allow CamelContext and routes to startup in situations where a producer may otherwise fail during starting and cause the route to fail being started. By deferring this startup to be lazy then the startup failure can be handled during routing messages via Camel's routing error handlers. Beware that when the first message is processed then creating and starting the producer may take a little time and prolong the total processing time of the processing.";
     public static final Boolean CAMEL_SINK_JDBC_COMPONENT_LAZY_START_PRODUCER_DEFAULT = false;
-    public static final String CAMEL_SINK_JDBC_COMPONENT_BASIC_PROPERTY_BINDING_CONF = "camel.component.jdbc.basicPropertyBinding";
-    public static final String CAMEL_SINK_JDBC_COMPONENT_BASIC_PROPERTY_BINDING_DOC = "Whether the component should use basic property binding (Camel 2.x) or the newer property binding with additional capabilities";
-    public static final Boolean CAMEL_SINK_JDBC_COMPONENT_BASIC_PROPERTY_BINDING_DEFAULT = false;
+    public static final String CAMEL_SINK_JDBC_COMPONENT_AUTOWIRED_ENABLED_CONF = "camel.component.jdbc.autowiredEnabled";
+    public static final String CAMEL_SINK_JDBC_COMPONENT_AUTOWIRED_ENABLED_DOC = "Whether autowiring is enabled. This is used for automatic autowiring options (the option must be marked as autowired) by looking up in the registry to find if there is a single instance of matching type, which then gets configured on the component. This can be used for automatic configuring JDBC data sources, JMS connection factories, AWS Clients, etc.";
+    public static final Boolean CAMEL_SINK_JDBC_COMPONENT_AUTOWIRED_ENABLED_DEFAULT = true;
+    public static final String CAMEL_SINK_JDBC_COMPONENT_CONNECTION_STRATEGY_CONF = "camel.component.jdbc.connectionStrategy";
+    public static final String CAMEL_SINK_JDBC_COMPONENT_CONNECTION_STRATEGY_DOC = "To use a custom strategy for working with connections. Do not use a custom strategy when using the spring-jdbc component because a special Spring ConnectionStrategy is used by default to support Spring Transactions.";
+    public static final String CAMEL_SINK_JDBC_COMPONENT_CONNECTION_STRATEGY_DEFAULT = null;
 
     public CamelJdbcSinkConnectorConfig(
             ConfigDef config,
@@ -106,13 +106,13 @@ public class CamelJdbcSinkConnectorConfig extends CamelSinkConnectorConfig {
         conf.define(CAMEL_SINK_JDBC_ENDPOINT_USE_GET_BYTES_FOR_BLOB_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_JDBC_ENDPOINT_USE_GET_BYTES_FOR_BLOB_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_JDBC_ENDPOINT_USE_GET_BYTES_FOR_BLOB_DOC);
         conf.define(CAMEL_SINK_JDBC_ENDPOINT_USE_HEADERS_AS_PARAMETERS_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_JDBC_ENDPOINT_USE_HEADERS_AS_PARAMETERS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_JDBC_ENDPOINT_USE_HEADERS_AS_PARAMETERS_DOC);
         conf.define(CAMEL_SINK_JDBC_ENDPOINT_USE_JDBC4COLUMN_NAME_AND_LABEL_SEMANTICS_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_JDBC_ENDPOINT_USE_JDBC4COLUMN_NAME_AND_LABEL_SEMANTICS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_JDBC_ENDPOINT_USE_JDBC4COLUMN_NAME_AND_LABEL_SEMANTICS_DOC);
-        conf.define(CAMEL_SINK_JDBC_ENDPOINT_BASIC_PROPERTY_BINDING_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_JDBC_ENDPOINT_BASIC_PROPERTY_BINDING_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_JDBC_ENDPOINT_BASIC_PROPERTY_BINDING_DOC);
         conf.define(CAMEL_SINK_JDBC_ENDPOINT_BEAN_ROW_MAPPER_CONF, ConfigDef.Type.STRING, CAMEL_SINK_JDBC_ENDPOINT_BEAN_ROW_MAPPER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_JDBC_ENDPOINT_BEAN_ROW_MAPPER_DOC);
+        conf.define(CAMEL_SINK_JDBC_ENDPOINT_CONNECTION_STRATEGY_CONF, ConfigDef.Type.STRING, CAMEL_SINK_JDBC_ENDPOINT_CONNECTION_STRATEGY_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_JDBC_ENDPOINT_CONNECTION_STRATEGY_DOC);
         conf.define(CAMEL_SINK_JDBC_ENDPOINT_PREPARE_STATEMENT_STRATEGY_CONF, ConfigDef.Type.STRING, CAMEL_SINK_JDBC_ENDPOINT_PREPARE_STATEMENT_STRATEGY_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_JDBC_ENDPOINT_PREPARE_STATEMENT_STRATEGY_DOC);
-        conf.define(CAMEL_SINK_JDBC_ENDPOINT_SYNCHRONOUS_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_JDBC_ENDPOINT_SYNCHRONOUS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_JDBC_ENDPOINT_SYNCHRONOUS_DOC);
         conf.define(CAMEL_SINK_JDBC_COMPONENT_DATA_SOURCE_CONF, ConfigDef.Type.STRING, CAMEL_SINK_JDBC_COMPONENT_DATA_SOURCE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_JDBC_COMPONENT_DATA_SOURCE_DOC);
         conf.define(CAMEL_SINK_JDBC_COMPONENT_LAZY_START_PRODUCER_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_JDBC_COMPONENT_LAZY_START_PRODUCER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_JDBC_COMPONENT_LAZY_START_PRODUCER_DOC);
-        conf.define(CAMEL_SINK_JDBC_COMPONENT_BASIC_PROPERTY_BINDING_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_JDBC_COMPONENT_BASIC_PROPERTY_BINDING_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_JDBC_COMPONENT_BASIC_PROPERTY_BINDING_DOC);
+        conf.define(CAMEL_SINK_JDBC_COMPONENT_AUTOWIRED_ENABLED_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_JDBC_COMPONENT_AUTOWIRED_ENABLED_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_JDBC_COMPONENT_AUTOWIRED_ENABLED_DOC);
+        conf.define(CAMEL_SINK_JDBC_COMPONENT_CONNECTION_STRATEGY_CONF, ConfigDef.Type.STRING, CAMEL_SINK_JDBC_COMPONENT_CONNECTION_STRATEGY_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_JDBC_COMPONENT_CONNECTION_STRATEGY_DOC);
         return conf;
     }
 }

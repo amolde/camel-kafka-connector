@@ -22,48 +22,44 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.CreateCollectionOptions;
-import org.apache.camel.kafkaconnector.common.AbstractKafkaTest;
 import org.apache.camel.kafkaconnector.common.BasicConnectorPropertyFactory;
 import org.apache.camel.kafkaconnector.common.ConnectorPropertyFactory;
-import org.apache.camel.kafkaconnector.common.clients.kafka.KafkaClient;
-import org.apache.camel.kafkaconnector.common.utils.TestUtils;
-import org.apache.camel.kafkaconnector.mongodb.services.MongoDBService;
-import org.apache.camel.kafkaconnector.mongodb.services.MongoDBServiceFactory;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.camel.kafkaconnector.common.test.CamelSourceTestSupport;
+import org.apache.camel.kafkaconnector.common.test.TestMessageConsumer;
+import org.apache.camel.test.infra.mongodb.services.MongoDBService;
+import org.apache.camel.test.infra.mongodb.services.MongoDBServiceFactory;
 import org.bson.Document;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@Testcontainers
-public class CamelSourceMongoDBITCase extends AbstractKafkaTest {
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class CamelSourceMongoDBITCase extends CamelSourceTestSupport {
     @RegisterExtension
     public static MongoDBService mongoDBService = MongoDBServiceFactory.createService();
 
-    private static final Logger LOG = LoggerFactory.getLogger(CamelSourceMongoDBITCase.class);
-
     private MongoClient mongoClient;
+    private String topicName;
 
     private final int expect = 10;
-    private int received;
 
     @Override
     protected String[] getConnectorsInTest() {
         return new String[]{"camel-mongodb-kafka-connector"};
     }
 
-    @BeforeEach
-    public void setUp() {
-        mongoClient = mongoDBService.getClient();
+    @BeforeAll
+    public void setUpDb() {
+        mongoClient = MongoClients.create(mongoDBService.getReplicaSetUrl());
 
         MongoDatabase database = mongoClient.getDatabase("testDatabase");
 
@@ -92,25 +88,19 @@ public class CamelSourceMongoDBITCase extends AbstractKafkaTest {
         collection.insertMany(documents);
     }
 
-    private <T> boolean checkRecord(ConsumerRecord<String, T> record) {
-        LOG.debug("Received: {}", record.value());
-        received++;
-
-        if (received == expect) {
-            return false;
-        }
-
-        return true;
+    @BeforeEach
+    public void setUp() {
+        topicName = getTopicForTest(this);
     }
 
-    public void runTest(ConnectorPropertyFactory connectorPropertyFactory) throws ExecutionException, InterruptedException {
-        connectorPropertyFactory.log();
-        getKafkaConnectService().initializeConnectorBlocking(connectorPropertyFactory, 1);
+    @Override
+    protected void produceTestData() {
+        // NO-OP: static data already produced on the DB setup method
+    }
 
-        LOG.debug("Creating the consumer ...");
-        KafkaClient<String, String> kafkaClient = new KafkaClient<>(getKafkaService().getBootstrapServers());
-        kafkaClient.consume(TestUtils.getDefaultTestTopic(this.getClass()), this::checkRecord);
-        LOG.debug("Created the consumer ...");
+    @Override
+    protected void verifyMessages(TestMessageConsumer<?> consumer) {
+        int received = consumer.consumedMessages().size();
 
         assertEquals(received, expect, "Didn't process the expected amount of messages");
     }
@@ -118,18 +108,17 @@ public class CamelSourceMongoDBITCase extends AbstractKafkaTest {
     @Test
     @Timeout(90)
     public void testFindAll() throws ExecutionException, InterruptedException {
-        String connectionBeanRef = String.format("com.mongodb.client.MongoClients#create('mongodb://%s:%d')",
-                mongoDBService.getHost(),
-                mongoDBService.getPort());
+        String connectionBeanRef = String.format("com.mongodb.client.MongoClients#create('%s')",
+                mongoDBService.getReplicaSetUrl());
 
         ConnectorPropertyFactory factory = CamelMongoDBPropertyFactory.basic()
-                .withKafkaTopic(TestUtils.getDefaultTestTopic(this.getClass()))
+                .withKafkaTopic(topicName)
                 .withConnectionBean("mongo",
                         BasicConnectorPropertyFactory.classRef(connectionBeanRef))
                 .withDatabase("testDatabase")
                 .withCollection("testCollection")
                 .withCreateCollection(true);
 
-        runTest(factory);
+        runTest(factory, topicName, expect);
     }
 }

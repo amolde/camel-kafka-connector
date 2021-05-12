@@ -23,6 +23,8 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.camel.kafkaconnector.common.PluginPathHelper;
+import org.apache.camel.kafkaconnector.common.utils.NetworkUtils;
+import org.apache.camel.test.infra.kafka.services.KafkaService;
 import org.apache.kafka.connect.runtime.WorkerConfig;
 import org.apache.kafka.connect.util.clusters.EmbeddedConnectCluster;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -49,6 +51,10 @@ public class EmbeddedKafkaService implements KafkaService {
 
         Map<String, String> workerProps = new HashMap<>();
         workerProps.put(WorkerConfig.OFFSET_COMMIT_INTERVAL_MS_CONFIG, String.valueOf(OFFSET_COMMIT_INTERVAL_MS));
+
+        String address = "http://localhost:" + NetworkUtils.getFreePort();
+        LOG.info("Using the following address for  the listener configuration: {}", address);
+        workerProps.put(WorkerConfig.LISTENERS_CONFIG, address);
 
         String pluginPaths = PluginPathHelper.getInstance().pluginPaths();
 
@@ -78,11 +84,17 @@ public class EmbeddedKafkaService implements KafkaService {
     }
 
     @Override
+    public void registerProperties() {
+        // NO-OP
+    }
+
+    @Override
     public void initialize() {
         if (!started) {
             cluster.start();
             started = true;
 
+            registerProperties();
             LOG.info("Kafka bootstrap server running at address {}", getBootstrapServers());
         }
     }
@@ -93,18 +105,17 @@ public class EmbeddedKafkaService implements KafkaService {
 
         if (started) {
             cluster.stop();
-            cluster = null;
             started = false;
         }
     }
 
     @Override
-    public void beforeTestExecution(ExtensionContext extensionContext) throws Exception {
+    public void beforeTestExecution(ExtensionContext extensionContext) {
         initialize();
     }
 
     @Override
-    public void afterTestExecution(ExtensionContext context) throws Exception {
+    public void afterTestExecution(ExtensionContext context) {
         shutdown();
     }
 

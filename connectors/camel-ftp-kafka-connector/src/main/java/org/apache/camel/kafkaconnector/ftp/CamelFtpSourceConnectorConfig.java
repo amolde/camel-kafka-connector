@@ -135,9 +135,6 @@ public class CamelFtpSourceConnectorConfig extends CamelSourceConnectorConfig {
     public static final String CAMEL_SOURCE_FTP_ENDPOINT_AUTO_CREATE_CONF = "camel.source.endpoint.autoCreate";
     public static final String CAMEL_SOURCE_FTP_ENDPOINT_AUTO_CREATE_DOC = "Automatically create missing directories in the file's pathname. For the file consumer, that means creating the starting directory. For the file producer, it means the directory the files should be written to.";
     public static final Boolean CAMEL_SOURCE_FTP_ENDPOINT_AUTO_CREATE_DEFAULT = true;
-    public static final String CAMEL_SOURCE_FTP_ENDPOINT_BASIC_PROPERTY_BINDING_CONF = "camel.source.endpoint.basicPropertyBinding";
-    public static final String CAMEL_SOURCE_FTP_ENDPOINT_BASIC_PROPERTY_BINDING_DOC = "Whether the endpoint should use basic property binding (Camel 2.x) or the newer property binding with additional capabilities";
-    public static final Boolean CAMEL_SOURCE_FTP_ENDPOINT_BASIC_PROPERTY_BINDING_DEFAULT = false;
     public static final String CAMEL_SOURCE_FTP_ENDPOINT_BUFFER_SIZE_CONF = "camel.source.endpoint.bufferSize";
     public static final String CAMEL_SOURCE_FTP_ENDPOINT_BUFFER_SIZE_DOC = "Buffer size in bytes used for writing files (or in case of FTP for downloading and uploading files).";
     public static final Integer CAMEL_SOURCE_FTP_ENDPOINT_BUFFER_SIZE_DEFAULT = 131072;
@@ -172,7 +169,7 @@ public class CamelFtpSourceConnectorConfig extends CamelSourceConnectorConfig {
     public static final String CAMEL_SOURCE_FTP_ENDPOINT_STEPWISE_DOC = "Sets whether we should stepwise change directories while traversing file structures when downloading files, or as well when uploading a file to a directory. You can disable this if you for example are in a situation where you cannot change directory on the FTP server due security reasons. Stepwise cannot be used together with streamDownload.";
     public static final Boolean CAMEL_SOURCE_FTP_ENDPOINT_STEPWISE_DEFAULT = true;
     public static final String CAMEL_SOURCE_FTP_ENDPOINT_SYNCHRONOUS_CONF = "camel.source.endpoint.synchronous";
-    public static final String CAMEL_SOURCE_FTP_ENDPOINT_SYNCHRONOUS_DOC = "Sets whether synchronous processing should be strictly used, or Camel is allowed to use asynchronous processing (if supported).";
+    public static final String CAMEL_SOURCE_FTP_ENDPOINT_SYNCHRONOUS_DOC = "Sets whether synchronous processing should be strictly used";
     public static final Boolean CAMEL_SOURCE_FTP_ENDPOINT_SYNCHRONOUS_DEFAULT = false;
     public static final String CAMEL_SOURCE_FTP_ENDPOINT_THROW_EXCEPTION_ON_CONNECT_FAILED_CONF = "camel.source.endpoint.throwExceptionOnConnectFailed";
     public static final String CAMEL_SOURCE_FTP_ENDPOINT_THROW_EXCEPTION_ON_CONNECT_FAILED_DOC = "Should an exception be thrown if connection failed (exhausted) By default exception is not thrown and a WARN is logged. You can use this to enable exception being thrown and handle the thrown exception from the org.apache.camel.spi.PollingConsumerPollStrategy rollback method.";
@@ -195,6 +192,9 @@ public class CamelFtpSourceConnectorConfig extends CamelSourceConnectorConfig {
     public static final String CAMEL_SOURCE_FTP_ENDPOINT_EXCLUDE_CONF = "camel.source.endpoint.exclude";
     public static final String CAMEL_SOURCE_FTP_ENDPOINT_EXCLUDE_DOC = "Is used to exclude files, if filename matches the regex pattern (matching is case in-senstive). Notice if you use symbols such as plus sign and others you would need to configure this using the RAW() syntax if configuring this as an endpoint uri. See more details at configuring endpoint uris";
     public static final String CAMEL_SOURCE_FTP_ENDPOINT_EXCLUDE_DEFAULT = null;
+    public static final String CAMEL_SOURCE_FTP_ENDPOINT_EXCLUDE_EXT_CONF = "camel.source.endpoint.excludeExt";
+    public static final String CAMEL_SOURCE_FTP_ENDPOINT_EXCLUDE_EXT_DOC = "Is used to exclude files matching file extension name (case insensitive). For example to exclude bak files, then use excludeExt=bak. Multiple extensions can be separated by comma, for example to exclude bak and dat files, use excludeExt=bak,dat.";
+    public static final String CAMEL_SOURCE_FTP_ENDPOINT_EXCLUDE_EXT_DEFAULT = null;
     public static final String CAMEL_SOURCE_FTP_ENDPOINT_FILTER_CONF = "camel.source.endpoint.filter";
     public static final String CAMEL_SOURCE_FTP_ENDPOINT_FILTER_DOC = "Pluggable filter as a org.apache.camel.component.file.GenericFileFilter class. Will skip files if filter returns false in its accept() method.";
     public static final String CAMEL_SOURCE_FTP_ENDPOINT_FILTER_DEFAULT = null;
@@ -216,6 +216,9 @@ public class CamelFtpSourceConnectorConfig extends CamelSourceConnectorConfig {
     public static final String CAMEL_SOURCE_FTP_ENDPOINT_INCLUDE_CONF = "camel.source.endpoint.include";
     public static final String CAMEL_SOURCE_FTP_ENDPOINT_INCLUDE_DOC = "Is used to include files, if filename matches the regex pattern (matching is case in-sensitive). Notice if you use symbols such as plus sign and others you would need to configure this using the RAW() syntax if configuring this as an endpoint uri. See more details at configuring endpoint uris";
     public static final String CAMEL_SOURCE_FTP_ENDPOINT_INCLUDE_DEFAULT = null;
+    public static final String CAMEL_SOURCE_FTP_ENDPOINT_INCLUDE_EXT_CONF = "camel.source.endpoint.includeExt";
+    public static final String CAMEL_SOURCE_FTP_ENDPOINT_INCLUDE_EXT_DOC = "Is used to include files matching file extension name (case insensitive). For example to include txt files, then use includeExt=txt. Multiple extensions can be separated by comma, for example to include txt and xml files, use includeExt=txt,xml";
+    public static final String CAMEL_SOURCE_FTP_ENDPOINT_INCLUDE_EXT_DEFAULT = null;
     public static final String CAMEL_SOURCE_FTP_ENDPOINT_MAX_DEPTH_CONF = "camel.source.endpoint.maxDepth";
     public static final String CAMEL_SOURCE_FTP_ENDPOINT_MAX_DEPTH_DOC = "The maximum depth to traverse when recursively processing a directory.";
     public static final Integer CAMEL_SOURCE_FTP_ENDPOINT_MAX_DEPTH_DEFAULT = 2147483647;
@@ -289,7 +292,7 @@ public class CamelFtpSourceConnectorConfig extends CamelSourceConnectorConfig {
     public static final String CAMEL_SOURCE_FTP_ENDPOINT_SCHEDULED_EXECUTOR_SERVICE_DOC = "Allows for configuring a custom/shared thread pool to use for the consumer. By default each consumer has its own single threaded thread pool.";
     public static final String CAMEL_SOURCE_FTP_ENDPOINT_SCHEDULED_EXECUTOR_SERVICE_DEFAULT = null;
     public static final String CAMEL_SOURCE_FTP_ENDPOINT_SCHEDULER_CONF = "camel.source.endpoint.scheduler";
-    public static final String CAMEL_SOURCE_FTP_ENDPOINT_SCHEDULER_DOC = "To use a cron scheduler from either camel-spring or camel-quartz component One of: [none] [spring] [quartz]";
+    public static final String CAMEL_SOURCE_FTP_ENDPOINT_SCHEDULER_DOC = "To use a cron scheduler from either camel-spring or camel-quartz component. Use value spring or quartz for built in scheduler";
     public static final String CAMEL_SOURCE_FTP_ENDPOINT_SCHEDULER_DEFAULT = "none";
     public static final String CAMEL_SOURCE_FTP_ENDPOINT_SCHEDULER_PROPERTIES_CONF = "camel.source.endpoint.schedulerProperties";
     public static final String CAMEL_SOURCE_FTP_ENDPOINT_SCHEDULER_PROPERTIES_DOC = "To configure additional properties when using a custom scheduler or any of the Quartz, Spring based scheduler.";
@@ -324,9 +327,9 @@ public class CamelFtpSourceConnectorConfig extends CamelSourceConnectorConfig {
     public static final String CAMEL_SOURCE_FTP_COMPONENT_BRIDGE_ERROR_HANDLER_CONF = "camel.component.ftp.bridgeErrorHandler";
     public static final String CAMEL_SOURCE_FTP_COMPONENT_BRIDGE_ERROR_HANDLER_DOC = "Allows for bridging the consumer to the Camel routing Error Handler, which mean any exceptions occurred while the consumer is trying to pickup incoming messages, or the likes, will now be processed as a message and handled by the routing Error Handler. By default the consumer will use the org.apache.camel.spi.ExceptionHandler to deal with exceptions, that will be logged at WARN or ERROR level and ignored.";
     public static final Boolean CAMEL_SOURCE_FTP_COMPONENT_BRIDGE_ERROR_HANDLER_DEFAULT = false;
-    public static final String CAMEL_SOURCE_FTP_COMPONENT_BASIC_PROPERTY_BINDING_CONF = "camel.component.ftp.basicPropertyBinding";
-    public static final String CAMEL_SOURCE_FTP_COMPONENT_BASIC_PROPERTY_BINDING_DOC = "Whether the component should use basic property binding (Camel 2.x) or the newer property binding with additional capabilities";
-    public static final Boolean CAMEL_SOURCE_FTP_COMPONENT_BASIC_PROPERTY_BINDING_DEFAULT = false;
+    public static final String CAMEL_SOURCE_FTP_COMPONENT_AUTOWIRED_ENABLED_CONF = "camel.component.ftp.autowiredEnabled";
+    public static final String CAMEL_SOURCE_FTP_COMPONENT_AUTOWIRED_ENABLED_DOC = "Whether autowiring is enabled. This is used for automatic autowiring options (the option must be marked as autowired) by looking up in the registry to find if there is a single instance of matching type, which then gets configured on the component. This can be used for automatic configuring JDBC data sources, JMS connection factories, AWS Clients, etc.";
+    public static final Boolean CAMEL_SOURCE_FTP_COMPONENT_AUTOWIRED_ENABLED_DEFAULT = true;
 
     public CamelFtpSourceConnectorConfig(
             ConfigDef config,
@@ -377,7 +380,6 @@ public class CamelFtpSourceConnectorConfig extends CamelSourceConnectorConfig {
         conf.define(CAMEL_SOURCE_FTP_ENDPOINT_USE_LIST_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_FTP_ENDPOINT_USE_LIST_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_FTP_ENDPOINT_USE_LIST_DOC);
         conf.define(CAMEL_SOURCE_FTP_ENDPOINT_ACTIVE_PORT_RANGE_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_FTP_ENDPOINT_ACTIVE_PORT_RANGE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_FTP_ENDPOINT_ACTIVE_PORT_RANGE_DOC);
         conf.define(CAMEL_SOURCE_FTP_ENDPOINT_AUTO_CREATE_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_FTP_ENDPOINT_AUTO_CREATE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_FTP_ENDPOINT_AUTO_CREATE_DOC);
-        conf.define(CAMEL_SOURCE_FTP_ENDPOINT_BASIC_PROPERTY_BINDING_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_FTP_ENDPOINT_BASIC_PROPERTY_BINDING_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_FTP_ENDPOINT_BASIC_PROPERTY_BINDING_DOC);
         conf.define(CAMEL_SOURCE_FTP_ENDPOINT_BUFFER_SIZE_CONF, ConfigDef.Type.INT, CAMEL_SOURCE_FTP_ENDPOINT_BUFFER_SIZE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_FTP_ENDPOINT_BUFFER_SIZE_DOC);
         conf.define(CAMEL_SOURCE_FTP_ENDPOINT_CONNECT_TIMEOUT_CONF, ConfigDef.Type.INT, CAMEL_SOURCE_FTP_ENDPOINT_CONNECT_TIMEOUT_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_FTP_ENDPOINT_CONNECT_TIMEOUT_DOC);
         conf.define(CAMEL_SOURCE_FTP_ENDPOINT_FTP_CLIENT_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_FTP_ENDPOINT_FTP_CLIENT_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_FTP_ENDPOINT_FTP_CLIENT_DOC);
@@ -397,6 +399,7 @@ public class CamelFtpSourceConnectorConfig extends CamelSourceConnectorConfig {
         conf.define(CAMEL_SOURCE_FTP_ENDPOINT_ANT_INCLUDE_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_FTP_ENDPOINT_ANT_INCLUDE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_FTP_ENDPOINT_ANT_INCLUDE_DOC);
         conf.define(CAMEL_SOURCE_FTP_ENDPOINT_EAGER_MAX_MESSAGES_PER_POLL_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_FTP_ENDPOINT_EAGER_MAX_MESSAGES_PER_POLL_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_FTP_ENDPOINT_EAGER_MAX_MESSAGES_PER_POLL_DOC);
         conf.define(CAMEL_SOURCE_FTP_ENDPOINT_EXCLUDE_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_FTP_ENDPOINT_EXCLUDE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_FTP_ENDPOINT_EXCLUDE_DOC);
+        conf.define(CAMEL_SOURCE_FTP_ENDPOINT_EXCLUDE_EXT_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_FTP_ENDPOINT_EXCLUDE_EXT_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_FTP_ENDPOINT_EXCLUDE_EXT_DOC);
         conf.define(CAMEL_SOURCE_FTP_ENDPOINT_FILTER_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_FTP_ENDPOINT_FILTER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_FTP_ENDPOINT_FILTER_DOC);
         conf.define(CAMEL_SOURCE_FTP_ENDPOINT_FILTER_DIRECTORY_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_FTP_ENDPOINT_FILTER_DIRECTORY_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_FTP_ENDPOINT_FILTER_DIRECTORY_DOC);
         conf.define(CAMEL_SOURCE_FTP_ENDPOINT_FILTER_FILE_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_FTP_ENDPOINT_FILTER_FILE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_FTP_ENDPOINT_FILTER_FILE_DOC);
@@ -404,6 +407,7 @@ public class CamelFtpSourceConnectorConfig extends CamelSourceConnectorConfig {
         conf.define(CAMEL_SOURCE_FTP_ENDPOINT_IDEMPOTENT_KEY_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_FTP_ENDPOINT_IDEMPOTENT_KEY_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_FTP_ENDPOINT_IDEMPOTENT_KEY_DOC);
         conf.define(CAMEL_SOURCE_FTP_ENDPOINT_IDEMPOTENT_REPOSITORY_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_FTP_ENDPOINT_IDEMPOTENT_REPOSITORY_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_FTP_ENDPOINT_IDEMPOTENT_REPOSITORY_DOC);
         conf.define(CAMEL_SOURCE_FTP_ENDPOINT_INCLUDE_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_FTP_ENDPOINT_INCLUDE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_FTP_ENDPOINT_INCLUDE_DOC);
+        conf.define(CAMEL_SOURCE_FTP_ENDPOINT_INCLUDE_EXT_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_FTP_ENDPOINT_INCLUDE_EXT_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_FTP_ENDPOINT_INCLUDE_EXT_DOC);
         conf.define(CAMEL_SOURCE_FTP_ENDPOINT_MAX_DEPTH_CONF, ConfigDef.Type.INT, CAMEL_SOURCE_FTP_ENDPOINT_MAX_DEPTH_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_FTP_ENDPOINT_MAX_DEPTH_DOC);
         conf.define(CAMEL_SOURCE_FTP_ENDPOINT_MAX_MESSAGES_PER_POLL_CONF, ConfigDef.Type.INT, CAMEL_SOURCE_FTP_ENDPOINT_MAX_MESSAGES_PER_POLL_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_FTP_ENDPOINT_MAX_MESSAGES_PER_POLL_DOC);
         conf.define(CAMEL_SOURCE_FTP_ENDPOINT_MIN_DEPTH_CONF, ConfigDef.Type.INT, CAMEL_SOURCE_FTP_ENDPOINT_MIN_DEPTH_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_FTP_ENDPOINT_MIN_DEPTH_DOC);
@@ -433,14 +437,14 @@ public class CamelFtpSourceConnectorConfig extends CamelSourceConnectorConfig {
         conf.define(CAMEL_SOURCE_FTP_ENDPOINT_START_SCHEDULER_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_FTP_ENDPOINT_START_SCHEDULER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_FTP_ENDPOINT_START_SCHEDULER_DOC);
         conf.define(CAMEL_SOURCE_FTP_ENDPOINT_TIME_UNIT_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_FTP_ENDPOINT_TIME_UNIT_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_FTP_ENDPOINT_TIME_UNIT_DOC);
         conf.define(CAMEL_SOURCE_FTP_ENDPOINT_USE_FIXED_DELAY_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_FTP_ENDPOINT_USE_FIXED_DELAY_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_FTP_ENDPOINT_USE_FIXED_DELAY_DOC);
-        conf.define(CAMEL_SOURCE_FTP_ENDPOINT_ACCOUNT_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_FTP_ENDPOINT_ACCOUNT_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_FTP_ENDPOINT_ACCOUNT_DOC);
-        conf.define(CAMEL_SOURCE_FTP_ENDPOINT_PASSWORD_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_FTP_ENDPOINT_PASSWORD_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_FTP_ENDPOINT_PASSWORD_DOC);
-        conf.define(CAMEL_SOURCE_FTP_ENDPOINT_USERNAME_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_FTP_ENDPOINT_USERNAME_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_FTP_ENDPOINT_USERNAME_DOC);
+        conf.define(CAMEL_SOURCE_FTP_ENDPOINT_ACCOUNT_CONF, ConfigDef.Type.PASSWORD, CAMEL_SOURCE_FTP_ENDPOINT_ACCOUNT_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_FTP_ENDPOINT_ACCOUNT_DOC);
+        conf.define(CAMEL_SOURCE_FTP_ENDPOINT_PASSWORD_CONF, ConfigDef.Type.PASSWORD, CAMEL_SOURCE_FTP_ENDPOINT_PASSWORD_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_FTP_ENDPOINT_PASSWORD_DOC);
+        conf.define(CAMEL_SOURCE_FTP_ENDPOINT_USERNAME_CONF, ConfigDef.Type.PASSWORD, CAMEL_SOURCE_FTP_ENDPOINT_USERNAME_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_FTP_ENDPOINT_USERNAME_DOC);
         conf.define(CAMEL_SOURCE_FTP_ENDPOINT_SHUFFLE_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_FTP_ENDPOINT_SHUFFLE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_FTP_ENDPOINT_SHUFFLE_DOC);
         conf.define(CAMEL_SOURCE_FTP_ENDPOINT_SORT_BY_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_FTP_ENDPOINT_SORT_BY_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_FTP_ENDPOINT_SORT_BY_DOC);
         conf.define(CAMEL_SOURCE_FTP_ENDPOINT_SORTER_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_FTP_ENDPOINT_SORTER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_FTP_ENDPOINT_SORTER_DOC);
         conf.define(CAMEL_SOURCE_FTP_COMPONENT_BRIDGE_ERROR_HANDLER_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_FTP_COMPONENT_BRIDGE_ERROR_HANDLER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_FTP_COMPONENT_BRIDGE_ERROR_HANDLER_DOC);
-        conf.define(CAMEL_SOURCE_FTP_COMPONENT_BASIC_PROPERTY_BINDING_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_FTP_COMPONENT_BASIC_PROPERTY_BINDING_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_FTP_COMPONENT_BASIC_PROPERTY_BINDING_DOC);
+        conf.define(CAMEL_SOURCE_FTP_COMPONENT_AUTOWIRED_ENABLED_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_FTP_COMPONENT_AUTOWIRED_ENABLED_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_FTP_COMPONENT_AUTOWIRED_ENABLED_DOC);
         return conf;
     }
 }

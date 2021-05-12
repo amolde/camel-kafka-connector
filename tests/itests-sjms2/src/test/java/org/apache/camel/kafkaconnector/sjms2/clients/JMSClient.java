@@ -34,6 +34,8 @@ import org.junit.jupiter.api.Assertions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 /**
  * A basic multi-protocol JMS client
  */
@@ -159,6 +161,37 @@ public class JMSClient {
         }
     }
 
+    /**
+     * Receives data from a JMS queue or topic
+     *
+     * @param predicate the predicate used to test each received message
+     * @throws JMSException
+     */
+    public void receive(MessageConsumer consumer, Predicate<Message> predicate, long timeout) throws JMSException {
+        while (true) {
+            final Message message = consumer.receive(timeout);
+
+            if (!predicate.test(message)) {
+                return;
+            }
+        }
+    }
+
+
+    /**
+     * Receives data from a JMS queue or topic
+     *
+     * @param predicate the predicate used to test each received message
+     * @throws JMSException
+     */
+    public void receive(MessageConsumer consumer, Predicate<Message> predicate) throws JMSException {
+        receive(consumer, predicate, 3000);
+    }
+
+    public MessageConsumer createConsumer(String queue) throws JMSException {
+        return session.createConsumer(createDestination(queue));
+    }
+
 
     /**
      * Receives data from a JMS queue or topic
@@ -168,20 +201,12 @@ public class JMSClient {
      * @throws JMSException
      */
     public void receive(final String queue, Predicate<Message> predicate) throws JMSException {
-        final long timeout = 3000;
-
         MessageConsumer consumer = null;
 
         try {
-            consumer = session.createConsumer(createDestination(queue));
+            consumer = createConsumer(queue);
 
-            while (true) {
-                final Message message = consumer.receive(timeout);
-
-                if (!predicate.test(message)) {
-                    return;
-                }
-            }
+            receive(consumer, predicate);
         } finally {
             capturingClose(consumer);
         }
@@ -234,5 +259,102 @@ public class JMSClient {
         } finally {
             capturingClose(producer);
         }
+    }
+
+
+    public static void produceMessages(JMSClient jmsProducer, String queue, int count, Function<Integer, String> supplier) {
+        try {
+            jmsProducer.start();
+            for (int i = 0; i < count; i++) {
+                jmsProducer.send(queue, supplier.apply(i));
+            }
+        } catch (JMSException e) {
+            LOG.error("JMS exception trying to send messages to the queue: {}", e.getMessage(), e);
+            fail(e.getMessage());
+        } catch (Exception e) {
+            LOG.error("Failed to send messages to the queue: {}", e.getMessage(), e);
+            fail(e.getMessage());
+        } finally {
+            jmsProducer.stop();
+        }
+    }
+
+    public static void produceMessages(JMSClient jmsProducer, String queue, int count, String baseText) {
+        try {
+            jmsProducer.start();
+            for (int i = 0; i < count; i++) {
+                jmsProducer.send(queue, baseText + " " + i);
+            }
+        } catch (JMSException e) {
+            LOG.error("JMS exception trying to send messages to the queue: {}", e.getMessage(), e);
+            fail(e.getMessage());
+        } catch (Exception e) {
+            LOG.error("Failed to send messages to the queue: {}", e.getMessage(), e);
+            fail(e.getMessage());
+        } finally {
+            jmsProducer.stop();
+        }
+    }
+
+    public static void produceMessages(JMSClient jmsProducer, String queue, int count) {
+        try {
+            jmsProducer.start();
+            for (int i = 0; i < count; i++) {
+                jmsProducer.send(queue, i);
+            }
+        } catch (JMSException e) {
+            LOG.error("JMS exception trying to send messages to the queue: {}", e.getMessage(), e);
+            fail(e.getMessage());
+        } catch (Exception e) {
+            LOG.error("Failed to send messages to the queue: {}", e.getMessage(), e);
+            fail(e.getMessage());
+        } finally {
+            jmsProducer.stop();
+        }
+    }
+
+    private static JMSClient newLocalClient(String endpoint) {
+        String jmsClientType = System.getProperty("jms-service.transport.protocol");
+
+        if (jmsClientType == null || jmsClientType.isEmpty() || jmsClientType.equals("qpid")) {
+            return new JMSClient(org.apache.qpid.jms.JmsConnectionFactory::new, endpoint);
+        }
+
+        if (jmsClientType.equals("openwire")) {
+            return new JMSClient(org.apache.activemq.ActiveMQConnectionFactory::new, endpoint);
+        }
+
+        throw new UnsupportedOperationException("Invalid JMS transport protocol");
+    }
+
+    private static JMSClient newRemoteClient(String endpoint) {
+        String tmpConnectionFactory = System.getProperty("camel.component.sjms2.connection-factory");
+        if (tmpConnectionFactory == null) {
+            throw new UnsupportedOperationException("JMS connection factory class must be provided");
+        }
+
+        String connectionFactory = tmpConnectionFactory.replace("#class:", "");
+
+
+        String jmsClientType = System.getProperty("jms-service.transport.protocol");
+        if (jmsClientType == null || jmsClientType.isEmpty() || jmsClientType.equals("qpid")) {
+            return new JMSClient(connectionFactory, endpoint);
+        }
+
+        if (jmsClientType.equals("openwire")) {
+            return new JMSClient(connectionFactory, endpoint);
+        }
+
+        throw new UnsupportedOperationException("Invalid JMS transport protocol");
+    }
+
+    public static JMSClient newClient(String endpoint) {
+        String jmsInstanceType = System.getProperty("jms-service.instance.type");
+
+        if (jmsInstanceType == null || !jmsInstanceType.equals("remote")) {
+            return newLocalClient(endpoint);
+        }
+
+        return newRemoteClient(endpoint);
     }
 }
