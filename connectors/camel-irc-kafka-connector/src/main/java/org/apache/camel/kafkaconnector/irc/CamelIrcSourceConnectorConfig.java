@@ -63,15 +63,9 @@ public class CamelIrcSourceConnectorConfig extends CamelSourceConnectorConfig {
     public static final String CAMEL_SOURCE_IRC_ENDPOINT_EXCHANGE_PATTERN_CONF = "camel.source.endpoint.exchangePattern";
     public static final String CAMEL_SOURCE_IRC_ENDPOINT_EXCHANGE_PATTERN_DOC = "Sets the exchange pattern when the consumer creates an exchange. One of: [InOnly] [InOut] [InOptionalOut]";
     public static final String CAMEL_SOURCE_IRC_ENDPOINT_EXCHANGE_PATTERN_DEFAULT = null;
-    public static final String CAMEL_SOURCE_IRC_ENDPOINT_BASIC_PROPERTY_BINDING_CONF = "camel.source.endpoint.basicPropertyBinding";
-    public static final String CAMEL_SOURCE_IRC_ENDPOINT_BASIC_PROPERTY_BINDING_DOC = "Whether the endpoint should use basic property binding (Camel 2.x) or the newer property binding with additional capabilities";
-    public static final Boolean CAMEL_SOURCE_IRC_ENDPOINT_BASIC_PROPERTY_BINDING_DEFAULT = false;
     public static final String CAMEL_SOURCE_IRC_ENDPOINT_COLORS_CONF = "camel.source.endpoint.colors";
     public static final String CAMEL_SOURCE_IRC_ENDPOINT_COLORS_DOC = "Whether or not the server supports color codes.";
     public static final Boolean CAMEL_SOURCE_IRC_ENDPOINT_COLORS_DEFAULT = true;
-    public static final String CAMEL_SOURCE_IRC_ENDPOINT_SYNCHRONOUS_CONF = "camel.source.endpoint.synchronous";
-    public static final String CAMEL_SOURCE_IRC_ENDPOINT_SYNCHRONOUS_DOC = "Sets whether synchronous processing should be strictly used, or Camel is allowed to use asynchronous processing (if supported).";
-    public static final Boolean CAMEL_SOURCE_IRC_ENDPOINT_SYNCHRONOUS_DEFAULT = false;
     public static final String CAMEL_SOURCE_IRC_ENDPOINT_ON_JOIN_CONF = "camel.source.endpoint.onJoin";
     public static final String CAMEL_SOURCE_IRC_ENDPOINT_ON_JOIN_DOC = "Handle user join events.";
     public static final Boolean CAMEL_SOURCE_IRC_ENDPOINT_ON_JOIN_DEFAULT = true;
@@ -117,9 +111,9 @@ public class CamelIrcSourceConnectorConfig extends CamelSourceConnectorConfig {
     public static final String CAMEL_SOURCE_IRC_COMPONENT_BRIDGE_ERROR_HANDLER_CONF = "camel.component.irc.bridgeErrorHandler";
     public static final String CAMEL_SOURCE_IRC_COMPONENT_BRIDGE_ERROR_HANDLER_DOC = "Allows for bridging the consumer to the Camel routing Error Handler, which mean any exceptions occurred while the consumer is trying to pickup incoming messages, or the likes, will now be processed as a message and handled by the routing Error Handler. By default the consumer will use the org.apache.camel.spi.ExceptionHandler to deal with exceptions, that will be logged at WARN or ERROR level and ignored.";
     public static final Boolean CAMEL_SOURCE_IRC_COMPONENT_BRIDGE_ERROR_HANDLER_DEFAULT = false;
-    public static final String CAMEL_SOURCE_IRC_COMPONENT_BASIC_PROPERTY_BINDING_CONF = "camel.component.irc.basicPropertyBinding";
-    public static final String CAMEL_SOURCE_IRC_COMPONENT_BASIC_PROPERTY_BINDING_DOC = "Whether the component should use basic property binding (Camel 2.x) or the newer property binding with additional capabilities";
-    public static final Boolean CAMEL_SOURCE_IRC_COMPONENT_BASIC_PROPERTY_BINDING_DEFAULT = false;
+    public static final String CAMEL_SOURCE_IRC_COMPONENT_AUTOWIRED_ENABLED_CONF = "camel.component.irc.autowiredEnabled";
+    public static final String CAMEL_SOURCE_IRC_COMPONENT_AUTOWIRED_ENABLED_DOC = "Whether autowiring is enabled. This is used for automatic autowiring options (the option must be marked as autowired) by looking up in the registry to find if there is a single instance of matching type, which then gets configured on the component. This can be used for automatic configuring JDBC data sources, JMS connection factories, AWS Clients, etc.";
+    public static final Boolean CAMEL_SOURCE_IRC_COMPONENT_AUTOWIRED_ENABLED_DEFAULT = true;
     public static final String CAMEL_SOURCE_IRC_COMPONENT_USE_GLOBAL_SSL_CONTEXT_PARAMETERS_CONF = "camel.component.irc.useGlobalSslContextParameters";
     public static final String CAMEL_SOURCE_IRC_COMPONENT_USE_GLOBAL_SSL_CONTEXT_PARAMETERS_DOC = "Enable usage of global SSL context parameters.";
     public static final Boolean CAMEL_SOURCE_IRC_COMPONENT_USE_GLOBAL_SSL_CONTEXT_PARAMETERS_DEFAULT = false;
@@ -149,9 +143,7 @@ public class CamelIrcSourceConnectorConfig extends CamelSourceConnectorConfig {
         conf.define(CAMEL_SOURCE_IRC_ENDPOINT_BRIDGE_ERROR_HANDLER_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_IRC_ENDPOINT_BRIDGE_ERROR_HANDLER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_IRC_ENDPOINT_BRIDGE_ERROR_HANDLER_DOC);
         conf.define(CAMEL_SOURCE_IRC_ENDPOINT_EXCEPTION_HANDLER_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_IRC_ENDPOINT_EXCEPTION_HANDLER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_IRC_ENDPOINT_EXCEPTION_HANDLER_DOC);
         conf.define(CAMEL_SOURCE_IRC_ENDPOINT_EXCHANGE_PATTERN_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_IRC_ENDPOINT_EXCHANGE_PATTERN_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_IRC_ENDPOINT_EXCHANGE_PATTERN_DOC);
-        conf.define(CAMEL_SOURCE_IRC_ENDPOINT_BASIC_PROPERTY_BINDING_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_IRC_ENDPOINT_BASIC_PROPERTY_BINDING_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_IRC_ENDPOINT_BASIC_PROPERTY_BINDING_DOC);
         conf.define(CAMEL_SOURCE_IRC_ENDPOINT_COLORS_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_IRC_ENDPOINT_COLORS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_IRC_ENDPOINT_COLORS_DOC);
-        conf.define(CAMEL_SOURCE_IRC_ENDPOINT_SYNCHRONOUS_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_IRC_ENDPOINT_SYNCHRONOUS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_IRC_ENDPOINT_SYNCHRONOUS_DOC);
         conf.define(CAMEL_SOURCE_IRC_ENDPOINT_ON_JOIN_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_IRC_ENDPOINT_ON_JOIN_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_IRC_ENDPOINT_ON_JOIN_DOC);
         conf.define(CAMEL_SOURCE_IRC_ENDPOINT_ON_KICK_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_IRC_ENDPOINT_ON_KICK_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_IRC_ENDPOINT_ON_KICK_DOC);
         conf.define(CAMEL_SOURCE_IRC_ENDPOINT_ON_MODE_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_IRC_ENDPOINT_ON_MODE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_IRC_ENDPOINT_ON_MODE_DOC);
@@ -161,13 +153,13 @@ public class CamelIrcSourceConnectorConfig extends CamelSourceConnectorConfig {
         conf.define(CAMEL_SOURCE_IRC_ENDPOINT_ON_QUIT_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_IRC_ENDPOINT_ON_QUIT_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_IRC_ENDPOINT_ON_QUIT_DOC);
         conf.define(CAMEL_SOURCE_IRC_ENDPOINT_ON_REPLY_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_IRC_ENDPOINT_ON_REPLY_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_IRC_ENDPOINT_ON_REPLY_DOC);
         conf.define(CAMEL_SOURCE_IRC_ENDPOINT_ON_TOPIC_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_IRC_ENDPOINT_ON_TOPIC_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_IRC_ENDPOINT_ON_TOPIC_DOC);
-        conf.define(CAMEL_SOURCE_IRC_ENDPOINT_NICK_PASSWORD_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_IRC_ENDPOINT_NICK_PASSWORD_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_IRC_ENDPOINT_NICK_PASSWORD_DOC);
-        conf.define(CAMEL_SOURCE_IRC_ENDPOINT_PASSWORD_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_IRC_ENDPOINT_PASSWORD_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_IRC_ENDPOINT_PASSWORD_DOC);
+        conf.define(CAMEL_SOURCE_IRC_ENDPOINT_NICK_PASSWORD_CONF, ConfigDef.Type.PASSWORD, CAMEL_SOURCE_IRC_ENDPOINT_NICK_PASSWORD_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_IRC_ENDPOINT_NICK_PASSWORD_DOC);
+        conf.define(CAMEL_SOURCE_IRC_ENDPOINT_PASSWORD_CONF, ConfigDef.Type.PASSWORD, CAMEL_SOURCE_IRC_ENDPOINT_PASSWORD_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_IRC_ENDPOINT_PASSWORD_DOC);
         conf.define(CAMEL_SOURCE_IRC_ENDPOINT_SSL_CONTEXT_PARAMETERS_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_IRC_ENDPOINT_SSL_CONTEXT_PARAMETERS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_IRC_ENDPOINT_SSL_CONTEXT_PARAMETERS_DOC);
         conf.define(CAMEL_SOURCE_IRC_ENDPOINT_TRUST_MANAGER_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_IRC_ENDPOINT_TRUST_MANAGER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_IRC_ENDPOINT_TRUST_MANAGER_DOC);
-        conf.define(CAMEL_SOURCE_IRC_ENDPOINT_USERNAME_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_IRC_ENDPOINT_USERNAME_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_IRC_ENDPOINT_USERNAME_DOC);
+        conf.define(CAMEL_SOURCE_IRC_ENDPOINT_USERNAME_CONF, ConfigDef.Type.PASSWORD, CAMEL_SOURCE_IRC_ENDPOINT_USERNAME_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_IRC_ENDPOINT_USERNAME_DOC);
         conf.define(CAMEL_SOURCE_IRC_COMPONENT_BRIDGE_ERROR_HANDLER_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_IRC_COMPONENT_BRIDGE_ERROR_HANDLER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_IRC_COMPONENT_BRIDGE_ERROR_HANDLER_DOC);
-        conf.define(CAMEL_SOURCE_IRC_COMPONENT_BASIC_PROPERTY_BINDING_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_IRC_COMPONENT_BASIC_PROPERTY_BINDING_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_IRC_COMPONENT_BASIC_PROPERTY_BINDING_DOC);
+        conf.define(CAMEL_SOURCE_IRC_COMPONENT_AUTOWIRED_ENABLED_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_IRC_COMPONENT_AUTOWIRED_ENABLED_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_IRC_COMPONENT_AUTOWIRED_ENABLED_DOC);
         conf.define(CAMEL_SOURCE_IRC_COMPONENT_USE_GLOBAL_SSL_CONTEXT_PARAMETERS_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_IRC_COMPONENT_USE_GLOBAL_SSL_CONTEXT_PARAMETERS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_IRC_COMPONENT_USE_GLOBAL_SSL_CONTEXT_PARAMETERS_DOC);
         return conf;
     }

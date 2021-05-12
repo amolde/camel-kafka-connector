@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.camel.kafkaconnector</groupId>
         <artifactId>parent</artifactId>
-        <version>0.4.0-SNAPSHOT</version>
+        <version>0.9.0</version>
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
 
@@ -41,19 +41,33 @@
     <modules>
         <module>itests-parent</module>
         <module>itests-common</module>
-        <module>itests-aws</module>
+        <module>itests-common-http</module>
+        <module>itests-aws-v2</module>
         <module>itests-cassandra</module>
         <module>itests-elasticsearch</module>
         <module>itests-sjms2</module>
         <module>itests-syslog</module>
         <module>itests-file</module>
         <module>itests-http</module>
+        <module>itests-https</module>
         <module>itests-timer</module>
         <module>itests-slack</module>
         <module>itests-salesforce</module>
         <module>itests-hdfs</module>
         <module>itests-mongodb</module>
         <module>itests-jdbc</module>
+        <module>itests-azure-storage-blob</module>
+        <module>itests-azure-storage-queue</module>
+        <module>perf-tests-rabbitmq</module>
+        <module>itests-rabbitmq</module>
+        <module>itests-couchbase</module>
+        <module>itests-ssh</module>
+        <module>itests-sql</module>
+        <module>itests-cxf</module>
+        <module>itests-cxfrs</module>
+        <module>itests-netty</module>
+        <module>itests-netty-http</module>
+        <module>itests-google-pubsub</module>
     </modules>
 
 

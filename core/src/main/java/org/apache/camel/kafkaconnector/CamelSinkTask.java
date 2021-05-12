@@ -18,25 +18,24 @@ package org.apache.camel.kafkaconnector;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.camel.CamelContext;
+import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
-import org.apache.camel.ExtendedCamelContext;
+import org.apache.camel.LoggingLevel;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.impl.DefaultCamelContext;
-import org.apache.camel.kafkaconnector.utils.CamelMainSupport;
+import org.apache.camel.kafkaconnector.utils.CamelKafkaConnectMain;
 import org.apache.camel.kafkaconnector.utils.TaskHelper;
 import org.apache.camel.support.DefaultExchange;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.camel.util.StringHelper;
 import org.apache.kafka.connect.data.Decimal;
 import org.apache.kafka.connect.data.Schema;
-import org.apache.kafka.connect.data.SchemaBuilder;
 import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.header.Header;
+import org.apache.kafka.connect.sink.ErrantRecordReporter;
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.apache.kafka.connect.sink.SinkTask;
 import org.slf4j.Logger;
@@ -53,44 +52,102 @@ public class CamelSinkTask extends SinkTask {
     private static final Logger LOG = LoggerFactory.getLogger(CamelSinkTask.class);
 
     private static final String LOCAL_URL = "direct:start";
+    private ErrantRecordReporter reporter;
 
-
-    private CamelMainSupport cms;
+    private CamelKafkaConnectMain cms;
     private ProducerTemplate producer;
-    private CamelSinkConnectorConfig config;
+    private Endpoint localEndpoint;
+
+    private LoggingLevel loggingLevel = LoggingLevel.OFF;
+    private boolean mapProperties;
+    private boolean mapHeaders;
 
     @Override
     public String version() {
-        return new CamelSinkConnector().version();
+        return VersionUtil.getVersion();
     }
 
     @Override
     public void start(Map<String, String> props) {
         try {
             LOG.info("Starting CamelSinkTask connector task");
-            Map<String, String> actualProps = TaskHelper.mergeProperties(getDefaultConfig(), props);
-            config = getCamelSinkConnectorConfig(actualProps);
+            Map<String, String> actualProps = TaskHelper.combineDefaultAndLoadedProperties(getDefaultConfig(), props);
+            CamelSinkConnectorConfig config = getCamelSinkConnectorConfig(actualProps);
+
+            if (context != null) {
+                try {
+                    reporter = context.errantRecordReporter();
+                } catch (NoSuchMethodError | NoClassDefFoundError e) {
+                    LOG.warn("Unable to instantiate ErrantRecordReporter.  Method 'SinkTaskContext.errantRecordReporter' does not exist.");
+                    reporter = null;
+                }
+            }
+
+            String levelStr = config.getString(CamelSinkConnectorConfig.CAMEL_SINK_CONTENT_LOG_LEVEL_CONF);
+            try {
+                loggingLevel = LoggingLevel.valueOf(levelStr.toUpperCase());
+            } catch (Exception e) {
+                LOG.debug("Invalid value {} for {} property", levelStr.toUpperCase(), CamelSinkConnectorConfig.CAMEL_SINK_CONTENT_LOG_LEVEL_CONF);
+            }
 
             String remoteUrl = config.getString(CamelSinkConnectorConfig.CAMEL_SINK_URL_CONF);
             final String marshaller = config.getString(CamelSinkConnectorConfig.CAMEL_SINK_MARSHAL_CONF);
-            final int size = config.getInt(CamelSinkConnectorConfig.CAMEL_SINK_AGGREGATE_SIZE_CONF);
-            final long timeout = config.getLong(CamelSinkConnectorConfig.CAMEL_SINK_AGGREGATE_TIMEOUT_CONF);
-
+            final String unmarshaller = config.getString(CamelSinkConnectorConfig.CAMEL_SINK_UNMARSHAL_CONF);
+            final int size = config.getInt(CamelSinkConnectorConfig.CAMEL_CONNECTOR_AGGREGATE_SIZE_CONF);
+            final long timeout = config.getLong(CamelSinkConnectorConfig.CAMEL_CONNECTOR_AGGREGATE_TIMEOUT_CONF);
+            final int maxRedeliveries = config.getInt(CamelSinkConnectorConfig.CAMEL_CONNECTOR_ERROR_HANDLER_MAXIMUM_REDELIVERIES_CONF);
+            final long redeliveryDelay = config.getLong(CamelSinkConnectorConfig.CAMEL_CONNECTOR_ERROR_HANDLER_REDELIVERY_DELAY_CONF);
+            final String errorHandler = config.getString(CamelSinkConnectorConfig.CAMEL_CONNECTOR_ERROR_HANDLER_CONF);
+            final Boolean idempotencyEnabled = config.getBoolean(CamelSinkConnectorConfig.CAMEL_CONNECTOR_IDEMPOTENCY_ENABLED_CONF);
+            final String expressionType = config.getString(CamelSinkConnectorConfig.CAMEL_CONNECTOR_IDEMPOTENCY_EXPRESSION_TYPE_CONF);
+            final String expressionHeader = config.getString(CamelSinkConnectorConfig.CAMEL_CONNECTOR_IDEMPOTENCY_EXPRESSION_HEADER_CONF);
+            final int memoryDimension = config.getInt(CamelSinkConnectorConfig.CAMEL_CONNECTOR_IDEMPOTENCY_MEMORY_DIMENSION_CONF);
+            final String idempotentRepositoryType = config.getString(CamelSinkConnectorConfig.CAMEL_CONNECTOR_IDEMPOTENCY_REPOSITORY_TYPE_CONF);
+            final String idempotentRepositoryKafkaTopic = config.getString(CamelSinkConnectorConfig.CAMEL_CONNECTOR_IDEMPOTENCY_KAFKA_TOPIC_CONF);
+            final String idempotentRepositoryBootstrapServers = config.getString(CamelSinkConnectorConfig.CAMEL_CONNECTOR_IDEMPOTENCY_KAFKA_BOOTSTRAP_SERVERS_CONF);
+            final int idempotentRepositoryKafkaMaxCacheSize = config.getInt(CamelSinkConnectorConfig.CAMEL_CONNECTOR_IDEMPOTENCY_KAFKA_MAX_CACHE_SIZE_CONF);
+            final int idempotentRepositoryKafkaPollDuration = config.getInt(CamelSinkConnectorConfig.CAMEL_CONNECTOR_IDEMPOTENCY_KAFKA_POLL_DURATION_CONF);
+            final String headersRemovePattern = config.getString(CamelSinkConnectorConfig.CAMEL_CONNECTOR_REMOVE_HEADERS_PATTERN_CONF);
+            mapProperties = config.getBoolean(CamelSinkConnectorConfig.CAMEL_CONNECTOR_MAP_PROPERTIES_CONF);
+            mapHeaders = config.getBoolean(CamelSinkConnectorConfig.CAMEL_CONNECTOR_MAP_HEADERS_CONF);
+            
             CamelContext camelContext = null;
             if (remoteUrl == null) {
                 camelContext = CamelMainSupport.getCamelContext(actualProps);
-                remoteUrl = TaskHelper.buildUrl(camelContext.adapt(ExtendedCamelContext.class).getRuntimeCamelCatalog(),
+                remoteUrl = TaskHelper.buildUrl(camelContext,
                                                 actualProps,
                                                 config.getString(CamelSinkConnectorConfig.CAMEL_SINK_COMPONENT_CONF),
                                                 CAMEL_SINK_ENDPOINT_PROPERTIES_PREFIX,
                                                 CAMEL_SINK_PATH_PROPERTIES_PREFIX);
             }
 
-            cms = new CamelMainSupport(actualProps, LOCAL_URL, remoteUrl, marshaller, null, size, timeout, camelContext);
+            cms = CamelKafkaConnectMain.builder(LOCAL_URL, remoteUrl)
+                .withProperties(actualProps)
+                .withUnmarshallDataFormat(unmarshaller)
+                .withMarshallDataFormat(marshaller)
+                .withAggregationSize(size)
+                .withAggregationTimeout(timeout)
+                .withErrorHandler(errorHandler)
+                .withMaxRedeliveries(maxRedeliveries)
+                .withRedeliveryDelay(redeliveryDelay)
+                .withIdempotencyEnabled(idempotencyEnabled)
+                .withExpressionType(expressionType)
+                .withExpressionHeader(expressionHeader)
+                .withMemoryDimension(memoryDimension)
+                .withIdempotentRepositoryType(idempotentRepositoryType)
+                .withIdempotentRepositoryTopicName(idempotentRepositoryKafkaTopic)
+                .withIdempotentRepositoryKafkaServers(idempotentRepositoryBootstrapServers)
+                .withIdempotentRepositoryKafkaMaxCacheSize(idempotentRepositoryKafkaMaxCacheSize)
+                .withIdempotentRepositoryKafkaPollDuration(idempotentRepositoryKafkaPollDuration)
+                .withHeadersExcludePattern(headersRemovePattern)
+                .build(camelContext);
 
-            producer = cms.createProducerTemplate();
 
             cms.start();
+
+            producer = cms.getProducerTemplate();
+            localEndpoint = cms.getCamelContext().getEndpoint(LOCAL_URL);
+
             LOG.info("CamelSinkTask connector task started");
         } catch (Exception e) {
             throw new ConnectException("Failed to create and start Camel context", e);
@@ -102,7 +159,7 @@ public class CamelSinkTask extends SinkTask {
     }
 
     protected Map<String, String> getDefaultConfig() {
-        return Collections.EMPTY_MAP;
+        return Collections.emptyMap();
     }
 
     protected static String getCamelSinkEndpointConfigPrefix() {
@@ -116,26 +173,35 @@ public class CamelSinkTask extends SinkTask {
     @Override
     public void put(Collection<SinkRecord> sinkRecords) {
         for (SinkRecord record : sinkRecords) {
-            TaskHelper.logRecordContent(LOG, record, config);
-            Map<String, Object> headers = new HashMap<String, Object>();
+            TaskHelper.logRecordContent(LOG, loggingLevel, record);
+
             Exchange exchange = new DefaultExchange(producer.getCamelContext());
-            headers.put(KAFKA_RECORD_KEY_HEADER, record.key());
-            for (Iterator<Header> iterator = record.headers().iterator(); iterator.hasNext();) {
-                Header header = (Header)iterator.next();
+            exchange.getMessage().setBody(record.value());
+            exchange.getMessage().setHeader(KAFKA_RECORD_KEY_HEADER, record.key());
+
+            for (Header header : record.headers()) {
                 if (header.key().startsWith(HEADER_CAMEL_PREFIX)) {
-                    addHeader(headers, header);
+                    if (mapHeaders) {
+                        mapHeader(header, HEADER_CAMEL_PREFIX, exchange.getMessage().getHeaders());
+                    }
                 } else if (header.key().startsWith(PROPERTY_CAMEL_PREFIX)) {
-                    addProperty(exchange, header);
+                    if (mapProperties) {
+                        mapHeader(header, PROPERTY_CAMEL_PREFIX, exchange.getProperties());
+                    }
                 }
             }
-            exchange.getMessage().setHeaders(headers);
-            exchange.getMessage().setBody(record.value());
 
             LOG.debug("Sending exchange {} to {}", exchange.getExchangeId(), LOCAL_URL);
-            producer.send(LOCAL_URL, exchange);
+            producer.send(localEndpoint, exchange);
 
             if (exchange.isFailed()) {
-                throw new ConnectException("Exchange delivery has failed!", exchange.getException());
+                if (reporter == null) {
+                    LOG.warn("A delivery has failed and the error reporting is NOT enabled. Records may be lost or ignored");
+                    throw new ConnectException("Exchange delivery has failed!", exchange.getException());
+                }
+
+                LOG.warn("A delivery has failed and the error reporting is enabled. Sending record to the DLQ");
+                reporter.report(record, exchange.getException());
             }
         }
     }
@@ -144,7 +210,15 @@ public class CamelSinkTask extends SinkTask {
     public void stop() {
         LOG.info("Stopping CamelSinkTask connector task");
         try {
-            cms.stop();
+            if (cms != null) {
+                /*
+                  If the CamelMainSupport instance fails to be instantiated (ie.: due to missing classes or similar
+                  issues) then it won't be assigned and de-referencing it could cause an NPE.
+                 */
+                cms.stop();
+            } else {
+                LOG.warn("A fatal exception may have occurred and the Camel main was not created");
+            }
         } catch (Exception e) {
             throw new ConnectException("Failed to stop Camel context", e);
         } finally {
@@ -152,67 +226,26 @@ public class CamelSinkTask extends SinkTask {
         }
     }
 
-    private void addHeader(Map<String, Object> map, Header singleHeader) {
-        String camelHeaderKey = StringUtils.removeStart(singleHeader.key(), HEADER_CAMEL_PREFIX);
-        Schema schema = singleHeader.schema();
-        if (schema.type().getName().equals(Schema.STRING_SCHEMA.type().getName())) {
-            map.put(camelHeaderKey, (String)singleHeader.value());
-        } else if (schema.type().getName().equalsIgnoreCase(Schema.BOOLEAN_SCHEMA.type().getName())) {
-            map.put(camelHeaderKey, (Boolean)singleHeader.value());
-        } else if (schema.type().getName().equalsIgnoreCase(Schema.INT32_SCHEMA.type().getName())) {
-            map.put(camelHeaderKey, singleHeader.value());
-        } else if (schema.type().getName().equalsIgnoreCase(Schema.BYTES_SCHEMA.type().getName())) {
-            if (Decimal.class.getCanonicalName().equals(schema.name())) {
-                map.put(camelHeaderKey, Decimal.toLogical(schema, (byte[])singleHeader.value()));
-            } else {
-                map.put(camelHeaderKey, (byte[])singleHeader.value());
-            }
-        } else if (schema.type().getName().equalsIgnoreCase(Schema.FLOAT32_SCHEMA.type().getName())) {
-            map.put(camelHeaderKey, (float)singleHeader.value());
-        } else if (schema.type().getName().equalsIgnoreCase(Schema.FLOAT64_SCHEMA.type().getName())) {
-            map.put(camelHeaderKey, (double)singleHeader.value());
-        } else if (schema.type().getName().equalsIgnoreCase(Schema.INT16_SCHEMA.type().getName())) {
-            map.put(camelHeaderKey, (short)singleHeader.value());
-        } else if (schema.type().getName().equalsIgnoreCase(Schema.INT64_SCHEMA.type().getName())) {
-            map.put(camelHeaderKey, (long)singleHeader.value());
-        } else if (schema.type().getName().equalsIgnoreCase(Schema.INT8_SCHEMA.type().getName())) {
-            map.put(camelHeaderKey, (byte)singleHeader.value());
-        } else if (schema.type().getName().equalsIgnoreCase(SchemaBuilder.map(Schema.STRING_SCHEMA, Schema.STRING_SCHEMA).type().getName())) {
-            map.put(camelHeaderKey, (Map<?, ?>)singleHeader.value());
-        } else if (schema.type().getName().equalsIgnoreCase(SchemaBuilder.array(Schema.STRING_SCHEMA).type().getName())) {
-            map.put(camelHeaderKey, (List<?>)singleHeader.value());
+    private static void mapHeader(Header header, String prefix, Map<String, Object> destination) {
+        final String key = StringHelper.after(header.key(), prefix, header.key());
+        final Schema schema = header.schema();
+
+        if (schema.type().equals(Schema.BYTES_SCHEMA.type()) && Objects.equals(schema.name(), Decimal.LOGICAL_NAME)) {
+            destination.put(key, Decimal.toLogical(schema, (byte[]) header.value()));
+        } else {
+            destination.put(key, header.value());
         }
     }
 
-    private void addProperty(Exchange exchange, Header singleHeader) {
-        String camelPropertyKey = StringUtils.removeStart(singleHeader.key(), PROPERTY_CAMEL_PREFIX);
-        Schema schema = singleHeader.schema();
-        if (schema.type().getName().equals(Schema.STRING_SCHEMA.type().getName())) {
-            exchange.getProperties().put(camelPropertyKey, (String)singleHeader.value());
-        } else if (schema.type().getName().equalsIgnoreCase(Schema.BOOLEAN_SCHEMA.type().getName())) {
-            exchange.getProperties().put(camelPropertyKey, (Boolean)singleHeader.value());
-        } else if (schema.type().getName().equalsIgnoreCase(Schema.INT32_SCHEMA.type().getName())) {
-            exchange.getProperties().put(camelPropertyKey, singleHeader.value());
-        } else if (schema.type().getName().equalsIgnoreCase(Schema.BYTES_SCHEMA.type().getName())) {
-            exchange.getProperties().put(camelPropertyKey, (byte[])singleHeader.value());
-        } else if (schema.type().getName().equalsIgnoreCase(Schema.FLOAT32_SCHEMA.type().getName())) {
-            exchange.getProperties().put(camelPropertyKey, (float)singleHeader.value());
-        } else if (schema.type().getName().equalsIgnoreCase(Schema.FLOAT64_SCHEMA.type().getName())) {
-            exchange.getProperties().put(camelPropertyKey, (double)singleHeader.value());
-        } else if (schema.type().getName().equalsIgnoreCase(Schema.INT16_SCHEMA.type().getName())) {
-            exchange.getProperties().put(camelPropertyKey, (short)singleHeader.value());
-        } else if (schema.type().getName().equalsIgnoreCase(Schema.INT64_SCHEMA.type().getName())) {
-            exchange.getProperties().put(camelPropertyKey, (long)singleHeader.value());
-        } else if (schema.type().getName().equalsIgnoreCase(Schema.INT8_SCHEMA.type().getName())) {
-            exchange.getProperties().put(camelPropertyKey, (byte)singleHeader.value());
-        } else if (schema.type().getName().equalsIgnoreCase(SchemaBuilder.map(Schema.STRING_SCHEMA, Schema.STRING_SCHEMA).type().getName())) {
-            exchange.getProperties().put(camelPropertyKey, (Map<?, ?>)singleHeader.value());
-        } else if (schema.type().getName().equalsIgnoreCase(SchemaBuilder.array(Schema.STRING_SCHEMA).type().getName())) {
-            exchange.getProperties().put(camelPropertyKey, (List<?>)singleHeader.value());
-        }
-    }
-
-    public CamelMainSupport getCms() {
+    CamelKafkaConnectMain getCms() {
         return cms;
+    }
+
+    public LoggingLevel getLoggingLevel() {
+        return loggingLevel;
+    }
+
+    public void setLoggingLevel(LoggingLevel loggingLevel) {
+        this.loggingLevel = loggingLevel;
     }
 }

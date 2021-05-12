@@ -27,6 +27,7 @@ import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -60,6 +61,7 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import org.apache.camel.tooling.util.PackageHelper;
 import org.apache.camel.tooling.util.srcgen.JavaClass;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
@@ -124,7 +126,6 @@ public final class MavenUtils {
                 String oldContent = IOUtils.toString(fr);
                 if (!newContent.equals(oldContent)) {
                     log.debug("Writing new file " + file.getAbsolutePath());
-                    fr.close();
                 } else {
                     log.debug("File " + file.getAbsolutePath() + " has been left unchanged");
                     write = false;
@@ -181,7 +182,7 @@ public final class MavenUtils {
         XPath xpath = XPathFactory.newInstance().newXPath();
         Node dependencies = ((NodeList) xpath.compile("/project/dependencies").evaluate(pom, XPathConstants.NODESET)).item(0);
 
-        if (deps.size() > 0) {
+        if (!deps.isEmpty()) {
             dependencies.appendChild(pom.createComment(generatedSectionStartMarker));
             for (String dep : deps) {
                 Element dependency = pom.createElement("dependency");
@@ -271,8 +272,17 @@ public final class MavenUtils {
     }
 
     public static void writeSourceIfChanged(String source, String fileName, File baseDir, File javaFileHeader) throws MojoFailureException {
-        //TODO: Do not write class if a class already exist and has no @generated annotation.
         File target = new File(new File(baseDir, "src/main/java"), fileName);
+        if (target.exists()) {
+            try {
+                if (!FileUtils.readFileToString(target).contains("@Generated")) {
+                    // Do not write class if a class already exists and has no @Generated annotation
+                    return;
+                }
+            } catch (IOException ioe) {
+                throw new MojoFailureException("IO error trying to read whether " + target.toString() + " contains @Generated annotation", ioe);
+            }
+        }
 
         deleteFile(baseDir, target);
 
@@ -293,9 +303,10 @@ public final class MavenUtils {
         String relativePath = baseDir.toPath().relativize(targetFile.toPath()).toString();
         File mainArtifactFile = new File(baseDir, relativePath);
         if (mainArtifactFile.exists()) {
-            boolean deleted = mainArtifactFile.delete();
-            if (!deleted) {
-                throw new IllegalStateException("Cannot delete file " + mainArtifactFile);
+            try {
+                Files.delete(mainArtifactFile.toPath());
+            } catch (IOException e) {
+                throw new IllegalStateException("Cannot delete file " + mainArtifactFile, e);
             }
         }
     }

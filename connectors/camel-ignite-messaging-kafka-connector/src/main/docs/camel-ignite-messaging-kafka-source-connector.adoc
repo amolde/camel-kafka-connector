@@ -2,6 +2,8 @@
 [[camel-ignite-messaging-kafka-connector-source]]
 = camel-ignite-messaging-kafka-connector source configuration
 
+Connector description: Send and receive messages from an Ignite topic.
+
 When using camel-ignite-messaging-kafka-connector as source make sure to use the following Maven dependency to have support for the connector:
 
 [source,xml]
@@ -14,27 +16,48 @@ When using camel-ignite-messaging-kafka-connector as source make sure to use the
 </dependency>
 ----
 
+To use this Source connector in Kafka connect you'll need to set the following connector.class
 
-The camel-ignite-messaging source connector supports 14 options, which are listed below.
+[source,java]
+----
+connector.class=org.apache.camel.kafkaconnector.ignitemessaging.CamelIgnitemessagingSourceConnector
+----
+
+
+The camel-ignite-messaging source connector supports 12 options, which are listed below.
 
 
 
-[width="100%",cols="2,5,^1,2",options="header"]
+[width="100%",cols="2,5,^1,1,1",options="header"]
 |===
-| Name | Description | Default | Priority
-| *camel.source.path.topic* | The topic name. | null | HIGH
-| *camel.source.endpoint.propagateIncomingBodyIfNo ReturnValue* | Sets whether to propagate the incoming body if the return type of the underlying Ignite operation is void. | true | MEDIUM
-| *camel.source.endpoint.treatCollectionsAsCache Objects* | Sets whether to treat Collections as cache objects or as Collections of items to insert/update/compute, etc. | false | MEDIUM
-| *camel.source.endpoint.bridgeErrorHandler* | Allows for bridging the consumer to the Camel routing Error Handler, which mean any exceptions occurred while the consumer is trying to pickup incoming messages, or the likes, will now be processed as a message and handled by the routing Error Handler. By default the consumer will use the org.apache.camel.spi.ExceptionHandler to deal with exceptions, that will be logged at WARN or ERROR level and ignored. | false | MEDIUM
-| *camel.source.endpoint.exceptionHandler* | To let the consumer use a custom ExceptionHandler. Notice if the option bridgeErrorHandler is enabled then this option is not in use. By default the consumer will deal with exceptions, that will be logged at WARN or ERROR level and ignored. | null | MEDIUM
-| *camel.source.endpoint.exchangePattern* | Sets the exchange pattern when the consumer creates an exchange. One of: [InOnly] [InOut] [InOptionalOut] | null | MEDIUM
-| *camel.source.endpoint.clusterGroupExpression* | The cluster group expression. | null | MEDIUM
-| *camel.source.endpoint.basicPropertyBinding* | Whether the endpoint should use basic property binding (Camel 2.x) or the newer property binding with additional capabilities | false | MEDIUM
-| *camel.source.endpoint.synchronous* | Sets whether synchronous processing should be strictly used, or Camel is allowed to use asynchronous processing (if supported). | false | MEDIUM
-| *camel.component.ignite-messaging.configuration Resource* | Resource from where to load configuration. | null | MEDIUM
-| *camel.component.ignite-messaging.ignite* | Ignite instance. | null | MEDIUM
-| *camel.component.ignite-messaging.ignite Configuration* | Ignite configuration. | null | MEDIUM
-| *camel.component.ignite-messaging.bridgeError Handler* | Allows for bridging the consumer to the Camel routing Error Handler, which mean any exceptions occurred while the consumer is trying to pickup incoming messages, or the likes, will now be processed as a message and handled by the routing Error Handler. By default the consumer will use the org.apache.camel.spi.ExceptionHandler to deal with exceptions, that will be logged at WARN or ERROR level and ignored. | false | MEDIUM
-| *camel.component.ignite-messaging.basicProperty Binding* | Whether the component should use basic property binding (Camel 2.x) or the newer property binding with additional capabilities | false | MEDIUM
+| Name | Description | Default | Required | Priority
+| *camel.source.path.topic* | The topic name. | null | true | HIGH
+| *camel.source.endpoint.propagateIncomingBodyIfNo ReturnValue* | Sets whether to propagate the incoming body if the return type of the underlying Ignite operation is void. | true | false | MEDIUM
+| *camel.source.endpoint.treatCollectionsAsCache Objects* | Sets whether to treat Collections as cache objects or as Collections of items to insert/update/compute, etc. | false | false | MEDIUM
+| *camel.source.endpoint.bridgeErrorHandler* | Allows for bridging the consumer to the Camel routing Error Handler, which mean any exceptions occurred while the consumer is trying to pickup incoming messages, or the likes, will now be processed as a message and handled by the routing Error Handler. By default the consumer will use the org.apache.camel.spi.ExceptionHandler to deal with exceptions, that will be logged at WARN or ERROR level and ignored. | false | false | MEDIUM
+| *camel.source.endpoint.exceptionHandler* | To let the consumer use a custom ExceptionHandler. Notice if the option bridgeErrorHandler is enabled then this option is not in use. By default the consumer will deal with exceptions, that will be logged at WARN or ERROR level and ignored. | null | false | MEDIUM
+| *camel.source.endpoint.exchangePattern* | Sets the exchange pattern when the consumer creates an exchange. One of: [InOnly] [InOut] [InOptionalOut] | null | false | MEDIUM
+| *camel.source.endpoint.clusterGroupExpression* | The cluster group expression. | null | false | MEDIUM
+| *camel.component.ignite-messaging.configuration Resource* | The resource from where to load the configuration. It can be a: URL, String or InputStream type. | null | false | MEDIUM
+| *camel.component.ignite-messaging.ignite* | To use an existing Ignite instance. | null | false | MEDIUM
+| *camel.component.ignite-messaging.ignite Configuration* | Allows the user to set a programmatic ignite configuration. | null | false | MEDIUM
+| *camel.component.ignite-messaging.bridgeError Handler* | Allows for bridging the consumer to the Camel routing Error Handler, which mean any exceptions occurred while the consumer is trying to pickup incoming messages, or the likes, will now be processed as a message and handled by the routing Error Handler. By default the consumer will use the org.apache.camel.spi.ExceptionHandler to deal with exceptions, that will be logged at WARN or ERROR level and ignored. | false | false | MEDIUM
+| *camel.component.ignite-messaging.autowiredEnabled* | Whether autowiring is enabled. This is used for automatic autowiring options (the option must be marked as autowired) by looking up in the registry to find if there is a single instance of matching type, which then gets configured on the component. This can be used for automatic configuring JDBC data sources, JMS connection factories, AWS Clients, etc. | true | false | MEDIUM
 |===
+
+
+
+The camel-ignite-messaging source connector has no converters out of the box.
+
+
+
+
+
+The camel-ignite-messaging source connector has no transforms out of the box.
+
+
+
+
+
+The camel-ignite-messaging source connector has no aggregation strategies out of the box.
 // kafka-connector options: END

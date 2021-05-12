@@ -18,6 +18,7 @@ package org.apache.camel.kafkaconnector.maven;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -25,9 +26,11 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
+import org.apache.camel.kafkaconnector.maven.utils.MavenUtils;
 import org.apache.camel.tooling.model.ComponentModel;
 import org.apache.camel.tooling.model.JsonMapper;
 import org.apache.maven.ProjectDependenciesResolver;
@@ -79,7 +82,7 @@ public class GenerateCamelKafkaConnectorsMojo extends AbstractCamelKafkaConnecto
 
     @Component
     private BuildPluginManager pluginManager;
-    
+
     /**
      * The Camel Component Filter to select for which components generate the corresponding camel kafka connector.
      */
@@ -131,7 +134,11 @@ public class GenerateCamelKafkaConnectorsMojo extends AbstractCamelKafkaConnecto
         String additionalDependencies = "";
 
         final Properties properties = new Properties();
-        properties.load(new FileInputStream(rm.getResourceAsFile("project.properties")));
+
+        try (InputStream stream = new FileInputStream(rm.getResourceAsFile("project.properties"))) {
+            properties.load(stream);
+        }
+
         for (String component : filteredComponents) {
             String cJson = cc.componentJSonSchema(component);
             ComponentModel cm = JsonMapper.generateComponentModel(cJson);
@@ -151,7 +158,8 @@ public class GenerateCamelKafkaConnectorsMojo extends AbstractCamelKafkaConnecto
                             element(name("licenseTemplate"), licenseTemplate),
                             element(name("fixDependenciesProperties"), fixDependenciesProperties),
                             element(name("packageFileTemplate"), packageFileTemplate),
-                            element(name("overridePomFile"), overridePomFile.toString())
+                            element(name("overridePomFile"), overridePomFile.toString()),
+                            element(name("connectorsProjectName"), connectorsProjectName)
                     ),
                     executionEnvironment(
                             project,
@@ -175,7 +183,8 @@ public class GenerateCamelKafkaConnectorsMojo extends AbstractCamelKafkaConnecto
                             element(name("noticeTemplate"), noticeTemplate),
                             element(name("licenseTemplate"), licenseTemplate),
                             element(name("fixDependenciesProperties"), fixDependenciesProperties),
-                            element(name("packageFileTemplate"), packageFileTemplate)
+                            element(name("packageFileTemplate"), packageFileTemplate),
+                            element(name("connectorsProjectName"), connectorsProjectName)
                     ),
                     executionEnvironment(
                             project,
@@ -185,6 +194,47 @@ public class GenerateCamelKafkaConnectorsMojo extends AbstractCamelKafkaConnecto
             );
         }
 
-        //TODO: optionally delete submodules not in catalog
+        if (removeMissingComponents) {
+            if (projectDir != null && projectDir.isDirectory()) {
+                // sanitize names, as there are some camel components with + signal which are sanitized when creating the kafka connector
+                List<String> sanitizedComponentNames = components.stream().map(MavenUtils::sanitizeMavenArtifactId).collect(Collectors.toList());
+                // retrieve the list of camel kafka connectors
+                String[] connectorNames = projectDir.list((dir, filename) -> filename.endsWith(KAFKA_CONNECTORS_SUFFIX));
+                if (connectorNames != null) {
+                    List<String> connectorsToRemove = Stream.of(connectorNames).sorted().filter(filename -> {
+                        String componentName = extractComponentName(filename);
+                        // set to remove connectors that are not in camel catalog or are explicitly excluded
+                        return !sanitizedComponentNames.contains(componentName) || excludedComponents.contains(componentName);
+
+                    }).collect(Collectors.toList());
+
+                    for (String component: connectorsToRemove) {
+
+                        executeMojo(
+                                plugin(
+                                        groupId(properties.getProperty("groupId")),
+                                        artifactId(properties.getProperty("artifactId")),
+                                        version(properties.getProperty("version"))
+                                ),
+                                goal("camel-kafka-connector-delete"),
+                                configuration(
+                                        element(name("name"), component),
+                                        element(name("connectorsProjectName"), connectorsProjectName)
+                                ),
+                                executionEnvironment(
+                                        project,
+                                        session,
+                                        pluginManager
+                                )
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    private String extractComponentName(String connectorName) {
+        String name = connectorName.substring("camel-".length());
+        return name.substring(0, name.length() - KAFKA_CONNECTORS_SUFFIX.length());
     }
 }

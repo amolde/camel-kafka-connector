@@ -1,0 +1,8 @@
+# curl -X POST -H 'Content-Type: application/x-www-form-urlencoded' -H 'Accept: application/json' -d "grant_type=password&client_id=${clientId}&client_secret=${clientSecret}&username=${userName}&password=${password}" "${salesforceLoginUrl}/services/oauth2/token"
+
+echo "Access this URL in your browser and get the code"
+echo "${salesforceLoginUrl}/services/oauth2/authorize?response_type=code&redirect_uri=https://login.salesforce.com/services/oauth2/success&client_id=${clientId}"
+
+code="aPrxmsNlGjRhc2nu21DeHdBqnc8Oo9m2pzg6HlQuGa9vruwfYPOqOLqAQDP697pQQHlFEi61yA%3D%3D"
+echo "curl -X POST -H 'Content-Type: application/x-www-form-urlencoded' -H 'Accept: application/json' -d 'grant_type=authorization_code&client_id=${clientId}&client_secret=${clientSecret}&code=${code}&redirect_uri=https://login.salesforce.com/services/oauth2/success' '${salesforceLoginUrl}/services/oauth2/token'"
+

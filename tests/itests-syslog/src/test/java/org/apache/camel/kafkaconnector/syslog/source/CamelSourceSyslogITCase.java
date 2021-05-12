@@ -17,43 +17,42 @@
 
 package org.apache.camel.kafkaconnector.syslog.source;
 
-import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
-import org.apache.camel.CamelContext;
-import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.component.syslog.SyslogDataFormat;
-import org.apache.camel.component.syslog.netty.Rfc5425Encoder;
-import org.apache.camel.impl.DefaultCamelContext;
-import org.apache.camel.kafkaconnector.common.AbstractKafkaTest;
 import org.apache.camel.kafkaconnector.common.ConnectorPropertyFactory;
 import org.apache.camel.kafkaconnector.common.clients.kafka.KafkaClient;
+import org.apache.camel.kafkaconnector.common.test.CamelSourceTestSupport;
+import org.apache.camel.kafkaconnector.common.test.StringMessageConsumer;
+import org.apache.camel.kafkaconnector.common.test.TestMessageConsumer;
 import org.apache.camel.kafkaconnector.common.utils.NetworkUtils;
 import org.apache.camel.kafkaconnector.common.utils.TestUtils;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.junit.jupiter.api.AfterEach;
+import org.apache.camel.kafkaconnector.syslog.services.SyslogService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 
 
 /**
  * A simple test case that checks whether the timer produces the expected number of
  * messages
  */
-@Testcontainers
-public class CamelSourceSyslogITCase extends AbstractKafkaTest {
-    private static final int FREE_PORT = NetworkUtils.getFreePort("localhost", NetworkUtils.Protocol.UDP);
+@EnabledIfSystemProperty(named = "enable.flaky.tests", matches = "true",
+        disabledReason = "Quickly spawning multiple Jetty Servers doesn't work well on Github Actions")
+public class CamelSourceSyslogITCase extends CamelSourceTestSupport {
+    private static final String HOST = NetworkUtils.getHostname();
+    private static final String PROTOCOL = "udp";
+    private static final int FREE_PORT = NetworkUtils.getFreePort(HOST, NetworkUtils.Protocol.UDP);
 
-    private static final Logger LOG = LoggerFactory.getLogger(CamelSourceSyslogITCase.class);
+    @RegisterExtension
+    public static SyslogService service = SyslogService.sourceSyslogServiceFactory(PROTOCOL, HOST, FREE_PORT);
 
-    private int received;
     private final int expect = 1;
+    private String topicName;
 
     @Override
     protected String[] getConnectorsInTest() {
@@ -62,79 +61,40 @@ public class CamelSourceSyslogITCase extends AbstractKafkaTest {
 
     @BeforeEach
     public void setUp() {
-        received = 0;
+        topicName = getTopicForTest(this);
     }
 
-    @AfterEach
-    public void tearDown() throws IOException, InterruptedException {
-        deleteKafkaTopic(TestUtils.getDefaultTestTopic(this.getClass()));
+
+    @Override
+    protected void produceTestData() {
+        String message = "<13>1 2020-05-14T14:47:01.198+02:00 nathannever myapp - - [timeQuality tzKnown=\"1\" isSynced=\"1\" syncAccuracy=\"11266\"] FOO BAR!";
+
+        service.getCamelContext().createProducerTemplate().sendBody("direct:test", message);
     }
 
-    private void produceLogMessages(String protocol, String host, String port, String message) throws Exception {
-        CamelContext camelContext = new DefaultCamelContext();
-
-        try {
-            camelContext.getRegistry().bind("encoder", new Rfc5425Encoder());
-            camelContext.addRoutes(new RouteBuilder() {
-                @Override
-                public void configure() throws Exception {
-                    from("direct:test").marshal(new SyslogDataFormat()).to("netty:" + protocol + ":" + host + ":" + port + "?sync=false&encoders=#encoder&useByteBuf=true");
-                }
-            });
-
-            camelContext.start();
-            camelContext.createProducerTemplate().sendBody("direct:test", message);
-        } catch (Exception e) {
-            LOG.error("Failed to send log messages {} to : {}", message, "netty:" + protocol + ":" + host + ":" + port);
-            fail(e.getMessage());
-        } finally {
-            camelContext.stop();
-        }
-    }
-
-    private <T> boolean checkRecord(ConsumerRecord<String, T> record) {
-        LOG.debug("Received: {}", record.value());
-        received++;
-
-        if (received == expect) {
-            return false;
-        }
-
-        return true;
-    }
-
-    private void runBasicStringTest(ConnectorPropertyFactory connectorPropertyFactory) throws Exception {
-        connectorPropertyFactory.log();
-        getKafkaConnectService().initializeConnectorBlocking(connectorPropertyFactory, 1);
-
-        produceLogMessages(connectorPropertyFactory.getProperties().get("camel.source.path.protocol").toString(),
-                connectorPropertyFactory.getProperties().get("camel.source.path.host").toString(),
-                connectorPropertyFactory.getProperties().get("camel.source.path.port").toString(),
-                "<13>1 2020-05-14T14:47:01.198+02:00 nathannever myapp - - [timeQuality tzKnown=\"1\" isSynced=\"1\" syncAccuracy=\"11266\"] FOO BAR!");
-
-        LOG.debug("Creating the consumer ...");
-        KafkaClient<String, String> kafkaClient = new KafkaClient<>(getKafkaService().getBootstrapServers());
-        kafkaClient.consume(TestUtils.getDefaultTestTopic(this.getClass()), this::checkRecord);
-        LOG.debug("Created the consumer ...");
+    @Override
+    protected void verifyMessages(TestMessageConsumer<?> consumer) {
+        int received = consumer.consumedMessages().size();
 
         assertEquals(received, expect, "Didn't process the expected amount of messages");
     }
 
-    @Test
-    @Timeout(90)
-    public void testBasicSend() {
-        try {
-            ConnectorPropertyFactory connectorPropertyFactory = CamelSyslogPropertyFactory
-                    .basic()
-                    .withKafkaTopic(TestUtils.getDefaultTestTopic(this.getClass()))
-                    .withHost("localhost")
-                    .withPort(FREE_PORT)
-                    .withProtocol("udp");
 
-            runBasicStringTest(connectorPropertyFactory);
-        } catch (Exception e) {
-            LOG.error("Syslog test failed: {} {}", e.getMessage(), e);
-            fail(e.getMessage(), e);
-        }
+    @RepeatedTest(3)
+    @Test
+    @Timeout(180)
+    public void testBasicSend() throws ExecutionException, InterruptedException {
+        ConnectorPropertyFactory connectorPropertyFactory = CamelSyslogPropertyFactory
+                .basic()
+                .withName("CamelSyslogSourceConnector" + TestUtils.randomWithRange(0, 1000))
+                .withKafkaTopic(topicName)
+                .withHost(HOST)
+                .withPort(FREE_PORT)
+                .withProtocol(PROTOCOL);
+
+        KafkaClient<String, String> kafkaClient = new KafkaClient<>(getKafkaService().getBootstrapServers());
+        StringMessageConsumer stringMessageConsumer = new StringMessageConsumer(kafkaClient, topicName, expect);
+
+        runTestBlocking(connectorPropertyFactory, stringMessageConsumer);
     }
 }

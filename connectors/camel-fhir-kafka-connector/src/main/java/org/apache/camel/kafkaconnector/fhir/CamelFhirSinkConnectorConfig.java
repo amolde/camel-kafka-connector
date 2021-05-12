@@ -25,7 +25,7 @@ import org.apache.kafka.common.config.ConfigDef;
 public class CamelFhirSinkConnectorConfig extends CamelSinkConnectorConfig {
 
     public static final String CAMEL_SINK_FHIR_PATH_API_NAME_CONF = "camel.sink.path.apiName";
-    public static final String CAMEL_SINK_FHIR_PATH_API_NAME_DOC = "What kind of operation to perform One of: [capabilities] [create] [delete] [history] [load-page] [meta] [patch] [read] [search] [transaction] [update] [validate]";
+    public static final String CAMEL_SINK_FHIR_PATH_API_NAME_DOC = "What kind of operation to perform One of: [CAPABILITIES] [CREATE] [DELETE] [HISTORY] [LOAD_PAGE] [META] [OPERATION] [PATCH] [READ] [SEARCH] [TRANSACTION] [UPDATE] [VALIDATE]";
     public static final String CAMEL_SINK_FHIR_PATH_API_NAME_DEFAULT = null;
     public static final String CAMEL_SINK_FHIR_PATH_METHOD_NAME_CONF = "camel.sink.path.methodName";
     public static final String CAMEL_SINK_FHIR_PATH_METHOD_NAME_DOC = "What sub operation to use for the selected operation";
@@ -51,9 +51,6 @@ public class CamelFhirSinkConnectorConfig extends CamelSinkConnectorConfig {
     public static final String CAMEL_SINK_FHIR_ENDPOINT_LAZY_START_PRODUCER_CONF = "camel.sink.endpoint.lazyStartProducer";
     public static final String CAMEL_SINK_FHIR_ENDPOINT_LAZY_START_PRODUCER_DOC = "Whether the producer should be started lazy (on the first message). By starting lazy you can use this to allow CamelContext and routes to startup in situations where a producer may otherwise fail during starting and cause the route to fail being started. By deferring this startup to be lazy then the startup failure can be handled during routing messages via Camel's routing error handlers. Beware that when the first message is processed then creating and starting the producer may take a little time and prolong the total processing time of the processing.";
     public static final Boolean CAMEL_SINK_FHIR_ENDPOINT_LAZY_START_PRODUCER_DEFAULT = false;
-    public static final String CAMEL_SINK_FHIR_ENDPOINT_BASIC_PROPERTY_BINDING_CONF = "camel.sink.endpoint.basicPropertyBinding";
-    public static final String CAMEL_SINK_FHIR_ENDPOINT_BASIC_PROPERTY_BINDING_DOC = "Whether the endpoint should use basic property binding (Camel 2.x) or the newer property binding with additional capabilities";
-    public static final Boolean CAMEL_SINK_FHIR_ENDPOINT_BASIC_PROPERTY_BINDING_DEFAULT = false;
     public static final String CAMEL_SINK_FHIR_ENDPOINT_CLIENT_CONF = "camel.sink.endpoint.client";
     public static final String CAMEL_SINK_FHIR_ENDPOINT_CLIENT_DOC = "To use the custom client";
     public static final String CAMEL_SINK_FHIR_ENDPOINT_CLIENT_DEFAULT = null;
@@ -84,9 +81,6 @@ public class CamelFhirSinkConnectorConfig extends CamelSinkConnectorConfig {
     public static final String CAMEL_SINK_FHIR_ENDPOINT_SUMMARY_CONF = "camel.sink.endpoint.summary";
     public static final String CAMEL_SINK_FHIR_ENDPOINT_SUMMARY_DOC = "Request that the server modify the response using the _summary param One of: [COUNT] [TEXT] [DATA] [TRUE] [FALSE]";
     public static final String CAMEL_SINK_FHIR_ENDPOINT_SUMMARY_DEFAULT = null;
-    public static final String CAMEL_SINK_FHIR_ENDPOINT_SYNCHRONOUS_CONF = "camel.sink.endpoint.synchronous";
-    public static final String CAMEL_SINK_FHIR_ENDPOINT_SYNCHRONOUS_DOC = "Sets whether synchronous processing should be strictly used, or Camel is allowed to use asynchronous processing (if supported).";
-    public static final Boolean CAMEL_SINK_FHIR_ENDPOINT_SYNCHRONOUS_DEFAULT = false;
     public static final String CAMEL_SINK_FHIR_ENDPOINT_VALIDATION_MODE_CONF = "camel.sink.endpoint.validationMode";
     public static final String CAMEL_SINK_FHIR_ENDPOINT_VALIDATION_MODE_DOC = "When should Camel validate the FHIR Server's conformance statement One of: [NEVER] [ONCE]";
     public static final String CAMEL_SINK_FHIR_ENDPOINT_VALIDATION_MODE_DEFAULT = "ONCE";
@@ -129,9 +123,9 @@ public class CamelFhirSinkConnectorConfig extends CamelSinkConnectorConfig {
     public static final String CAMEL_SINK_FHIR_COMPONENT_LAZY_START_PRODUCER_CONF = "camel.component.fhir.lazyStartProducer";
     public static final String CAMEL_SINK_FHIR_COMPONENT_LAZY_START_PRODUCER_DOC = "Whether the producer should be started lazy (on the first message). By starting lazy you can use this to allow CamelContext and routes to startup in situations where a producer may otherwise fail during starting and cause the route to fail being started. By deferring this startup to be lazy then the startup failure can be handled during routing messages via Camel's routing error handlers. Beware that when the first message is processed then creating and starting the producer may take a little time and prolong the total processing time of the processing.";
     public static final Boolean CAMEL_SINK_FHIR_COMPONENT_LAZY_START_PRODUCER_DEFAULT = false;
-    public static final String CAMEL_SINK_FHIR_COMPONENT_BASIC_PROPERTY_BINDING_CONF = "camel.component.fhir.basicPropertyBinding";
-    public static final String CAMEL_SINK_FHIR_COMPONENT_BASIC_PROPERTY_BINDING_DOC = "Whether the component should use basic property binding (Camel 2.x) or the newer property binding with additional capabilities";
-    public static final Boolean CAMEL_SINK_FHIR_COMPONENT_BASIC_PROPERTY_BINDING_DEFAULT = false;
+    public static final String CAMEL_SINK_FHIR_COMPONENT_AUTOWIRED_ENABLED_CONF = "camel.component.fhir.autowiredEnabled";
+    public static final String CAMEL_SINK_FHIR_COMPONENT_AUTOWIRED_ENABLED_DOC = "Whether autowiring is enabled. This is used for automatic autowiring options (the option must be marked as autowired) by looking up in the registry to find if there is a single instance of matching type, which then gets configured on the component. This can be used for automatic configuring JDBC data sources, JMS connection factories, AWS Clients, etc.";
+    public static final Boolean CAMEL_SINK_FHIR_COMPONENT_AUTOWIRED_ENABLED_DEFAULT = true;
     public static final String CAMEL_SINK_FHIR_COMPONENT_CLIENT_CONF = "camel.component.fhir.client";
     public static final String CAMEL_SINK_FHIR_COMPONENT_CLIENT_DOC = "To use the custom client";
     public static final String CAMEL_SINK_FHIR_COMPONENT_CLIENT_DEFAULT = null;
@@ -211,7 +205,6 @@ public class CamelFhirSinkConnectorConfig extends CamelSinkConnectorConfig {
         conf.define(CAMEL_SINK_FHIR_ENDPOINT_PRETTY_PRINT_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_FHIR_ENDPOINT_PRETTY_PRINT_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_ENDPOINT_PRETTY_PRINT_DOC);
         conf.define(CAMEL_SINK_FHIR_ENDPOINT_SERVER_URL_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FHIR_ENDPOINT_SERVER_URL_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_ENDPOINT_SERVER_URL_DOC);
         conf.define(CAMEL_SINK_FHIR_ENDPOINT_LAZY_START_PRODUCER_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_FHIR_ENDPOINT_LAZY_START_PRODUCER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_ENDPOINT_LAZY_START_PRODUCER_DOC);
-        conf.define(CAMEL_SINK_FHIR_ENDPOINT_BASIC_PROPERTY_BINDING_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_FHIR_ENDPOINT_BASIC_PROPERTY_BINDING_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_ENDPOINT_BASIC_PROPERTY_BINDING_DOC);
         conf.define(CAMEL_SINK_FHIR_ENDPOINT_CLIENT_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FHIR_ENDPOINT_CLIENT_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_ENDPOINT_CLIENT_DOC);
         conf.define(CAMEL_SINK_FHIR_ENDPOINT_CLIENT_FACTORY_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FHIR_ENDPOINT_CLIENT_FACTORY_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_ENDPOINT_CLIENT_FACTORY_DOC);
         conf.define(CAMEL_SINK_FHIR_ENDPOINT_COMPRESS_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_FHIR_ENDPOINT_COMPRESS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_ENDPOINT_COMPRESS_DOC);
@@ -222,22 +215,21 @@ public class CamelFhirSinkConnectorConfig extends CamelSinkConnectorConfig {
         conf.define(CAMEL_SINK_FHIR_ENDPOINT_SESSION_COOKIE_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FHIR_ENDPOINT_SESSION_COOKIE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_ENDPOINT_SESSION_COOKIE_DOC);
         conf.define(CAMEL_SINK_FHIR_ENDPOINT_SOCKET_TIMEOUT_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FHIR_ENDPOINT_SOCKET_TIMEOUT_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_ENDPOINT_SOCKET_TIMEOUT_DOC);
         conf.define(CAMEL_SINK_FHIR_ENDPOINT_SUMMARY_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FHIR_ENDPOINT_SUMMARY_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_ENDPOINT_SUMMARY_DOC);
-        conf.define(CAMEL_SINK_FHIR_ENDPOINT_SYNCHRONOUS_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_FHIR_ENDPOINT_SYNCHRONOUS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_ENDPOINT_SYNCHRONOUS_DOC);
         conf.define(CAMEL_SINK_FHIR_ENDPOINT_VALIDATION_MODE_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FHIR_ENDPOINT_VALIDATION_MODE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_ENDPOINT_VALIDATION_MODE_DOC);
         conf.define(CAMEL_SINK_FHIR_ENDPOINT_PROXY_HOST_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FHIR_ENDPOINT_PROXY_HOST_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_ENDPOINT_PROXY_HOST_DOC);
-        conf.define(CAMEL_SINK_FHIR_ENDPOINT_PROXY_PASSWORD_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FHIR_ENDPOINT_PROXY_PASSWORD_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_ENDPOINT_PROXY_PASSWORD_DOC);
+        conf.define(CAMEL_SINK_FHIR_ENDPOINT_PROXY_PASSWORD_CONF, ConfigDef.Type.PASSWORD, CAMEL_SINK_FHIR_ENDPOINT_PROXY_PASSWORD_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_ENDPOINT_PROXY_PASSWORD_DOC);
         conf.define(CAMEL_SINK_FHIR_ENDPOINT_PROXY_PORT_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FHIR_ENDPOINT_PROXY_PORT_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_ENDPOINT_PROXY_PORT_DOC);
-        conf.define(CAMEL_SINK_FHIR_ENDPOINT_PROXY_USER_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FHIR_ENDPOINT_PROXY_USER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_ENDPOINT_PROXY_USER_DOC);
-        conf.define(CAMEL_SINK_FHIR_ENDPOINT_ACCESS_TOKEN_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FHIR_ENDPOINT_ACCESS_TOKEN_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_ENDPOINT_ACCESS_TOKEN_DOC);
-        conf.define(CAMEL_SINK_FHIR_ENDPOINT_PASSWORD_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FHIR_ENDPOINT_PASSWORD_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_ENDPOINT_PASSWORD_DOC);
-        conf.define(CAMEL_SINK_FHIR_ENDPOINT_USERNAME_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FHIR_ENDPOINT_USERNAME_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_ENDPOINT_USERNAME_DOC);
+        conf.define(CAMEL_SINK_FHIR_ENDPOINT_PROXY_USER_CONF, ConfigDef.Type.PASSWORD, CAMEL_SINK_FHIR_ENDPOINT_PROXY_USER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_ENDPOINT_PROXY_USER_DOC);
+        conf.define(CAMEL_SINK_FHIR_ENDPOINT_ACCESS_TOKEN_CONF, ConfigDef.Type.PASSWORD, CAMEL_SINK_FHIR_ENDPOINT_ACCESS_TOKEN_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_ENDPOINT_ACCESS_TOKEN_DOC);
+        conf.define(CAMEL_SINK_FHIR_ENDPOINT_PASSWORD_CONF, ConfigDef.Type.PASSWORD, CAMEL_SINK_FHIR_ENDPOINT_PASSWORD_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_ENDPOINT_PASSWORD_DOC);
+        conf.define(CAMEL_SINK_FHIR_ENDPOINT_USERNAME_CONF, ConfigDef.Type.PASSWORD, CAMEL_SINK_FHIR_ENDPOINT_USERNAME_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_ENDPOINT_USERNAME_DOC);
         conf.define(CAMEL_SINK_FHIR_COMPONENT_ENCODING_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FHIR_COMPONENT_ENCODING_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_COMPONENT_ENCODING_DOC);
         conf.define(CAMEL_SINK_FHIR_COMPONENT_FHIR_VERSION_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FHIR_COMPONENT_FHIR_VERSION_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_COMPONENT_FHIR_VERSION_DOC);
         conf.define(CAMEL_SINK_FHIR_COMPONENT_LOG_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_FHIR_COMPONENT_LOG_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_COMPONENT_LOG_DOC);
         conf.define(CAMEL_SINK_FHIR_COMPONENT_PRETTY_PRINT_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_FHIR_COMPONENT_PRETTY_PRINT_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_COMPONENT_PRETTY_PRINT_DOC);
         conf.define(CAMEL_SINK_FHIR_COMPONENT_SERVER_URL_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FHIR_COMPONENT_SERVER_URL_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_COMPONENT_SERVER_URL_DOC);
         conf.define(CAMEL_SINK_FHIR_COMPONENT_LAZY_START_PRODUCER_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_FHIR_COMPONENT_LAZY_START_PRODUCER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_COMPONENT_LAZY_START_PRODUCER_DOC);
-        conf.define(CAMEL_SINK_FHIR_COMPONENT_BASIC_PROPERTY_BINDING_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_FHIR_COMPONENT_BASIC_PROPERTY_BINDING_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_COMPONENT_BASIC_PROPERTY_BINDING_DOC);
+        conf.define(CAMEL_SINK_FHIR_COMPONENT_AUTOWIRED_ENABLED_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_FHIR_COMPONENT_AUTOWIRED_ENABLED_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_COMPONENT_AUTOWIRED_ENABLED_DOC);
         conf.define(CAMEL_SINK_FHIR_COMPONENT_CLIENT_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FHIR_COMPONENT_CLIENT_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_COMPONENT_CLIENT_DOC);
         conf.define(CAMEL_SINK_FHIR_COMPONENT_CLIENT_FACTORY_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FHIR_COMPONENT_CLIENT_FACTORY_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_COMPONENT_CLIENT_FACTORY_DOC);
         conf.define(CAMEL_SINK_FHIR_COMPONENT_COMPRESS_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_FHIR_COMPONENT_COMPRESS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_COMPONENT_COMPRESS_DOC);
@@ -251,12 +243,12 @@ public class CamelFhirSinkConnectorConfig extends CamelSinkConnectorConfig {
         conf.define(CAMEL_SINK_FHIR_COMPONENT_SUMMARY_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FHIR_COMPONENT_SUMMARY_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_COMPONENT_SUMMARY_DOC);
         conf.define(CAMEL_SINK_FHIR_COMPONENT_VALIDATION_MODE_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FHIR_COMPONENT_VALIDATION_MODE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_COMPONENT_VALIDATION_MODE_DOC);
         conf.define(CAMEL_SINK_FHIR_COMPONENT_PROXY_HOST_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FHIR_COMPONENT_PROXY_HOST_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_COMPONENT_PROXY_HOST_DOC);
-        conf.define(CAMEL_SINK_FHIR_COMPONENT_PROXY_PASSWORD_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FHIR_COMPONENT_PROXY_PASSWORD_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_COMPONENT_PROXY_PASSWORD_DOC);
+        conf.define(CAMEL_SINK_FHIR_COMPONENT_PROXY_PASSWORD_CONF, ConfigDef.Type.PASSWORD, CAMEL_SINK_FHIR_COMPONENT_PROXY_PASSWORD_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_COMPONENT_PROXY_PASSWORD_DOC);
         conf.define(CAMEL_SINK_FHIR_COMPONENT_PROXY_PORT_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FHIR_COMPONENT_PROXY_PORT_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_COMPONENT_PROXY_PORT_DOC);
-        conf.define(CAMEL_SINK_FHIR_COMPONENT_PROXY_USER_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FHIR_COMPONENT_PROXY_USER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_COMPONENT_PROXY_USER_DOC);
-        conf.define(CAMEL_SINK_FHIR_COMPONENT_ACCESS_TOKEN_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FHIR_COMPONENT_ACCESS_TOKEN_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_COMPONENT_ACCESS_TOKEN_DOC);
-        conf.define(CAMEL_SINK_FHIR_COMPONENT_PASSWORD_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FHIR_COMPONENT_PASSWORD_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_COMPONENT_PASSWORD_DOC);
-        conf.define(CAMEL_SINK_FHIR_COMPONENT_USERNAME_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FHIR_COMPONENT_USERNAME_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_COMPONENT_USERNAME_DOC);
+        conf.define(CAMEL_SINK_FHIR_COMPONENT_PROXY_USER_CONF, ConfigDef.Type.PASSWORD, CAMEL_SINK_FHIR_COMPONENT_PROXY_USER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_COMPONENT_PROXY_USER_DOC);
+        conf.define(CAMEL_SINK_FHIR_COMPONENT_ACCESS_TOKEN_CONF, ConfigDef.Type.PASSWORD, CAMEL_SINK_FHIR_COMPONENT_ACCESS_TOKEN_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_COMPONENT_ACCESS_TOKEN_DOC);
+        conf.define(CAMEL_SINK_FHIR_COMPONENT_PASSWORD_CONF, ConfigDef.Type.PASSWORD, CAMEL_SINK_FHIR_COMPONENT_PASSWORD_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_COMPONENT_PASSWORD_DOC);
+        conf.define(CAMEL_SINK_FHIR_COMPONENT_USERNAME_CONF, ConfigDef.Type.PASSWORD, CAMEL_SINK_FHIR_COMPONENT_USERNAME_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FHIR_COMPONENT_USERNAME_DOC);
         return conf;
     }
 }

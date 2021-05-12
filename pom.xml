@@ -23,12 +23,12 @@
     <parent>
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-dependencies</artifactId>
-        <version>3.4.2</version>
+        <version>3.9.0</version>
     </parent>
 
     <groupId>org.apache.camel.kafkaconnector</groupId>
     <artifactId>camel-kafka-connector-aggregator</artifactId>
-    <version>0.4.0-SNAPSHOT</version>
+    <version>0.9.0</version>
     <packaging>pom</packaging>
 
     <name>Camel-Kafka-Connector :: Root</name>
@@ -48,14 +48,16 @@
 
     <modules>
         <module>parent</module>
-        <module>archetypes</module>
         <module>core</module>
         <module>buildingtools</module>
         <module>tooling</module>
         <module>connectors</module>
         <module>transformers</module>
         <module>custom-package</module>
+        <module>archetypes</module>
+        <module>camel-kafka-connector-catalog</module>
         <module>tests</module>
+        <module>distribution</module>
     </modules>
 
     <developers>
@@ -96,7 +98,7 @@
         <connection>scm:git:http://gitbox.apache.org/repos/asf/camel-kafka-connector.git</connection>
         <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/camel-kafka-connector.git</developerConnection>
         <url>https://gitbox.apache.org/repos/asf?p=camel-kafka-connector.git;a=summary</url>
-        <tag>HEAD</tag>
+        <tag>camel-kafka-connector-0.9.0</tag>
     </scm>
 
     <issueManagement>
@@ -299,6 +301,10 @@
                         <configuration>
                             <passphrase>${gpg.passphrase}</passphrase>
                             <useAgent>${gpg.useagent}</useAgent>
+                            <gpgArguments>
+                                <arg>--pinentry-mode</arg>
+                                <arg>loopback</arg>
+                            </gpgArguments>
                         </configuration>
                         <executions>
                             <execution>
@@ -323,15 +329,19 @@
                         <configuration>
                             <algorithms>
                                 <algorithm>SHA-512</algorithm>
+                                <algorithm>SHA-256</algorithm>
+                                <algorithm>SHA-1</algorithm>
+                                <algorithm>MD5</algorithm>
                             </algorithms>
                             <csvSummary>false</csvSummary>
                             <fileSets>
                                 <fileSet>
                                     <directory>${project.build.directory}</directory>
                                     <includes>
-                                        <include>${project.artifactId}-${project.version}.jar</include>
-                                        <include>${project.artifactId}-${project.version}-package.zip</include>
-                                        <include>${project.artifactId}-${project.version}-package.tar*</include>
+                                        <include>${project.artifactId}-${project.version}-sources.jar</include>
+                                        <include>${project.artifactId}-${project.version}-package.tar.gz</include>
+                                        <!--XXX: keep this in sync with distribution/pom.xml <finalName> tag-->
+                                        <include>camel-kafka-connector-${project.version}-src.zip</include>
                                     </includes>
                                 </fileSet>
                             </fileSets>

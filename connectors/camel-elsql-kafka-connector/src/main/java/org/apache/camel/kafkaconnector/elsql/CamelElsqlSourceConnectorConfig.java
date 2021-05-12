@@ -104,9 +104,6 @@ public class CamelElsqlSourceConnectorConfig
     public static final String CAMEL_SOURCE_ELSQL_ENDPOINT_ALWAYS_POPULATE_STATEMENT_CONF = "camel.source.endpoint.alwaysPopulateStatement";
     public static final String CAMEL_SOURCE_ELSQL_ENDPOINT_ALWAYS_POPULATE_STATEMENT_DOC = "If enabled then the populateStatement method from org.apache.camel.component.sql.SqlPrepareStatementStrategy is always invoked, also if there is no expected parameters to be prepared. When this is false then the populateStatement is only invoked if there is 1 or more expected parameters to be set; for example this avoids reading the message body/headers for SQL queries with no parameters.";
     public static final Boolean CAMEL_SOURCE_ELSQL_ENDPOINT_ALWAYS_POPULATE_STATEMENT_DEFAULT = false;
-    public static final String CAMEL_SOURCE_ELSQL_ENDPOINT_BASIC_PROPERTY_BINDING_CONF = "camel.source.endpoint.basicPropertyBinding";
-    public static final String CAMEL_SOURCE_ELSQL_ENDPOINT_BASIC_PROPERTY_BINDING_DOC = "Whether the endpoint should use basic property binding (Camel 2.x) or the newer property binding with additional capabilities";
-    public static final Boolean CAMEL_SOURCE_ELSQL_ENDPOINT_BASIC_PROPERTY_BINDING_DEFAULT = false;
     public static final String CAMEL_SOURCE_ELSQL_ENDPOINT_EL_SQL_CONFIG_CONF = "camel.source.endpoint.elSqlConfig";
     public static final String CAMEL_SOURCE_ELSQL_ENDPOINT_EL_SQL_CONFIG_DOC = "To use a specific configured ElSqlConfig. It may be better to use the databaseVendor option instead.";
     public static final String CAMEL_SOURCE_ELSQL_ENDPOINT_EL_SQL_CONFIG_DEFAULT = null;
@@ -119,9 +116,6 @@ public class CamelElsqlSourceConnectorConfig
     public static final String CAMEL_SOURCE_ELSQL_ENDPOINT_PREPARE_STATEMENT_STRATEGY_CONF = "camel.source.endpoint.prepareStatementStrategy";
     public static final String CAMEL_SOURCE_ELSQL_ENDPOINT_PREPARE_STATEMENT_STRATEGY_DOC = "Allows to plugin to use a custom org.apache.camel.component.sql.SqlPrepareStatementStrategy to control preparation of the query and prepared statement.";
     public static final String CAMEL_SOURCE_ELSQL_ENDPOINT_PREPARE_STATEMENT_STRATEGY_DEFAULT = null;
-    public static final String CAMEL_SOURCE_ELSQL_ENDPOINT_SYNCHRONOUS_CONF = "camel.source.endpoint.synchronous";
-    public static final String CAMEL_SOURCE_ELSQL_ENDPOINT_SYNCHRONOUS_DOC = "Sets whether synchronous processing should be strictly used, or Camel is allowed to use asynchronous processing (if supported).";
-    public static final Boolean CAMEL_SOURCE_ELSQL_ENDPOINT_SYNCHRONOUS_DEFAULT = false;
     public static final String CAMEL_SOURCE_ELSQL_ENDPOINT_TEMPLATE_OPTIONS_CONF = "camel.source.endpoint.templateOptions";
     public static final String CAMEL_SOURCE_ELSQL_ENDPOINT_TEMPLATE_OPTIONS_DOC = "Configures the Spring JdbcTemplate with the key/values from the Map";
     public static final String CAMEL_SOURCE_ELSQL_ENDPOINT_TEMPLATE_OPTIONS_DEFAULT = null;
@@ -156,7 +150,7 @@ public class CamelElsqlSourceConnectorConfig
     public static final String CAMEL_SOURCE_ELSQL_ENDPOINT_SCHEDULED_EXECUTOR_SERVICE_DOC = "Allows for configuring a custom/shared thread pool to use for the consumer. By default each consumer has its own single threaded thread pool.";
     public static final String CAMEL_SOURCE_ELSQL_ENDPOINT_SCHEDULED_EXECUTOR_SERVICE_DEFAULT = null;
     public static final String CAMEL_SOURCE_ELSQL_ENDPOINT_SCHEDULER_CONF = "camel.source.endpoint.scheduler";
-    public static final String CAMEL_SOURCE_ELSQL_ENDPOINT_SCHEDULER_DOC = "To use a cron scheduler from either camel-spring or camel-quartz component One of: [none] [spring] [quartz]";
+    public static final String CAMEL_SOURCE_ELSQL_ENDPOINT_SCHEDULER_DOC = "To use a cron scheduler from either camel-spring or camel-quartz component. Use value spring or quartz for built in scheduler";
     public static final String CAMEL_SOURCE_ELSQL_ENDPOINT_SCHEDULER_DEFAULT = "none";
     public static final String CAMEL_SOURCE_ELSQL_ENDPOINT_SCHEDULER_PROPERTIES_CONF = "camel.source.endpoint.schedulerProperties";
     public static final String CAMEL_SOURCE_ELSQL_ENDPOINT_SCHEDULER_PROPERTIES_DOC = "To configure additional properties when using a custom scheduler or any of the Quartz, Spring based scheduler.";
@@ -182,9 +176,9 @@ public class CamelElsqlSourceConnectorConfig
     public static final String CAMEL_SOURCE_ELSQL_COMPONENT_BRIDGE_ERROR_HANDLER_CONF = "camel.component.elsql.bridgeErrorHandler";
     public static final String CAMEL_SOURCE_ELSQL_COMPONENT_BRIDGE_ERROR_HANDLER_DOC = "Allows for bridging the consumer to the Camel routing Error Handler, which mean any exceptions occurred while the consumer is trying to pickup incoming messages, or the likes, will now be processed as a message and handled by the routing Error Handler. By default the consumer will use the org.apache.camel.spi.ExceptionHandler to deal with exceptions, that will be logged at WARN or ERROR level and ignored.";
     public static final Boolean CAMEL_SOURCE_ELSQL_COMPONENT_BRIDGE_ERROR_HANDLER_DEFAULT = false;
-    public static final String CAMEL_SOURCE_ELSQL_COMPONENT_BASIC_PROPERTY_BINDING_CONF = "camel.component.elsql.basicPropertyBinding";
-    public static final String CAMEL_SOURCE_ELSQL_COMPONENT_BASIC_PROPERTY_BINDING_DOC = "Whether the component should use basic property binding (Camel 2.x) or the newer property binding with additional capabilities";
-    public static final Boolean CAMEL_SOURCE_ELSQL_COMPONENT_BASIC_PROPERTY_BINDING_DEFAULT = false;
+    public static final String CAMEL_SOURCE_ELSQL_COMPONENT_AUTOWIRED_ENABLED_CONF = "camel.component.elsql.autowiredEnabled";
+    public static final String CAMEL_SOURCE_ELSQL_COMPONENT_AUTOWIRED_ENABLED_DOC = "Whether autowiring is enabled. This is used for automatic autowiring options (the option must be marked as autowired) by looking up in the registry to find if there is a single instance of matching type, which then gets configured on the component. This can be used for automatic configuring JDBC data sources, JMS connection factories, AWS Clients, etc.";
+    public static final Boolean CAMEL_SOURCE_ELSQL_COMPONENT_AUTOWIRED_ENABLED_DEFAULT = true;
     public static final String CAMEL_SOURCE_ELSQL_COMPONENT_EL_SQL_CONFIG_CONF = "camel.component.elsql.elSqlConfig";
     public static final String CAMEL_SOURCE_ELSQL_COMPONENT_EL_SQL_CONFIG_DOC = "To use a specific configured ElSqlConfig. It may be better to use the databaseVendor option instead.";
     public static final String CAMEL_SOURCE_ELSQL_COMPONENT_EL_SQL_CONFIG_DEFAULT = null;
@@ -227,12 +221,10 @@ public class CamelElsqlSourceConnectorConfig
         conf.define(CAMEL_SOURCE_ELSQL_ENDPOINT_POLL_STRATEGY_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_ELSQL_ENDPOINT_POLL_STRATEGY_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_ELSQL_ENDPOINT_POLL_STRATEGY_DOC);
         conf.define(CAMEL_SOURCE_ELSQL_ENDPOINT_PROCESSING_STRATEGY_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_ELSQL_ENDPOINT_PROCESSING_STRATEGY_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_ELSQL_ENDPOINT_PROCESSING_STRATEGY_DOC);
         conf.define(CAMEL_SOURCE_ELSQL_ENDPOINT_ALWAYS_POPULATE_STATEMENT_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_ELSQL_ENDPOINT_ALWAYS_POPULATE_STATEMENT_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_ELSQL_ENDPOINT_ALWAYS_POPULATE_STATEMENT_DOC);
-        conf.define(CAMEL_SOURCE_ELSQL_ENDPOINT_BASIC_PROPERTY_BINDING_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_ELSQL_ENDPOINT_BASIC_PROPERTY_BINDING_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_ELSQL_ENDPOINT_BASIC_PROPERTY_BINDING_DOC);
         conf.define(CAMEL_SOURCE_ELSQL_ENDPOINT_EL_SQL_CONFIG_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_ELSQL_ENDPOINT_EL_SQL_CONFIG_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_ELSQL_ENDPOINT_EL_SQL_CONFIG_DOC);
         conf.define(CAMEL_SOURCE_ELSQL_ENDPOINT_PARAMETERS_COUNT_CONF, ConfigDef.Type.INT, CAMEL_SOURCE_ELSQL_ENDPOINT_PARAMETERS_COUNT_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_ELSQL_ENDPOINT_PARAMETERS_COUNT_DOC);
         conf.define(CAMEL_SOURCE_ELSQL_ENDPOINT_PLACEHOLDER_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_ELSQL_ENDPOINT_PLACEHOLDER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_ELSQL_ENDPOINT_PLACEHOLDER_DOC);
         conf.define(CAMEL_SOURCE_ELSQL_ENDPOINT_PREPARE_STATEMENT_STRATEGY_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_ELSQL_ENDPOINT_PREPARE_STATEMENT_STRATEGY_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_ELSQL_ENDPOINT_PREPARE_STATEMENT_STRATEGY_DOC);
-        conf.define(CAMEL_SOURCE_ELSQL_ENDPOINT_SYNCHRONOUS_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_ELSQL_ENDPOINT_SYNCHRONOUS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_ELSQL_ENDPOINT_SYNCHRONOUS_DOC);
         conf.define(CAMEL_SOURCE_ELSQL_ENDPOINT_TEMPLATE_OPTIONS_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_ELSQL_ENDPOINT_TEMPLATE_OPTIONS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_ELSQL_ENDPOINT_TEMPLATE_OPTIONS_DOC);
         conf.define(CAMEL_SOURCE_ELSQL_ENDPOINT_USE_PLACEHOLDER_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_ELSQL_ENDPOINT_USE_PLACEHOLDER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_ELSQL_ENDPOINT_USE_PLACEHOLDER_DOC);
         conf.define(CAMEL_SOURCE_ELSQL_ENDPOINT_BACKOFF_ERROR_THRESHOLD_CONF, ConfigDef.Type.INT, CAMEL_SOURCE_ELSQL_ENDPOINT_BACKOFF_ERROR_THRESHOLD_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_ELSQL_ENDPOINT_BACKOFF_ERROR_THRESHOLD_DOC);
@@ -253,7 +245,7 @@ public class CamelElsqlSourceConnectorConfig
         conf.define(CAMEL_SOURCE_ELSQL_COMPONENT_DATA_SOURCE_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_ELSQL_COMPONENT_DATA_SOURCE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_ELSQL_COMPONENT_DATA_SOURCE_DOC);
         conf.define(CAMEL_SOURCE_ELSQL_COMPONENT_RESOURCE_URI_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_ELSQL_COMPONENT_RESOURCE_URI_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_ELSQL_COMPONENT_RESOURCE_URI_DOC);
         conf.define(CAMEL_SOURCE_ELSQL_COMPONENT_BRIDGE_ERROR_HANDLER_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_ELSQL_COMPONENT_BRIDGE_ERROR_HANDLER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_ELSQL_COMPONENT_BRIDGE_ERROR_HANDLER_DOC);
-        conf.define(CAMEL_SOURCE_ELSQL_COMPONENT_BASIC_PROPERTY_BINDING_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_ELSQL_COMPONENT_BASIC_PROPERTY_BINDING_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_ELSQL_COMPONENT_BASIC_PROPERTY_BINDING_DOC);
+        conf.define(CAMEL_SOURCE_ELSQL_COMPONENT_AUTOWIRED_ENABLED_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_ELSQL_COMPONENT_AUTOWIRED_ENABLED_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_ELSQL_COMPONENT_AUTOWIRED_ENABLED_DOC);
         conf.define(CAMEL_SOURCE_ELSQL_COMPONENT_EL_SQL_CONFIG_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_ELSQL_COMPONENT_EL_SQL_CONFIG_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_ELSQL_COMPONENT_EL_SQL_CONFIG_DOC);
         return conf;
     }

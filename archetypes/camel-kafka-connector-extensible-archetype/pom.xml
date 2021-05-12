@@ -24,13 +24,22 @@
     <parent>
         <groupId>org.apache.camel.kafkaconnector</groupId>
         <artifactId>archetypes</artifactId>
-        <version>0.4.0-SNAPSHOT</version>
+        <version>0.9.0</version>
     </parent>
 
     <groupId>org.apache.camel.kafkaconnector.archetypes</groupId>
     <artifactId>camel-kafka-connector-extensible-archetype</artifactId>
     <name>Camel Kafka Connector :: Archetypes :: Camel Kafka connector extensible</name>
     <packaging>maven-archetype</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.camel.kafkaconnector</groupId>
+            <artifactId>camel-timer-kafka-connector</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
     <build>
         <extensions>

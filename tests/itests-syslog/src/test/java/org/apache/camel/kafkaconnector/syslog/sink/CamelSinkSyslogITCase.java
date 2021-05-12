@@ -16,22 +16,23 @@
  */
 package org.apache.camel.kafkaconnector.syslog.sink;
 
-import org.apache.camel.kafkaconnector.common.AbstractKafkaTest;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.camel.Exchange;
+import org.apache.camel.Message;
 import org.apache.camel.kafkaconnector.common.ConnectorPropertyFactory;
-import org.apache.camel.kafkaconnector.common.clients.kafka.KafkaClient;
+import org.apache.camel.kafkaconnector.common.test.CamelSinkTestSupport;
+import org.apache.camel.kafkaconnector.common.test.StringMessageProducer;
 import org.apache.camel.kafkaconnector.common.utils.NetworkUtils;
-import org.apache.camel.kafkaconnector.common.utils.TestUtils;
 import org.apache.camel.kafkaconnector.syslog.services.SyslogService;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 
@@ -39,17 +40,28 @@ import static org.junit.jupiter.api.Assertions.fail;
  * A simple test case that checks whether the syslog send the expected number of
  * messages
  */
-@Testcontainers
-public class CamelSinkSyslogITCase extends AbstractKafkaTest {
-    private static final int FREE_PORT = NetworkUtils.getFreePort("localhost", NetworkUtils.Protocol.UDP);
+public class CamelSinkSyslogITCase extends CamelSinkTestSupport {
+    private static final String HOST = NetworkUtils.getHostname();
+    private static final String PROTOCOL = "udp";
+    private static final int FREE_PORT = NetworkUtils.getFreePort(HOST, NetworkUtils.Protocol.UDP);
+    private static final String TEST_TXT = "<13>1 2020-05-14T14:47:01.198+02:00 nathannever myapp - - [timeQuality tzKnown=\"1\" isSynced=\"1\" syncAccuracy=\"11266\"] FOO BAR!";
 
     @RegisterExtension
-    public static SyslogService syslogService = new SyslogService("udp", "//localhost", FREE_PORT);
+    public static SyslogService service = SyslogService.sinkSyslogServiceFactory(PROTOCOL, HOST, FREE_PORT);
 
-    private static final Logger LOG = LoggerFactory.getLogger(CamelSinkSyslogITCase.class);
-
-    private int received;
+    private String topicName;
     private final int expect = 1;
+
+    private static class CustomProducer extends StringMessageProducer {
+        public CustomProducer(String bootstrapServer, String topicName, int count) {
+            super(bootstrapServer, topicName, count);
+        }
+
+        @Override
+        public String testMessageContent(int current) {
+            return TEST_TXT;
+        }
+    }
 
     @Override
     protected String[] getConnectorsInTest() {
@@ -58,41 +70,43 @@ public class CamelSinkSyslogITCase extends AbstractKafkaTest {
 
     @BeforeEach
     public void setUp() {
-        received = 0;
+        topicName = getTopicForTest(this);
     }
 
-    @AfterEach
-    public void tearDown() {
-        deleteKafkaTopic(TestUtils.getDefaultTestTopic(this.getClass()));
+
+    @Override
+    protected void consumeMessages(CountDownLatch latch) {
+        latch.countDown();
     }
 
-    private void runBasicProduceTest(ConnectorPropertyFactory connectorPropertyFactory) throws Exception {
-        connectorPropertyFactory.log();
-        getKafkaConnectService().initializeConnectorBlocking(connectorPropertyFactory, 1);
+    @Override
+    protected void verifyMessages(CountDownLatch latch) throws InterruptedException {
+        if (latch.await(30, TimeUnit.SECONDS)) {
+            Exchange exchange = service.getFirstExchangeToBeReceived();
+            assertNotNull(exchange, "There should have been an exchange received");
+            Message message = exchange.getIn();
+            assertNotNull(message, "There should have been a message in the exchange");
 
-        LOG.debug("Creating the producer ...");
-        KafkaClient<String, String> kafkaClient = new KafkaClient<>(getKafkaService().getBootstrapServers());
-        kafkaClient.produce(TestUtils.getDefaultTestTopic(this.getClass()), "<13>1 2020-05-14T14:47:01.198+02:00 nathannever myapp - - [timeQuality tzKnown=\"1\" isSynced=\"1\" syncAccuracy=\"11266\"] FOO BAR!");
-        LOG.debug("Created the producer ...");
-
-        assertEquals("<13>1 2020-05-14T14:47:01.198+02:00 nathannever myapp - - [timeQuality tzKnown=\"1\" isSynced=\"1\" syncAccuracy=\"11266\"] FOO BAR!", syslogService.getFirstExchangeToBeReceived().getIn().getBody(String.class));
+            String body = message.getBody(String.class);
+            assertNotNull(body, "The message body should not be null");
+            assertEquals(TEST_TXT, message.getBody(String.class),
+                    "The received message body does not match the expected message");
+        } else {
+            fail("Timed out wait for data to be added to the Kafka cluster");
+        }
     }
+
 
     @Test
     @Timeout(90)
-    public void testBasicReceive() {
-        try {
-            ConnectorPropertyFactory connectorPropertyFactory = CamelSyslogPropertyFactory
-                    .basic()
-                    .withTopics(TestUtils.getDefaultTestTopic(this.getClass()))
-                    .withHost("localhost")
-                    .withPort(FREE_PORT)
-                    .withProtocol("udp");
+    public void testBasicReceive() throws Exception {
+        ConnectorPropertyFactory connectorPropertyFactory = CamelSyslogPropertyFactory
+                .basic()
+                .withTopics(topicName)
+                .withHost(HOST)
+                .withPort(FREE_PORT)
+                .withProtocol("udp");
 
-            runBasicProduceTest(connectorPropertyFactory);
-        } catch (Exception e) {
-            LOG.error("Syslog test failed: {} {}", e.getMessage(), e);
-            fail(e.getMessage(), e);
-        }
+        runTest(connectorPropertyFactory, new CustomProducer(getKafkaService().getBootstrapServers(), topicName, expect));
     }
 }

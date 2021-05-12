@@ -105,9 +105,6 @@ public class CamelSftpSinkConnectorConfig extends CamelSinkConnectorConfig {
     public static final String CAMEL_SINK_SFTP_ENDPOINT_AUTO_CREATE_CONF = "camel.sink.endpoint.autoCreate";
     public static final String CAMEL_SINK_SFTP_ENDPOINT_AUTO_CREATE_DOC = "Automatically create missing directories in the file's pathname. For the file consumer, that means creating the starting directory. For the file producer, it means the directory the files should be written to.";
     public static final Boolean CAMEL_SINK_SFTP_ENDPOINT_AUTO_CREATE_DEFAULT = true;
-    public static final String CAMEL_SINK_SFTP_ENDPOINT_BASIC_PROPERTY_BINDING_CONF = "camel.sink.endpoint.basicPropertyBinding";
-    public static final String CAMEL_SINK_SFTP_ENDPOINT_BASIC_PROPERTY_BINDING_DOC = "Whether the endpoint should use basic property binding (Camel 2.x) or the newer property binding with additional capabilities";
-    public static final Boolean CAMEL_SINK_SFTP_ENDPOINT_BASIC_PROPERTY_BINDING_DEFAULT = false;
     public static final String CAMEL_SINK_SFTP_ENDPOINT_BIND_ADDRESS_CONF = "camel.sink.endpoint.bindAddress";
     public static final String CAMEL_SINK_SFTP_ENDPOINT_BIND_ADDRESS_DOC = "Specifies the address of the local interface against which the connection should bind.";
     public static final String CAMEL_SINK_SFTP_ENDPOINT_BIND_ADDRESS_DEFAULT = null;
@@ -145,7 +142,7 @@ public class CamelSftpSinkConnectorConfig extends CamelSinkConnectorConfig {
     public static final String CAMEL_SINK_SFTP_ENDPOINT_STEPWISE_DOC = "Sets whether we should stepwise change directories while traversing file structures when downloading files, or as well when uploading a file to a directory. You can disable this if you for example are in a situation where you cannot change directory on the FTP server due security reasons. Stepwise cannot be used together with streamDownload.";
     public static final Boolean CAMEL_SINK_SFTP_ENDPOINT_STEPWISE_DEFAULT = true;
     public static final String CAMEL_SINK_SFTP_ENDPOINT_SYNCHRONOUS_CONF = "camel.sink.endpoint.synchronous";
-    public static final String CAMEL_SINK_SFTP_ENDPOINT_SYNCHRONOUS_DOC = "Sets whether synchronous processing should be strictly used, or Camel is allowed to use asynchronous processing (if supported).";
+    public static final String CAMEL_SINK_SFTP_ENDPOINT_SYNCHRONOUS_DOC = "Sets whether synchronous processing should be strictly used";
     public static final Boolean CAMEL_SINK_SFTP_ENDPOINT_SYNCHRONOUS_DEFAULT = false;
     public static final String CAMEL_SINK_SFTP_ENDPOINT_THROW_EXCEPTION_ON_CONNECT_FAILED_CONF = "camel.sink.endpoint.throwExceptionOnConnectFailed";
     public static final String CAMEL_SINK_SFTP_ENDPOINT_THROW_EXCEPTION_ON_CONNECT_FAILED_DOC = "Should an exception be thrown if connection failed (exhausted) By default exception is not thrown and a WARN is logged. You can use this to enable exception being thrown and handle the thrown exception from the org.apache.camel.spi.PollingConsumerPollStrategy rollback method.";
@@ -198,9 +195,9 @@ public class CamelSftpSinkConnectorConfig extends CamelSinkConnectorConfig {
     public static final String CAMEL_SINK_SFTP_COMPONENT_LAZY_START_PRODUCER_CONF = "camel.component.sftp.lazyStartProducer";
     public static final String CAMEL_SINK_SFTP_COMPONENT_LAZY_START_PRODUCER_DOC = "Whether the producer should be started lazy (on the first message). By starting lazy you can use this to allow CamelContext and routes to startup in situations where a producer may otherwise fail during starting and cause the route to fail being started. By deferring this startup to be lazy then the startup failure can be handled during routing messages via Camel's routing error handlers. Beware that when the first message is processed then creating and starting the producer may take a little time and prolong the total processing time of the processing.";
     public static final Boolean CAMEL_SINK_SFTP_COMPONENT_LAZY_START_PRODUCER_DEFAULT = false;
-    public static final String CAMEL_SINK_SFTP_COMPONENT_BASIC_PROPERTY_BINDING_CONF = "camel.component.sftp.basicPropertyBinding";
-    public static final String CAMEL_SINK_SFTP_COMPONENT_BASIC_PROPERTY_BINDING_DOC = "Whether the component should use basic property binding (Camel 2.x) or the newer property binding with additional capabilities";
-    public static final Boolean CAMEL_SINK_SFTP_COMPONENT_BASIC_PROPERTY_BINDING_DEFAULT = false;
+    public static final String CAMEL_SINK_SFTP_COMPONENT_AUTOWIRED_ENABLED_CONF = "camel.component.sftp.autowiredEnabled";
+    public static final String CAMEL_SINK_SFTP_COMPONENT_AUTOWIRED_ENABLED_DOC = "Whether autowiring is enabled. This is used for automatic autowiring options (the option must be marked as autowired) by looking up in the registry to find if there is a single instance of matching type, which then gets configured on the component. This can be used for automatic configuring JDBC data sources, JMS connection factories, AWS Clients, etc.";
+    public static final Boolean CAMEL_SINK_SFTP_COMPONENT_AUTOWIRED_ENABLED_DEFAULT = true;
 
     public CamelSftpSinkConnectorConfig(
             ConfigDef config,
@@ -241,7 +238,6 @@ public class CamelSftpSinkConnectorConfig extends CamelSinkConnectorConfig {
         conf.define(CAMEL_SINK_SFTP_ENDPOINT_MOVE_EXISTING_FILE_STRATEGY_CONF, ConfigDef.Type.STRING, CAMEL_SINK_SFTP_ENDPOINT_MOVE_EXISTING_FILE_STRATEGY_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SFTP_ENDPOINT_MOVE_EXISTING_FILE_STRATEGY_DOC);
         conf.define(CAMEL_SINK_SFTP_ENDPOINT_SEND_NOOP_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_SFTP_ENDPOINT_SEND_NOOP_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SFTP_ENDPOINT_SEND_NOOP_DOC);
         conf.define(CAMEL_SINK_SFTP_ENDPOINT_AUTO_CREATE_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_SFTP_ENDPOINT_AUTO_CREATE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SFTP_ENDPOINT_AUTO_CREATE_DOC);
-        conf.define(CAMEL_SINK_SFTP_ENDPOINT_BASIC_PROPERTY_BINDING_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_SFTP_ENDPOINT_BASIC_PROPERTY_BINDING_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SFTP_ENDPOINT_BASIC_PROPERTY_BINDING_DOC);
         conf.define(CAMEL_SINK_SFTP_ENDPOINT_BIND_ADDRESS_CONF, ConfigDef.Type.STRING, CAMEL_SINK_SFTP_ENDPOINT_BIND_ADDRESS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SFTP_ENDPOINT_BIND_ADDRESS_DOC);
         conf.define(CAMEL_SINK_SFTP_ENDPOINT_BULK_REQUESTS_CONF, ConfigDef.Type.STRING, CAMEL_SINK_SFTP_ENDPOINT_BULK_REQUESTS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SFTP_ENDPOINT_BULK_REQUESTS_DOC);
         conf.define(CAMEL_SINK_SFTP_ENDPOINT_COMPRESSION_CONF, ConfigDef.Type.INT, CAMEL_SINK_SFTP_ENDPOINT_COMPRESSION_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SFTP_ENDPOINT_COMPRESSION_DOC);
@@ -258,21 +254,21 @@ public class CamelSftpSinkConnectorConfig extends CamelSinkConnectorConfig {
         conf.define(CAMEL_SINK_SFTP_ENDPOINT_THROW_EXCEPTION_ON_CONNECT_FAILED_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_SFTP_ENDPOINT_THROW_EXCEPTION_ON_CONNECT_FAILED_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SFTP_ENDPOINT_THROW_EXCEPTION_ON_CONNECT_FAILED_DOC);
         conf.define(CAMEL_SINK_SFTP_ENDPOINT_TIMEOUT_CONF, ConfigDef.Type.INT, CAMEL_SINK_SFTP_ENDPOINT_TIMEOUT_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SFTP_ENDPOINT_TIMEOUT_DOC);
         conf.define(CAMEL_SINK_SFTP_ENDPOINT_CIPHERS_CONF, ConfigDef.Type.STRING, CAMEL_SINK_SFTP_ENDPOINT_CIPHERS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SFTP_ENDPOINT_CIPHERS_DOC);
-        conf.define(CAMEL_SINK_SFTP_ENDPOINT_KEY_PAIR_CONF, ConfigDef.Type.STRING, CAMEL_SINK_SFTP_ENDPOINT_KEY_PAIR_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SFTP_ENDPOINT_KEY_PAIR_DOC);
-        conf.define(CAMEL_SINK_SFTP_ENDPOINT_KNOWN_HOSTS_CONF, ConfigDef.Type.STRING, CAMEL_SINK_SFTP_ENDPOINT_KNOWN_HOSTS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SFTP_ENDPOINT_KNOWN_HOSTS_DOC);
-        conf.define(CAMEL_SINK_SFTP_ENDPOINT_KNOWN_HOSTS_FILE_CONF, ConfigDef.Type.STRING, CAMEL_SINK_SFTP_ENDPOINT_KNOWN_HOSTS_FILE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SFTP_ENDPOINT_KNOWN_HOSTS_FILE_DOC);
-        conf.define(CAMEL_SINK_SFTP_ENDPOINT_KNOWN_HOSTS_URI_CONF, ConfigDef.Type.STRING, CAMEL_SINK_SFTP_ENDPOINT_KNOWN_HOSTS_URI_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SFTP_ENDPOINT_KNOWN_HOSTS_URI_DOC);
-        conf.define(CAMEL_SINK_SFTP_ENDPOINT_PASSWORD_CONF, ConfigDef.Type.STRING, CAMEL_SINK_SFTP_ENDPOINT_PASSWORD_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SFTP_ENDPOINT_PASSWORD_DOC);
+        conf.define(CAMEL_SINK_SFTP_ENDPOINT_KEY_PAIR_CONF, ConfigDef.Type.PASSWORD, CAMEL_SINK_SFTP_ENDPOINT_KEY_PAIR_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SFTP_ENDPOINT_KEY_PAIR_DOC);
+        conf.define(CAMEL_SINK_SFTP_ENDPOINT_KNOWN_HOSTS_CONF, ConfigDef.Type.PASSWORD, CAMEL_SINK_SFTP_ENDPOINT_KNOWN_HOSTS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SFTP_ENDPOINT_KNOWN_HOSTS_DOC);
+        conf.define(CAMEL_SINK_SFTP_ENDPOINT_KNOWN_HOSTS_FILE_CONF, ConfigDef.Type.PASSWORD, CAMEL_SINK_SFTP_ENDPOINT_KNOWN_HOSTS_FILE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SFTP_ENDPOINT_KNOWN_HOSTS_FILE_DOC);
+        conf.define(CAMEL_SINK_SFTP_ENDPOINT_KNOWN_HOSTS_URI_CONF, ConfigDef.Type.PASSWORD, CAMEL_SINK_SFTP_ENDPOINT_KNOWN_HOSTS_URI_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SFTP_ENDPOINT_KNOWN_HOSTS_URI_DOC);
+        conf.define(CAMEL_SINK_SFTP_ENDPOINT_PASSWORD_CONF, ConfigDef.Type.PASSWORD, CAMEL_SINK_SFTP_ENDPOINT_PASSWORD_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SFTP_ENDPOINT_PASSWORD_DOC);
         conf.define(CAMEL_SINK_SFTP_ENDPOINT_PREFERRED_AUTHENTICATIONS_CONF, ConfigDef.Type.STRING, CAMEL_SINK_SFTP_ENDPOINT_PREFERRED_AUTHENTICATIONS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SFTP_ENDPOINT_PREFERRED_AUTHENTICATIONS_DOC);
-        conf.define(CAMEL_SINK_SFTP_ENDPOINT_PRIVATE_KEY_CONF, ConfigDef.Type.STRING, CAMEL_SINK_SFTP_ENDPOINT_PRIVATE_KEY_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SFTP_ENDPOINT_PRIVATE_KEY_DOC);
-        conf.define(CAMEL_SINK_SFTP_ENDPOINT_PRIVATE_KEY_FILE_CONF, ConfigDef.Type.STRING, CAMEL_SINK_SFTP_ENDPOINT_PRIVATE_KEY_FILE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SFTP_ENDPOINT_PRIVATE_KEY_FILE_DOC);
-        conf.define(CAMEL_SINK_SFTP_ENDPOINT_PRIVATE_KEY_PASSPHRASE_CONF, ConfigDef.Type.STRING, CAMEL_SINK_SFTP_ENDPOINT_PRIVATE_KEY_PASSPHRASE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SFTP_ENDPOINT_PRIVATE_KEY_PASSPHRASE_DOC);
-        conf.define(CAMEL_SINK_SFTP_ENDPOINT_PRIVATE_KEY_URI_CONF, ConfigDef.Type.STRING, CAMEL_SINK_SFTP_ENDPOINT_PRIVATE_KEY_URI_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SFTP_ENDPOINT_PRIVATE_KEY_URI_DOC);
+        conf.define(CAMEL_SINK_SFTP_ENDPOINT_PRIVATE_KEY_CONF, ConfigDef.Type.PASSWORD, CAMEL_SINK_SFTP_ENDPOINT_PRIVATE_KEY_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SFTP_ENDPOINT_PRIVATE_KEY_DOC);
+        conf.define(CAMEL_SINK_SFTP_ENDPOINT_PRIVATE_KEY_FILE_CONF, ConfigDef.Type.PASSWORD, CAMEL_SINK_SFTP_ENDPOINT_PRIVATE_KEY_FILE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SFTP_ENDPOINT_PRIVATE_KEY_FILE_DOC);
+        conf.define(CAMEL_SINK_SFTP_ENDPOINT_PRIVATE_KEY_PASSPHRASE_CONF, ConfigDef.Type.PASSWORD, CAMEL_SINK_SFTP_ENDPOINT_PRIVATE_KEY_PASSPHRASE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SFTP_ENDPOINT_PRIVATE_KEY_PASSPHRASE_DOC);
+        conf.define(CAMEL_SINK_SFTP_ENDPOINT_PRIVATE_KEY_URI_CONF, ConfigDef.Type.PASSWORD, CAMEL_SINK_SFTP_ENDPOINT_PRIVATE_KEY_URI_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SFTP_ENDPOINT_PRIVATE_KEY_URI_DOC);
         conf.define(CAMEL_SINK_SFTP_ENDPOINT_STRICT_HOST_KEY_CHECKING_CONF, ConfigDef.Type.STRING, CAMEL_SINK_SFTP_ENDPOINT_STRICT_HOST_KEY_CHECKING_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SFTP_ENDPOINT_STRICT_HOST_KEY_CHECKING_DOC);
-        conf.define(CAMEL_SINK_SFTP_ENDPOINT_USERNAME_CONF, ConfigDef.Type.STRING, CAMEL_SINK_SFTP_ENDPOINT_USERNAME_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SFTP_ENDPOINT_USERNAME_DOC);
+        conf.define(CAMEL_SINK_SFTP_ENDPOINT_USERNAME_CONF, ConfigDef.Type.PASSWORD, CAMEL_SINK_SFTP_ENDPOINT_USERNAME_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SFTP_ENDPOINT_USERNAME_DOC);
         conf.define(CAMEL_SINK_SFTP_ENDPOINT_USE_USER_KNOWN_HOSTS_FILE_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_SFTP_ENDPOINT_USE_USER_KNOWN_HOSTS_FILE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SFTP_ENDPOINT_USE_USER_KNOWN_HOSTS_FILE_DOC);
         conf.define(CAMEL_SINK_SFTP_COMPONENT_LAZY_START_PRODUCER_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_SFTP_COMPONENT_LAZY_START_PRODUCER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SFTP_COMPONENT_LAZY_START_PRODUCER_DOC);
-        conf.define(CAMEL_SINK_SFTP_COMPONENT_BASIC_PROPERTY_BINDING_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_SFTP_COMPONENT_BASIC_PROPERTY_BINDING_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SFTP_COMPONENT_BASIC_PROPERTY_BINDING_DOC);
+        conf.define(CAMEL_SINK_SFTP_COMPONENT_AUTOWIRED_ENABLED_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_SFTP_COMPONENT_AUTOWIRED_ENABLED_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_SFTP_COMPONENT_AUTOWIRED_ENABLED_DOC);
         return conf;
     }
 }

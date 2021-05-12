@@ -24,14 +24,16 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import org.apache.camel.kafkaconnector.common.ConnectorPropertyFactory;
-import org.apache.camel.kafkaconnector.common.services.kafka.KafkaService;
+import org.apache.camel.test.infra.kafka.services.KafkaService;
 import org.apache.kafka.connect.runtime.ConnectorConfig;
+import org.apache.kafka.connect.runtime.rest.entities.ConnectorStateInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class KafkaConnectRunnerService implements KafkaConnectService {
     private static final Logger LOG = LoggerFactory.getLogger(KafkaConnectRunnerService.class);
@@ -41,7 +43,7 @@ public class KafkaConnectRunnerService implements KafkaConnectService {
 
 
     public KafkaConnectRunnerService(KafkaService kafkaService) {
-        Objects.nonNull(kafkaService);
+        Objects.requireNonNull(kafkaService);
 
         LOG.debug("Connecting the Kafka Connect Runner to {}", kafkaService.getBootstrapServers());
         this.kafkaConnectRunner = new KafkaConnectRunner(kafkaService.getBootstrapServers());
@@ -96,7 +98,9 @@ public class KafkaConnectRunnerService implements KafkaConnectService {
     public void stop() {
         kafkaConnectRunner.stop();
         try {
-            service.awaitTermination(5, TimeUnit.SECONDS);
+            if (!service.awaitTermination(5, TimeUnit.SECONDS)) {
+                LOG.warn("Timed out while waiting for the embedded runner to stop");
+            }
         } catch (InterruptedException e) {
             LOG.warn("The test was interrupted while executing");
         }
@@ -114,5 +118,9 @@ public class KafkaConnectRunnerService implements KafkaConnectService {
         } catch (InterruptedException e) {
             LOG.error("The test was interrupted while executing");
         }
+    }
+
+    public void connectorStateCheck(Consumer<ConnectorStateInfo> taskStateConsumer) {
+        kafkaConnectRunner.connectorStateCheck(taskStateConsumer);
     }
 }

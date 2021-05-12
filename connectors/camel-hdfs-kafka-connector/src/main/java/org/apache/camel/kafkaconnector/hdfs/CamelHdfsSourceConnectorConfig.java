@@ -77,9 +77,6 @@ public class CamelHdfsSourceConnectorConfig
     public static final String CAMEL_SOURCE_HDFS_ENDPOINT_POLL_STRATEGY_CONF = "camel.source.endpoint.pollStrategy";
     public static final String CAMEL_SOURCE_HDFS_ENDPOINT_POLL_STRATEGY_DOC = "A pluggable org.apache.camel.PollingConsumerPollingStrategy allowing you to provide your custom implementation to control error handling usually occurred during the poll operation before an Exchange have been created and being routed in Camel.";
     public static final String CAMEL_SOURCE_HDFS_ENDPOINT_POLL_STRATEGY_DEFAULT = null;
-    public static final String CAMEL_SOURCE_HDFS_ENDPOINT_BASIC_PROPERTY_BINDING_CONF = "camel.source.endpoint.basicPropertyBinding";
-    public static final String CAMEL_SOURCE_HDFS_ENDPOINT_BASIC_PROPERTY_BINDING_DOC = "Whether the endpoint should use basic property binding (Camel 2.x) or the newer property binding with additional capabilities";
-    public static final Boolean CAMEL_SOURCE_HDFS_ENDPOINT_BASIC_PROPERTY_BINDING_DEFAULT = false;
     public static final String CAMEL_SOURCE_HDFS_ENDPOINT_BLOCK_SIZE_CONF = "camel.source.endpoint.blockSize";
     public static final String CAMEL_SOURCE_HDFS_ENDPOINT_BLOCK_SIZE_DOC = "The size of the HDFS blocks";
     public static final Long CAMEL_SOURCE_HDFS_ENDPOINT_BLOCK_SIZE_DEFAULT = 67108864L;
@@ -110,9 +107,6 @@ public class CamelHdfsSourceConnectorConfig
     public static final String CAMEL_SOURCE_HDFS_ENDPOINT_SPLIT_STRATEGY_CONF = "camel.source.endpoint.splitStrategy";
     public static final String CAMEL_SOURCE_HDFS_ENDPOINT_SPLIT_STRATEGY_DOC = "In the current version of Hadoop opening a file in append mode is disabled since it's not very reliable. So, for the moment, it's only possible to create new files. The Camel HDFS endpoint tries to solve this problem in this way: If the split strategy option has been defined, the hdfs path will be used as a directory and files will be created using the configured UuidGenerator. Every time a splitting condition is met, a new file is created. The splitStrategy option is defined as a string with the following syntax: splitStrategy=ST:value,ST:value,... where ST can be: BYTES a new file is created, and the old is closed when the number of written bytes is more than value MESSAGES a new file is created, and the old is closed when the number of written messages is more than value IDLE a new file is created, and the old is closed when no writing happened in the last value milliseconds";
     public static final String CAMEL_SOURCE_HDFS_ENDPOINT_SPLIT_STRATEGY_DEFAULT = null;
-    public static final String CAMEL_SOURCE_HDFS_ENDPOINT_SYNCHRONOUS_CONF = "camel.source.endpoint.synchronous";
-    public static final String CAMEL_SOURCE_HDFS_ENDPOINT_SYNCHRONOUS_DOC = "Sets whether synchronous processing should be strictly used, or Camel is allowed to use asynchronous processing (if supported).";
-    public static final Boolean CAMEL_SOURCE_HDFS_ENDPOINT_SYNCHRONOUS_DEFAULT = false;
     public static final String CAMEL_SOURCE_HDFS_ENDPOINT_MAX_MESSAGES_PER_POLL_CONF = "camel.source.endpoint.maxMessagesPerPoll";
     public static final String CAMEL_SOURCE_HDFS_ENDPOINT_MAX_MESSAGES_PER_POLL_DOC = "To define a maximum messages to gather per poll. By default a limit of 100 is set. Can be used to set a limit of e.g. 1000 to avoid when starting up the server that there are thousands of files. Values can only be greater than 0. Notice: If this option is in use then the limit will be applied on the valid files. For example if you have 100000 files and use maxMessagesPerPoll=500, then only the first 500 files will be picked up.";
     public static final Integer CAMEL_SOURCE_HDFS_ENDPOINT_MAX_MESSAGES_PER_POLL_DEFAULT = 100;
@@ -144,7 +138,7 @@ public class CamelHdfsSourceConnectorConfig
     public static final String CAMEL_SOURCE_HDFS_ENDPOINT_SCHEDULED_EXECUTOR_SERVICE_DOC = "Allows for configuring a custom/shared thread pool to use for the consumer. By default each consumer has its own single threaded thread pool.";
     public static final String CAMEL_SOURCE_HDFS_ENDPOINT_SCHEDULED_EXECUTOR_SERVICE_DEFAULT = null;
     public static final String CAMEL_SOURCE_HDFS_ENDPOINT_SCHEDULER_CONF = "camel.source.endpoint.scheduler";
-    public static final String CAMEL_SOURCE_HDFS_ENDPOINT_SCHEDULER_DOC = "To use a cron scheduler from either camel-spring or camel-quartz component One of: [none] [spring] [quartz]";
+    public static final String CAMEL_SOURCE_HDFS_ENDPOINT_SCHEDULER_DOC = "To use a cron scheduler from either camel-spring or camel-quartz component. Use value spring or quartz for built in scheduler";
     public static final String CAMEL_SOURCE_HDFS_ENDPOINT_SCHEDULER_DEFAULT = "none";
     public static final String CAMEL_SOURCE_HDFS_ENDPOINT_SCHEDULER_PROPERTIES_CONF = "camel.source.endpoint.schedulerProperties";
     public static final String CAMEL_SOURCE_HDFS_ENDPOINT_SCHEDULER_PROPERTIES_DOC = "To configure additional properties when using a custom scheduler or any of the Quartz, Spring based scheduler.";
@@ -167,18 +161,18 @@ public class CamelHdfsSourceConnectorConfig
     public static final String CAMEL_SOURCE_HDFS_ENDPOINT_KERBEROS_USERNAME_CONF = "camel.source.endpoint.kerberosUsername";
     public static final String CAMEL_SOURCE_HDFS_ENDPOINT_KERBEROS_USERNAME_DOC = "The username used to authenticate with the kerberos nodes";
     public static final String CAMEL_SOURCE_HDFS_ENDPOINT_KERBEROS_USERNAME_DEFAULT = null;
+    public static final String CAMEL_SOURCE_HDFS_COMPONENT_BRIDGE_ERROR_HANDLER_CONF = "camel.component.hdfs.bridgeErrorHandler";
+    public static final String CAMEL_SOURCE_HDFS_COMPONENT_BRIDGE_ERROR_HANDLER_DOC = "Allows for bridging the consumer to the Camel routing Error Handler, which mean any exceptions occurred while the consumer is trying to pickup incoming messages, or the likes, will now be processed as a message and handled by the routing Error Handler. By default the consumer will use the org.apache.camel.spi.ExceptionHandler to deal with exceptions, that will be logged at WARN or ERROR level and ignored.";
+    public static final Boolean CAMEL_SOURCE_HDFS_COMPONENT_BRIDGE_ERROR_HANDLER_DEFAULT = false;
+    public static final String CAMEL_SOURCE_HDFS_COMPONENT_AUTOWIRED_ENABLED_CONF = "camel.component.hdfs.autowiredEnabled";
+    public static final String CAMEL_SOURCE_HDFS_COMPONENT_AUTOWIRED_ENABLED_DOC = "Whether autowiring is enabled. This is used for automatic autowiring options (the option must be marked as autowired) by looking up in the registry to find if there is a single instance of matching type, which then gets configured on the component. This can be used for automatic configuring JDBC data sources, JMS connection factories, AWS Clients, etc.";
+    public static final Boolean CAMEL_SOURCE_HDFS_COMPONENT_AUTOWIRED_ENABLED_DEFAULT = true;
     public static final String CAMEL_SOURCE_HDFS_COMPONENT_JAASCONFIGURATION_CONF = "camel.component.hdfs.jAASConfiguration";
     public static final String CAMEL_SOURCE_HDFS_COMPONENT_JAASCONFIGURATION_DOC = "To use the given configuration for security with JAAS.";
     public static final String CAMEL_SOURCE_HDFS_COMPONENT_JAASCONFIGURATION_DEFAULT = null;
     public static final String CAMEL_SOURCE_HDFS_COMPONENT_KERBEROS_CONFIG_FILE_CONF = "camel.component.hdfs.kerberosConfigFile";
     public static final String CAMEL_SOURCE_HDFS_COMPONENT_KERBEROS_CONFIG_FILE_DOC = "To use kerberos authentication, set the value of the 'java.security.krb5.conf' environment variable to an existing file. If the environment variable is already set, warn if different than the specified parameter";
     public static final String CAMEL_SOURCE_HDFS_COMPONENT_KERBEROS_CONFIG_FILE_DEFAULT = null;
-    public static final String CAMEL_SOURCE_HDFS_COMPONENT_BRIDGE_ERROR_HANDLER_CONF = "camel.component.hdfs.bridgeErrorHandler";
-    public static final String CAMEL_SOURCE_HDFS_COMPONENT_BRIDGE_ERROR_HANDLER_DOC = "Allows for bridging the consumer to the Camel routing Error Handler, which mean any exceptions occurred while the consumer is trying to pickup incoming messages, or the likes, will now be processed as a message and handled by the routing Error Handler. By default the consumer will use the org.apache.camel.spi.ExceptionHandler to deal with exceptions, that will be logged at WARN or ERROR level and ignored.";
-    public static final Boolean CAMEL_SOURCE_HDFS_COMPONENT_BRIDGE_ERROR_HANDLER_DEFAULT = false;
-    public static final String CAMEL_SOURCE_HDFS_COMPONENT_BASIC_PROPERTY_BINDING_CONF = "camel.component.hdfs.basicPropertyBinding";
-    public static final String CAMEL_SOURCE_HDFS_COMPONENT_BASIC_PROPERTY_BINDING_DOC = "Whether the component should use basic property binding (Camel 2.x) or the newer property binding with additional capabilities";
-    public static final Boolean CAMEL_SOURCE_HDFS_COMPONENT_BASIC_PROPERTY_BINDING_DEFAULT = false;
 
     public CamelHdfsSourceConnectorConfig(
             ConfigDef config,
@@ -209,7 +203,6 @@ public class CamelHdfsSourceConnectorConfig
         conf.define(CAMEL_SOURCE_HDFS_ENDPOINT_EXCEPTION_HANDLER_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_HDFS_ENDPOINT_EXCEPTION_HANDLER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_HDFS_ENDPOINT_EXCEPTION_HANDLER_DOC);
         conf.define(CAMEL_SOURCE_HDFS_ENDPOINT_EXCHANGE_PATTERN_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_HDFS_ENDPOINT_EXCHANGE_PATTERN_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_HDFS_ENDPOINT_EXCHANGE_PATTERN_DOC);
         conf.define(CAMEL_SOURCE_HDFS_ENDPOINT_POLL_STRATEGY_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_HDFS_ENDPOINT_POLL_STRATEGY_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_HDFS_ENDPOINT_POLL_STRATEGY_DOC);
-        conf.define(CAMEL_SOURCE_HDFS_ENDPOINT_BASIC_PROPERTY_BINDING_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_HDFS_ENDPOINT_BASIC_PROPERTY_BINDING_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_HDFS_ENDPOINT_BASIC_PROPERTY_BINDING_DOC);
         conf.define(CAMEL_SOURCE_HDFS_ENDPOINT_BLOCK_SIZE_CONF, ConfigDef.Type.LONG, CAMEL_SOURCE_HDFS_ENDPOINT_BLOCK_SIZE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_HDFS_ENDPOINT_BLOCK_SIZE_DOC);
         conf.define(CAMEL_SOURCE_HDFS_ENDPOINT_BUFFER_SIZE_CONF, ConfigDef.Type.INT, CAMEL_SOURCE_HDFS_ENDPOINT_BUFFER_SIZE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_HDFS_ENDPOINT_BUFFER_SIZE_DOC);
         conf.define(CAMEL_SOURCE_HDFS_ENDPOINT_CHECK_IDLE_INTERVAL_CONF, ConfigDef.Type.INT, CAMEL_SOURCE_HDFS_ENDPOINT_CHECK_IDLE_INTERVAL_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_HDFS_ENDPOINT_CHECK_IDLE_INTERVAL_DOC);
@@ -220,7 +213,6 @@ public class CamelHdfsSourceConnectorConfig
         conf.define(CAMEL_SOURCE_HDFS_ENDPOINT_READ_SUFFIX_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_HDFS_ENDPOINT_READ_SUFFIX_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_HDFS_ENDPOINT_READ_SUFFIX_DOC);
         conf.define(CAMEL_SOURCE_HDFS_ENDPOINT_REPLICATION_CONF, ConfigDef.Type.SHORT, CAMEL_SOURCE_HDFS_ENDPOINT_REPLICATION_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_HDFS_ENDPOINT_REPLICATION_DOC);
         conf.define(CAMEL_SOURCE_HDFS_ENDPOINT_SPLIT_STRATEGY_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_HDFS_ENDPOINT_SPLIT_STRATEGY_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_HDFS_ENDPOINT_SPLIT_STRATEGY_DOC);
-        conf.define(CAMEL_SOURCE_HDFS_ENDPOINT_SYNCHRONOUS_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_HDFS_ENDPOINT_SYNCHRONOUS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_HDFS_ENDPOINT_SYNCHRONOUS_DOC);
         conf.define(CAMEL_SOURCE_HDFS_ENDPOINT_MAX_MESSAGES_PER_POLL_CONF, ConfigDef.Type.INT, CAMEL_SOURCE_HDFS_ENDPOINT_MAX_MESSAGES_PER_POLL_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_HDFS_ENDPOINT_MAX_MESSAGES_PER_POLL_DOC);
         conf.define(CAMEL_SOURCE_HDFS_ENDPOINT_BACKOFF_ERROR_THRESHOLD_CONF, ConfigDef.Type.INT, CAMEL_SOURCE_HDFS_ENDPOINT_BACKOFF_ERROR_THRESHOLD_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_HDFS_ENDPOINT_BACKOFF_ERROR_THRESHOLD_DOC);
         conf.define(CAMEL_SOURCE_HDFS_ENDPOINT_BACKOFF_IDLE_THRESHOLD_CONF, ConfigDef.Type.INT, CAMEL_SOURCE_HDFS_ENDPOINT_BACKOFF_IDLE_THRESHOLD_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_HDFS_ENDPOINT_BACKOFF_IDLE_THRESHOLD_DOC);
@@ -239,10 +231,10 @@ public class CamelHdfsSourceConnectorConfig
         conf.define(CAMEL_SOURCE_HDFS_ENDPOINT_KERBEROS_CONFIG_FILE_LOCATION_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_HDFS_ENDPOINT_KERBEROS_CONFIG_FILE_LOCATION_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_HDFS_ENDPOINT_KERBEROS_CONFIG_FILE_LOCATION_DOC);
         conf.define(CAMEL_SOURCE_HDFS_ENDPOINT_KERBEROS_KEYTAB_LOCATION_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_HDFS_ENDPOINT_KERBEROS_KEYTAB_LOCATION_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_HDFS_ENDPOINT_KERBEROS_KEYTAB_LOCATION_DOC);
         conf.define(CAMEL_SOURCE_HDFS_ENDPOINT_KERBEROS_USERNAME_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_HDFS_ENDPOINT_KERBEROS_USERNAME_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_HDFS_ENDPOINT_KERBEROS_USERNAME_DOC);
+        conf.define(CAMEL_SOURCE_HDFS_COMPONENT_BRIDGE_ERROR_HANDLER_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_HDFS_COMPONENT_BRIDGE_ERROR_HANDLER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_HDFS_COMPONENT_BRIDGE_ERROR_HANDLER_DOC);
+        conf.define(CAMEL_SOURCE_HDFS_COMPONENT_AUTOWIRED_ENABLED_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_HDFS_COMPONENT_AUTOWIRED_ENABLED_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_HDFS_COMPONENT_AUTOWIRED_ENABLED_DOC);
         conf.define(CAMEL_SOURCE_HDFS_COMPONENT_JAASCONFIGURATION_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_HDFS_COMPONENT_JAASCONFIGURATION_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_HDFS_COMPONENT_JAASCONFIGURATION_DOC);
         conf.define(CAMEL_SOURCE_HDFS_COMPONENT_KERBEROS_CONFIG_FILE_CONF, ConfigDef.Type.STRING, CAMEL_SOURCE_HDFS_COMPONENT_KERBEROS_CONFIG_FILE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_HDFS_COMPONENT_KERBEROS_CONFIG_FILE_DOC);
-        conf.define(CAMEL_SOURCE_HDFS_COMPONENT_BRIDGE_ERROR_HANDLER_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_HDFS_COMPONENT_BRIDGE_ERROR_HANDLER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_HDFS_COMPONENT_BRIDGE_ERROR_HANDLER_DOC);
-        conf.define(CAMEL_SOURCE_HDFS_COMPONENT_BASIC_PROPERTY_BINDING_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SOURCE_HDFS_COMPONENT_BASIC_PROPERTY_BINDING_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SOURCE_HDFS_COMPONENT_BASIC_PROPERTY_BINDING_DOC);
         return conf;
     }
 }

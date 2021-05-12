@@ -23,7 +23,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -32,6 +34,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import javax.annotation.Generated;
 import javax.xml.XMLConstants;
@@ -48,9 +51,10 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import freemarker.template.Template;
-import org.apache.camel.kafkaconnector.maven.dto.CamelKafkaConnectorModel;
-import org.apache.camel.kafkaconnector.maven.dto.CamelKafkaConnectorOptionModel;
+import org.apache.camel.kafkaconnector.maven.utils.JsonMapperKafkaConnector;
 import org.apache.camel.kafkaconnector.maven.utils.MavenUtils;
+import org.apache.camel.kafkaconnector.model.CamelKafkaConnectorModel;
+import org.apache.camel.kafkaconnector.model.CamelKafkaConnectorOptionModel;
 import org.apache.camel.maven.packaging.MvelHelper;
 import org.apache.camel.tooling.model.BaseOptionModel;
 import org.apache.camel.tooling.model.ComponentModel;
@@ -59,7 +63,12 @@ import org.apache.camel.tooling.util.Strings;
 import org.apache.camel.tooling.util.srcgen.JavaClass;
 import org.apache.camel.tooling.util.srcgen.Method;
 import org.apache.camel.util.TimeUtils;
+import org.apache.camel.util.json.JsonObject;
+import org.apache.camel.util.json.Jsoner;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.filefilter.DirectoryFileFilter;
+import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -82,7 +91,8 @@ import static org.apache.camel.tooling.util.PackageHelper.writeText;
  * Generate Camel Kafka Connector for the component
  */
 @Mojo(name = "camel-kafka-connector-update", threadSafe = true, 
-requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, 
+requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME, 
+requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, 
 defaultPhase = LifecyclePhase.GENERATE_RESOURCES)
 public class CamelKafkaConnectorUpdateMojo extends AbstractCamelKafkaConnectorMojo {
 
@@ -99,6 +109,13 @@ public class CamelKafkaConnectorUpdateMojo extends AbstractCamelKafkaConnectorMo
     private static final Map<String, String> PRIMITIVE_TYPES_TO_KAFKA_CONFIG_DEF_MAP;
 
     private static final Map<String, String> RESERVED_WORDS_SUBSTITUTION_MAP;
+
+    private static final String CONFIG_DEF_TYPE_STRING = "ConfigDef.Type.STRING";
+    private static final String CONFIG_DEF_TYPE_PASSWORD = "ConfigDef.Type.PASSWORD";
+    private static final String CONFIG_DEF_IMPORTANCE_LOW = "ConfigDef.Importance.LOW";
+    private static final String CONFIG_DEF_IMPORTANCE_MEDIUM = "ConfigDef.Importance.MEDIUM";
+    private static final String CONFIG_DEF_IMPORTANCE_HIGH = "ConfigDef.Importance.HIGH";
+    private static final String CONFIG_DEF_IMPORTANCE_PREFIX = "ConfigDef.Importance.";
 
     static {
         PRIMITIVE_TYPES_TO_CLASS_MAP = new HashMap<>();
@@ -227,7 +244,11 @@ public class CamelKafkaConnectorUpdateMojo extends AbstractCamelKafkaConnectorMo
         // excluded dependencies
         Set<String> configExclusions = new HashSet<>();
         Properties properties = new Properties();
-        properties.load(new FileInputStream(rm.getResourceAsFile(fixDependenciesProperties)));
+
+        try (InputStream stream = new FileInputStream(rm.getResourceAsFile(fixDependenciesProperties))) {
+            properties.load(stream);
+        }
+
         String artExcl = properties.getProperty(EXCLUDE_DEPENDENCY_PROPERTY_PREFIX + getMainDepArtifactId());
         getLog().debug("Configured exclusions: " + artExcl);
         if (artExcl != null && artExcl.trim().length() > 0) {
@@ -241,7 +262,7 @@ public class CamelKafkaConnectorUpdateMojo extends AbstractCamelKafkaConnectorMo
         libsToRemove.addAll(loggingImpl);
         libsToRemove.addAll(configExclusions);
 
-        if (libsToRemove.size() > 0) {
+        if (!libsToRemove.isEmpty()) {
             getLog().info("Camel-kafka-connector: the following dependencies will be removed from the connector: " + libsToRemove);
             MavenUtils.addExclusionsToDependency(pom, getMainDepArtifactId(), libsToRemove, GENERATED_SECTION_START, GENERATED_SECTION_END);
         }
@@ -249,7 +270,10 @@ public class CamelKafkaConnectorUpdateMojo extends AbstractCamelKafkaConnectorMo
 
     private void fixAdditionalDependencies(Document pom, String additionalDependencies) throws Exception {
         Properties properties = new Properties();
-        properties.load(new FileInputStream(rm.getResourceAsFile(fixDependenciesProperties)));
+
+        try (InputStream stream = new FileInputStream(rm.getResourceAsFile(fixDependenciesProperties))) {
+            properties.load(stream);
+        }
 
         Set<String> deps = new TreeSet<>();
         deps.addAll(MavenUtils.csvToSet(properties.getProperty(getMainDepArtifactId())));
@@ -271,7 +295,7 @@ public class CamelKafkaConnectorUpdateMojo extends AbstractCamelKafkaConnectorMo
             deps.addAll(globalProps);
         }
 
-        if (deps.size() > 0) {
+        if (!deps.isEmpty()) {
             getLog().debug("The following dependencies will be added to the starter: " + deps);
             MavenUtils.addDependencies(pom, deps, GENERATED_SECTION_START, GENERATED_SECTION_END);
         }
@@ -350,12 +374,6 @@ public class CamelKafkaConnectorUpdateMojo extends AbstractCamelKafkaConnectorMo
         writeFileIfChanged(license, new File(connectorDir, "src/main/resources/META-INF/LICENSE.txt"), getLog());
     }
 
-    private String getComponentId() {
-        String componentName = getMainDepArtifactId();
-        String componentId = componentName.replace("camel-", "");
-        return componentId;
-    }
-
     private void createClasses(String sanitizedName, File connectorDir, ComponentModel model, ConnectorType ct)
         throws MojoFailureException, ResourceNotFoundException, FileResourceCreationException, IOException, MojoExecutionException {
         String ctCapitalizedName = StringUtils.capitalize(ct.name().toLowerCase());
@@ -363,7 +381,11 @@ public class CamelKafkaConnectorUpdateMojo extends AbstractCamelKafkaConnectorMo
         String packageName = "org.apache.camel.kafkaconnector." + RESERVED_WORDS_SUBSTITUTION_MAP.getOrDefault(sanitizedName.replace("-", ""), sanitizedName.replace("-", ""));
         Map<String, String> additionalProperties = new HashMap<>();
         Properties properties = new Properties();
-        properties.load(new FileInputStream(rm.getResourceAsFile(fixDependenciesProperties)));
+
+        try (InputStream stream = new FileInputStream(rm.getResourceAsFile(fixDependenciesProperties))) {
+            properties.load(stream);
+        }
+
         String commonPropertyValue = properties.getProperty(ADDITIONAL_COMMON_PROPERTIES_PROPERTY_PREFIX + getMainDepArtifactId());
         getLog().debug("Additional common connector properties: " + commonPropertyValue);
         addProperties(additionalProperties, commonPropertyValue);
@@ -398,7 +420,7 @@ public class CamelKafkaConnectorUpdateMojo extends AbstractCamelKafkaConnectorMo
                     @Override
                     public boolean test(BaseOptionModel optionModel) {
                         return optionModel.getLabel() == null || optionModel.getLabel().contains("producer")
-                             || (!optionModel.getLabel().contains("producer") && !optionModel.getLabel().contains("consumer"));
+                               || (!optionModel.getLabel().contains("producer") && !optionModel.getLabel().contains("consumer"));
                     }
                 };
                 break;
@@ -415,7 +437,7 @@ public class CamelKafkaConnectorUpdateMojo extends AbstractCamelKafkaConnectorMo
                 throw new UnsupportedOperationException("Connector type not supported: " + ct + " must be one of " + ConnectorType.SINK + ", " + ConnectorType.SOURCE);
         }
 
-        List<CamelKafkaConnectorOptionModel> listOptions = new ArrayList<CamelKafkaConnectorOptionModel>();
+        List<CamelKafkaConnectorOptionModel> listOptions = new ArrayList<>();
         model.getEndpointPathOptions().stream().filter(filterEndpointOptions)
             .forEachOrdered(epo -> addConnectorOptions(sanitizedName, ct, javaClassConnectorConfig, confMethod, "PATH", ctLowercaseName, "path", epo, listOptions));
         model.getEndpointParameterOptions().stream().filter(filterEndpointOptions)
@@ -425,7 +447,7 @@ public class CamelKafkaConnectorUpdateMojo extends AbstractCamelKafkaConnectorMo
 
         confMethod.setBody(confMethod.getBody() + "return conf;");
 
-        String javaClassConnectorConfigFileName = packageName.replaceAll("\\.", "\\/") + "/" + javaClassConnectorConfigName + ".java";
+        String javaClassConnectorConfigFileName = packageName.replaceAll("\\.", "\\/") + File.separator + javaClassConnectorConfigName + ".java";
         MavenUtils.writeSourceIfChanged(javaClassConnectorConfig, javaClassConnectorConfigFileName, false, connectorDir, rm.getResourceAsFile(javaFilesHeader));
 
         // Camel{sanitizedName}{Sink,Source}Task.java
@@ -453,7 +475,7 @@ public class CamelKafkaConnectorUpdateMojo extends AbstractCamelKafkaConnectorMo
         }
         getDefaultConfigMethod.setBody(getDefaultConfigMethod.getBody() + "}};\n");
         getDefaultConfigMethod.addAnnotation(Override.class);
-        String javaClassTaskFileName = packageName.replaceAll("\\.", "\\/") + "/" + javaClassTaskName + ".java";
+        String javaClassTaskFileName = packageName.replaceAll("\\.", "\\/") + File.separator + javaClassTaskName + ".java";
         MavenUtils.writeSourceIfChanged(javaClassTask, javaClassTaskFileName, false, connectorDir, rm.getResourceAsFile(javaFilesHeader));
 
         // Camel{sanitizedName}{Sink,Source}Connector.java
@@ -473,9 +495,46 @@ public class CamelKafkaConnectorUpdateMojo extends AbstractCamelKafkaConnectorMo
         javaClassConnector.addMethod().setConstructor(false).setName("taskClass").setPublic().setReturnType("Class<? extends Task>")
             .setBody("return Camel" + StringUtils.capitalize(sanitizedName.replace("-", "")) + ctCapitalizedName + "Task.class;").addAnnotation(Override.class);
 
-        String javaClassConnectorFileName = packageName.replaceAll("\\.", "\\/") + "/" + javaClassConnectorName + ".java";
+        String javaClassConnectorFileName = packageName.replaceAll("\\.", "\\/") + File.separator + javaClassConnectorName + ".java";
         MavenUtils.writeSourceIfChanged(javaClassConnector, javaClassConnectorFileName, false, connectorDir, rm.getResourceAsFile(javaFilesHeader));
 
+        List<String> convertersList = new ArrayList<>();
+        List<String> transformsList = new ArrayList<>();
+        List<String> aggregationStrategiesList = new ArrayList<>();
+        if (connectorDir != null && connectorDir.isDirectory()) {
+            File[] files = connectorDir.listFiles();
+            if (files != null) {
+                for (int i = 0; i < files.length; i++) {
+                    File file = files[i];
+                    if (file.isDirectory()) {
+                        Collection<File> convertersElements = FileUtils.listFiles(file, new RegexFileFilter(".*Converter.java"), DirectoryFileFilter.DIRECTORY);
+                        Collection<File> transformElements = FileUtils.listFiles(file, new RegexFileFilter(".*Transforms.java"), DirectoryFileFilter.DIRECTORY);
+                        Collection<File> aggStrategiesElements = FileUtils.listFiles(file, new RegexFileFilter(".*AggregationStrategy.java"), DirectoryFileFilter.DIRECTORY);
+                        for (File p : convertersElements) {
+                            String filePath = p.getCanonicalPath();
+                            String f = StringUtils.removeStart(filePath, connectorDir.getAbsolutePath() + "/src/main/java/");
+                            String finalElement = StringUtils.replace(f, File.separator, ".");
+                            String finalPath = StringUtils.removeEnd(finalElement, ".java");
+                            convertersList.add(finalPath);
+                        }
+                        for (File p : transformElements) {
+                            String filePath = p.getCanonicalPath();
+                            String f = StringUtils.removeStart(filePath, connectorDir.getAbsolutePath() + "/src/main/java/");
+                            String finalElement = StringUtils.replace(f, File.separator, ".");
+                            String finalPath = StringUtils.removeEnd(finalElement, ".java");
+                            transformsList.add(finalPath);
+                        }
+                        for (File p : aggStrategiesElements) {
+                            String filePath = p.getCanonicalPath();
+                            String f = StringUtils.removeStart(filePath, connectorDir.getAbsolutePath() + "/src/main/java/");
+                            String finalElement = StringUtils.replace(f, File.separator, ".");
+                            String finalPath = StringUtils.removeEnd(finalElement, ".java");
+                            aggregationStrategiesList.add(finalPath);
+                        }
+                    }
+                }
+            }
+        }
         // docs/examples/Camel{sanitizedName}{Sink,Source}.properties
         try {
             String examplesPropertiestemplate = null;
@@ -489,17 +548,13 @@ public class CamelKafkaConnectorUpdateMojo extends AbstractCamelKafkaConnectorMo
                 default:
                     break;
             }
-            HashMap<String, Object> templateParams = new HashMap();
+            HashMap<String, Object> templateParams = new HashMap<>();
             templateParams.put("connectorName", StringUtils.capitalize(sanitizedName));
             templateParams.put("connectorClass", packageName + "." + javaClassConnectorName);
-            ArrayList<CamelKafkaConnectorOptionModel> mandatoryOptions = new ArrayList();
-            listOptions.stream().filter(o -> o.getPriority().toUpperCase().equals("HIGH")).forEach(o -> mandatoryOptions.add(o));
-            mandatoryOptions.sort((option1, option2) -> {
-                String name1 = option1.getName();
-                String name2 = option2.getName();
-                int res = String.CASE_INSENSITIVE_ORDER.compare(name1, name2);
-                return (res != 0) ? res : name1.compareTo(name2);
-            });
+            List<CamelKafkaConnectorOptionModel> mandatoryOptions = listOptions.stream()
+                    .filter(o -> "HIGH".equalsIgnoreCase(o.getPriority()))
+                    .sorted(Comparator.comparing(CamelKafkaConnectorOptionModel::getName, String.CASE_INSENSITIVE_ORDER))
+                    .collect(Collectors.toList());
             templateParams.put("options", mandatoryOptions);
             String examplePropertiesFileContent = (String)TemplateRuntime.eval(examplesPropertiestemplate, templateParams);
             writeFileIfChanged(examplePropertiesFileContent, new File(connectorDir, "src/main/docs/examples/" + javaClassConnectorName + ".properties"), getLog());
@@ -507,12 +562,16 @@ public class CamelKafkaConnectorUpdateMojo extends AbstractCamelKafkaConnectorMo
             throw new MojoExecutionException("Error processing mvel examples properties template. Reason: " + e, e);
         }
 
-        // Generate documentation in src/main/docs and docs/modules/ROOT/pages/connectors
+        // Generate documentation in src/main/docs and
+        // docs/modules/ROOT/pages/connectors
         File docFolder = new File(connectorDir, "src/main/docs/");
         File docFile = new File(docFolder, getMainDepArtifactId() + "-kafka-" + ct.name().toLowerCase() + "-connector.adoc");
         File docFolderWebsite = new File(projectBaseDir, "docs/modules/ROOT/pages/connectors/");
         File docFileWebsite = new File(docFolderWebsite, getMainDepArtifactId() + "-kafka-" + ct.name().toLowerCase() + "-connector.adoc");
-        String changed = templateAutoConfigurationOptions(listOptions, getMainDepArtifactId(), connectorDir, ct);
+        String changed = templateAutoConfigurationOptions(listOptions, model.getDescription(), connectorDir, ct, packageName + "." + javaClassConnectorName, convertersList,
+                                                          transformsList, aggregationStrategiesList);
+
+
         boolean updated = updateAutoConfigureOptions(docFile, changed);
         if (updated) {
             getLog().info("Updated doc file: " + docFile);
@@ -525,6 +584,11 @@ public class CamelKafkaConnectorUpdateMojo extends AbstractCamelKafkaConnectorMo
         } else {
             getLog().debug("No changes to website doc file: " + docFileWebsite);
         }
+
+        // generate json descriptor src/generated/resources/<connector-name>.json
+        writeJson(listOptions, model.getDescription(), connectorDir, ct, packageName + "." + javaClassConnectorName, convertersList, transformsList, aggregationStrategiesList);
+        // generate descriptor src/generated/descriptors/connector-{sink,source}.properties
+        writeDescriptors(connectorDir, ct);
     }
 
     private void addProperties(Map<String, String> additionalProperties, String additionalProp) {
@@ -539,86 +603,90 @@ public class CamelKafkaConnectorUpdateMojo extends AbstractCamelKafkaConnectorMo
     }
 
     private void addConnectorOptions(String sanitizedName, ConnectorType ct, JavaClass javaClass, Method confMethod, String propertyQualifier, String firstNamespace,
-                                     String secondNamespace, BaseOptionModel epo, List<CamelKafkaConnectorOptionModel> listOptions) {
-        String propertyName = epo.getName();
+                                     String secondNamespace, BaseOptionModel baseOptionModel, List<CamelKafkaConnectorOptionModel> listOptions) {
+        String propertyName = baseOptionModel.getName();
 
         String regex = "([A-Z][a-z]+)";
         String replacement = "$1_";
 
         String propertyPrefix = "CAMEL_" + ct + "_" + sanitizedName.replace("-", "").toUpperCase() + "_" + propertyQualifier.toUpperCase() + "_"
                                 + StringUtils.capitalize(propertyName).replaceAll(regex, replacement).toUpperCase();
-        String propertyValue = "camel." + firstNamespace + "." + secondNamespace + "." + epo.getName();
+        String propertyValue = "camel." + firstNamespace + "." + secondNamespace + "." + baseOptionModel.getName();
 
         String confFieldName = propertyPrefix + "CONF";
         javaClass.addField().setFinal(true).setPublic().setStatic(true).setName(confFieldName).setType(String.class).setStringInitializer(propertyValue);
 
         String docFieldName = propertyPrefix + "DOC";
-        String docLiteralInitializer = epo.getDescription();
-        if (epo.getEnums() != null && !epo.getEnums().isEmpty()) {
+        String docLiteralInitializer = baseOptionModel.getDescription();
+        if (baseOptionModel.getEnums() != null && !baseOptionModel.getEnums().isEmpty()) {
             docLiteralInitializer = docLiteralInitializer + " One of:";
-            String enumOptionListing = epo.getEnums().stream().reduce("", (s, s2) -> s + " [" + s2 + "]");
+            String enumOptionListing = baseOptionModel.getEnums().stream().reduce("", (s, s2) -> s + " [" + s2 + "]");
             docLiteralInitializer = docLiteralInitializer + enumOptionListing;
         }
         javaClass.addField().setFinal(true).setPublic().setStatic(true).setName(docFieldName).setType(String.class).setStringInitializer(docLiteralInitializer);
 
         String defaultFieldName = propertyPrefix + "DEFAULT";
-        Class<?> defaultValueClass = PRIMITIVE_TYPES_TO_CLASS_MAP.getOrDefault(epo.getShortJavaType(), String.class);
-        String type = epo.getType();
-        String defaultValueClassLiteralInitializer = epo.getDefaultValue() == null ? "null" : epo.getDefaultValue().toString();
-        if (!defaultValueClassLiteralInitializer.equals("null") && defaultValueClass.equals(String.class)) {
-            defaultValueClassLiteralInitializer = "\"" + defaultValueClassLiteralInitializer + "\"";
-        } else if (!defaultValueClassLiteralInitializer.equals("null") && defaultValueClass.equals(Long.class)) {
-            if (!type.equalsIgnoreCase("duration")) {
-                defaultValueClassLiteralInitializer = defaultValueClassLiteralInitializer + "L";
-            } else {
-                if (defaultValueClassLiteralInitializer.endsWith("ms")) {
-                    defaultValueClassLiteralInitializer = StringUtils.removeEnd(defaultValueClassLiteralInitializer, "ms") + "L";
-                } else {
-                    defaultValueClassLiteralInitializer = TimeUtils.toMilliSeconds(defaultValueClassLiteralInitializer) + "L";
+        Class<?> defaultValueClass = PRIMITIVE_TYPES_TO_CLASS_MAP.getOrDefault(baseOptionModel.getShortJavaType(), String.class);
+        String type = baseOptionModel.getType();
+
+        String defaultValueClassLiteralInitializer;
+        if (baseOptionModel.getDefaultValue() == null) {
+            //Handling null default camel options values (that means there is no default value).
+            defaultValueClassLiteralInitializer = "null";
+        } else {
+            defaultValueClassLiteralInitializer = baseOptionModel.getDefaultValue().toString();
+            if (defaultValueClass.equals(String.class)) {
+                defaultValueClassLiteralInitializer = "\"" + defaultValueClassLiteralInitializer + "\"";
+            }
+
+            if (defaultValueClass.equals(Long.class) || defaultValueClass.equals(Integer.class) || defaultValueClass.equals(int.class)) {
+                if (type.equalsIgnoreCase("duration")) {
+                    if (defaultValueClassLiteralInitializer.endsWith("ms")) {
+                        defaultValueClassLiteralInitializer = StringUtils.removeEnd(defaultValueClassLiteralInitializer, "ms");
+                    } else {
+                        defaultValueClassLiteralInitializer = Long.toString(TimeUtils.toMilliSeconds(defaultValueClassLiteralInitializer));
+                    }
+                }
+
+                if (defaultValueClass.equals(Long.class) && !defaultValueClassLiteralInitializer.endsWith("L")) {
+                    defaultValueClassLiteralInitializer = defaultValueClassLiteralInitializer + "L";
                 }
             }
-        } else if (!defaultValueClassLiteralInitializer.equals("null") && defaultValueClass.equals(Integer.class)) {
-            if (!type.equalsIgnoreCase("duration")) {
-                defaultValueClassLiteralInitializer = defaultValueClassLiteralInitializer + "";
-            } else {
-                if (defaultValueClassLiteralInitializer.endsWith("ms")) {
-                    defaultValueClassLiteralInitializer = StringUtils.removeEnd(defaultValueClassLiteralInitializer, "ms") + "";
-                } else {
-                    defaultValueClassLiteralInitializer = TimeUtils.toMilliSeconds(defaultValueClassLiteralInitializer) + "";
-                }
+
+            if (defaultValueClass.equals(Float.class)) {
+                defaultValueClassLiteralInitializer = defaultValueClassLiteralInitializer + "F";
             }
-        } else if (!defaultValueClassLiteralInitializer.equals("null") && defaultValueClass.equals(int.class)) {
-            if (!type.equalsIgnoreCase("duration")) {
-                defaultValueClassLiteralInitializer = defaultValueClassLiteralInitializer + "";
-            } else {
-                if (defaultValueClassLiteralInitializer.endsWith("ms")) {
-                    defaultValueClassLiteralInitializer = StringUtils.removeEnd(defaultValueClassLiteralInitializer, "ms") + "";
-                } else {
-                    defaultValueClassLiteralInitializer = TimeUtils.toMilliSeconds(defaultValueClassLiteralInitializer) + "";
-                }
+
+            if (defaultValueClass.equals(Double.class)) {
+                defaultValueClassLiteralInitializer = defaultValueClassLiteralInitializer + "D";
             }
-        } else if (!defaultValueClassLiteralInitializer.equals("null") && defaultValueClass.equals(Float.class)) {
-            defaultValueClassLiteralInitializer = defaultValueClassLiteralInitializer + "F";
-        } else if (!defaultValueClassLiteralInitializer.equals("null") && defaultValueClass.equals(Double.class)) {
-            defaultValueClassLiteralInitializer = defaultValueClassLiteralInitializer + "D";
         }
+
         javaClass.addField().setFinal(true).setPublic().setStatic(true).setName(defaultFieldName).setType(defaultValueClass)
             .setLiteralInitializer(defaultValueClassLiteralInitializer);
 
-        String confType = PRIMITIVE_TYPES_TO_KAFKA_CONFIG_DEF_MAP.getOrDefault(epo.getShortJavaType(), "ConfigDef.Type.STRING");
-        String confPriority = epo.isDeprecated() ? "ConfigDef.Importance.LOW" : "ConfigDef.Importance.MEDIUM";
-        confPriority = epo.isRequired() ? "ConfigDef.Importance.HIGH" : confPriority;
-        confMethod.setBody(confMethod.getBody() + "conf.define(" + confFieldName + ", " + confType + ", " + defaultFieldName + ", " + confPriority + ", " + docFieldName + ");\n");
+        String confType;
 
+        if (baseOptionModel.isSecret()) {
+            confType = PRIMITIVE_TYPES_TO_KAFKA_CONFIG_DEF_MAP.getOrDefault(baseOptionModel.getShortJavaType(), CONFIG_DEF_TYPE_PASSWORD);
+        } else {
+            confType = PRIMITIVE_TYPES_TO_KAFKA_CONFIG_DEF_MAP.getOrDefault(baseOptionModel.getShortJavaType(), CONFIG_DEF_TYPE_STRING);
+        }
+        String confPriority = baseOptionModel.isDeprecated() ? CONFIG_DEF_IMPORTANCE_LOW : CONFIG_DEF_IMPORTANCE_MEDIUM;
+        confPriority = baseOptionModel.isRequired() ? CONFIG_DEF_IMPORTANCE_HIGH : confPriority;
+        confMethod.setBody(confMethod.getBody() + "conf.define(" + confFieldName + ", " + confType + ", " + defaultFieldName + ", " + confPriority + ", " + docFieldName + ");\n");
         CamelKafkaConnectorOptionModel optionModel = new CamelKafkaConnectorOptionModel();
         optionModel.setName(propertyValue);
         optionModel.setDescription(docLiteralInitializer);
-        optionModel.setPriority(StringUtils.removeStart(confPriority, "ConfigDef.Importance."));
-        optionModel.setDefaultValue(defaultValueClassLiteralInitializer);
+        optionModel.setPriority(StringUtils.removeStart(confPriority, CONFIG_DEF_IMPORTANCE_PREFIX));
+        optionModel.setDefaultValue(defaultValueClassLiteralInitializer.equals("null") ? null : defaultValueClassLiteralInitializer);
+        optionModel.setRequired(String.valueOf(baseOptionModel.isRequired()));
+        optionModel.setPossibleEnumValues(baseOptionModel.getEnums());
         listOptions.add(optionModel);
     }
 
-    private String templateAutoConfigurationOptions(List<CamelKafkaConnectorOptionModel> options, String componentName, File connectorDir, ConnectorType ct)
+    private String templateAutoConfigurationOptions(List<CamelKafkaConnectorOptionModel> options, String componentDescription, File connectorDir, ConnectorType ct, String connectorClass,
+                                                    List<String> convertersList, List<String> transformsList, List<String> aggregationStrategiesList)
         throws MojoExecutionException {
 
         CamelKafkaConnectorModel model = new CamelKafkaConnectorModel();
@@ -626,6 +694,11 @@ public class CamelKafkaConnectorUpdateMojo extends AbstractCamelKafkaConnectorMo
         model.setArtifactId(getMainDepArtifactId());
         model.setGroupId(getMainDepGroupId());
         model.setVersion(getMainDepVersion());
+        model.setConnectorClass(connectorClass);
+        model.setConverters(convertersList);
+        model.setTransforms(transformsList);
+        model.setAggregationStrategies(aggregationStrategiesList);
+        model.setDescription(componentDescription);
         if (getMainDepArtifactId().equalsIgnoreCase("camel-coap+tcp")) {
             model.setTitle("camel-coap-tcp");
         } else if (getMainDepArtifactId().equalsIgnoreCase("camel-coaps+tcp")) {
@@ -646,6 +719,49 @@ public class CamelKafkaConnectorUpdateMojo extends AbstractCamelKafkaConnectorMo
         } catch (Exception e) {
             throw new MojoExecutionException("Error processing mvel template. Reason: " + e, e);
         }
+    }
+
+    private void writeJson(List<CamelKafkaConnectorOptionModel> options, String componentDescription, File connectorDir, ConnectorType ct, String connectorClass,
+                           List<String> convertersList, List<String> transformsList, List<String> aggregationStrategiesList)
+        throws MojoExecutionException {
+
+        CamelKafkaConnectorModel model = new CamelKafkaConnectorModel();
+        model.setOptions(options);
+        model.setArtifactId(getMainDepArtifactId());
+        model.setGroupId(getMainDepGroupId());
+        model.setVersion(getMainDepVersion());
+        model.setDescription(componentDescription);
+        model.setConnectorClass(connectorClass);
+        model.setType(ct.name().toLowerCase());
+        model.setConverters(convertersList);
+        model.setTransforms(transformsList);
+        model.setAggregationStrategies(aggregationStrategiesList);
+        if (getMainDepArtifactId().equalsIgnoreCase("camel-coap+tcp")) {
+            model.setTitle("camel-coap-tcp");
+        } else if (getMainDepArtifactId().equalsIgnoreCase("camel-coaps+tcp")) {
+            model.setTitle("camel-coaps-tcp");
+        } else {
+            model.setTitle(getMainDepArtifactId());
+        }
+        File docFolder = new File(connectorDir, "src/generated/resources/");
+        File docFile = new File(docFolder, getMainDepArtifactId() + "-" + ct.name().toLowerCase() + ".json");
+        JsonObject j = JsonMapperKafkaConnector.asJsonObject(model);
+        updateFile(docFile, Jsoner.prettyPrint(j.toJson()));
+    }
+    
+    private void writeDescriptors(File connectorDir, ConnectorType ct) throws MojoExecutionException {
+
+        String title;
+        if (getMainDepArtifactId().equalsIgnoreCase("camel-coap+tcp")) {
+            title = "camel-coap-tcp";
+        } else if (getMainDepArtifactId().equalsIgnoreCase("camel-coaps+tcp")) {
+            title = "camel-coaps-tcp";
+        } else {
+            title = getMainDepArtifactId();
+        }
+        File docFolder = new File(connectorDir, "src/generated/descriptors/");
+        File docFile = new File(docFolder, "connector-" + ct.name().toLowerCase() + ".properties");
+        updateFile(docFile, title + "-" + ct.name().toLowerCase());
     }
 
     private boolean updateAutoConfigureOptions(File file, String changed) throws MojoExecutionException {
@@ -678,6 +794,37 @@ public class CamelKafkaConnectorUpdateMojo extends AbstractCamelKafkaConnectorMo
                 getLog().warn("Add the following markers");
                 getLog().warn("\t// kafka-connector options: START");
                 getLog().warn("\t// kafka-connector options: END");
+                return false;
+            }
+        } catch (Exception e) {
+            throw new MojoExecutionException("Error reading file " + file + " Reason: " + e, e);
+        }
+    }
+
+    private boolean updateFile(File file, String changed) throws MojoExecutionException {
+        try {
+            if (!file.exists()) {
+                writeText(file, changed);
+                getLog().debug("File doesn't exist, created it: " + file.getName());
+                return true;
+            }
+
+            String text = loadText(new FileInputStream(file));
+
+            String existing = text;
+            if (existing != null) {
+                // remove leading line breaks etc
+                existing = existing.trim();
+                changed = changed.trim();
+                if (existing.equals(changed)) {
+                    getLog().debug("No change to the file " + file.getName());
+                    return false;
+                } else {
+                    writeText(file, changed);
+                    getLog().debug("Changes detected to the file " + file.getName() + ": updated it");
+                    return true;
+                }
+            } else {
                 return false;
             }
         } catch (Exception e) {

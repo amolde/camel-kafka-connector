@@ -114,9 +114,6 @@ public class CamelFtpsSinkConnectorConfig extends CamelSinkConnectorConfig {
     public static final String CAMEL_SINK_FTPS_ENDPOINT_AUTO_CREATE_CONF = "camel.sink.endpoint.autoCreate";
     public static final String CAMEL_SINK_FTPS_ENDPOINT_AUTO_CREATE_DOC = "Automatically create missing directories in the file's pathname. For the file consumer, that means creating the starting directory. For the file producer, it means the directory the files should be written to.";
     public static final Boolean CAMEL_SINK_FTPS_ENDPOINT_AUTO_CREATE_DEFAULT = true;
-    public static final String CAMEL_SINK_FTPS_ENDPOINT_BASIC_PROPERTY_BINDING_CONF = "camel.sink.endpoint.basicPropertyBinding";
-    public static final String CAMEL_SINK_FTPS_ENDPOINT_BASIC_PROPERTY_BINDING_DOC = "Whether the endpoint should use basic property binding (Camel 2.x) or the newer property binding with additional capabilities";
-    public static final Boolean CAMEL_SINK_FTPS_ENDPOINT_BASIC_PROPERTY_BINDING_DEFAULT = false;
     public static final String CAMEL_SINK_FTPS_ENDPOINT_BUFFER_SIZE_CONF = "camel.sink.endpoint.bufferSize";
     public static final String CAMEL_SINK_FTPS_ENDPOINT_BUFFER_SIZE_DOC = "Buffer size in bytes used for writing files (or in case of FTP for downloading and uploading files).";
     public static final Integer CAMEL_SINK_FTPS_ENDPOINT_BUFFER_SIZE_DEFAULT = 131072;
@@ -151,7 +148,7 @@ public class CamelFtpsSinkConnectorConfig extends CamelSinkConnectorConfig {
     public static final String CAMEL_SINK_FTPS_ENDPOINT_STEPWISE_DOC = "Sets whether we should stepwise change directories while traversing file structures when downloading files, or as well when uploading a file to a directory. You can disable this if you for example are in a situation where you cannot change directory on the FTP server due security reasons. Stepwise cannot be used together with streamDownload.";
     public static final Boolean CAMEL_SINK_FTPS_ENDPOINT_STEPWISE_DEFAULT = true;
     public static final String CAMEL_SINK_FTPS_ENDPOINT_SYNCHRONOUS_CONF = "camel.sink.endpoint.synchronous";
-    public static final String CAMEL_SINK_FTPS_ENDPOINT_SYNCHRONOUS_DOC = "Sets whether synchronous processing should be strictly used, or Camel is allowed to use asynchronous processing (if supported).";
+    public static final String CAMEL_SINK_FTPS_ENDPOINT_SYNCHRONOUS_DOC = "Sets whether synchronous processing should be strictly used";
     public static final Boolean CAMEL_SINK_FTPS_ENDPOINT_SYNCHRONOUS_DEFAULT = false;
     public static final String CAMEL_SINK_FTPS_ENDPOINT_THROW_EXCEPTION_ON_CONNECT_FAILED_CONF = "camel.sink.endpoint.throwExceptionOnConnectFailed";
     public static final String CAMEL_SINK_FTPS_ENDPOINT_THROW_EXCEPTION_ON_CONNECT_FAILED_DOC = "Should an exception be thrown if connection failed (exhausted) By default exception is not thrown and a WARN is logged. You can use this to enable exception being thrown and handle the thrown exception from the org.apache.camel.spi.PollingConsumerPollStrategy rollback method.";
@@ -195,9 +192,9 @@ public class CamelFtpsSinkConnectorConfig extends CamelSinkConnectorConfig {
     public static final String CAMEL_SINK_FTPS_COMPONENT_LAZY_START_PRODUCER_CONF = "camel.component.ftps.lazyStartProducer";
     public static final String CAMEL_SINK_FTPS_COMPONENT_LAZY_START_PRODUCER_DOC = "Whether the producer should be started lazy (on the first message). By starting lazy you can use this to allow CamelContext and routes to startup in situations where a producer may otherwise fail during starting and cause the route to fail being started. By deferring this startup to be lazy then the startup failure can be handled during routing messages via Camel's routing error handlers. Beware that when the first message is processed then creating and starting the producer may take a little time and prolong the total processing time of the processing.";
     public static final Boolean CAMEL_SINK_FTPS_COMPONENT_LAZY_START_PRODUCER_DEFAULT = false;
-    public static final String CAMEL_SINK_FTPS_COMPONENT_BASIC_PROPERTY_BINDING_CONF = "camel.component.ftps.basicPropertyBinding";
-    public static final String CAMEL_SINK_FTPS_COMPONENT_BASIC_PROPERTY_BINDING_DOC = "Whether the component should use basic property binding (Camel 2.x) or the newer property binding with additional capabilities";
-    public static final Boolean CAMEL_SINK_FTPS_COMPONENT_BASIC_PROPERTY_BINDING_DEFAULT = false;
+    public static final String CAMEL_SINK_FTPS_COMPONENT_AUTOWIRED_ENABLED_CONF = "camel.component.ftps.autowiredEnabled";
+    public static final String CAMEL_SINK_FTPS_COMPONENT_AUTOWIRED_ENABLED_DOC = "Whether autowiring is enabled. This is used for automatic autowiring options (the option must be marked as autowired) by looking up in the registry to find if there is a single instance of matching type, which then gets configured on the component. This can be used for automatic configuring JDBC data sources, JMS connection factories, AWS Clients, etc.";
+    public static final Boolean CAMEL_SINK_FTPS_COMPONENT_AUTOWIRED_ENABLED_DEFAULT = true;
     public static final String CAMEL_SINK_FTPS_COMPONENT_USE_GLOBAL_SSL_CONTEXT_PARAMETERS_CONF = "camel.component.ftps.useGlobalSslContextParameters";
     public static final String CAMEL_SINK_FTPS_COMPONENT_USE_GLOBAL_SSL_CONTEXT_PARAMETERS_DOC = "Enable usage of global SSL context parameters.";
     public static final Boolean CAMEL_SINK_FTPS_COMPONENT_USE_GLOBAL_SSL_CONTEXT_PARAMETERS_DEFAULT = false;
@@ -244,7 +241,6 @@ public class CamelFtpsSinkConnectorConfig extends CamelSinkConnectorConfig {
         conf.define(CAMEL_SINK_FTPS_ENDPOINT_SEND_NOOP_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_FTPS_ENDPOINT_SEND_NOOP_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FTPS_ENDPOINT_SEND_NOOP_DOC);
         conf.define(CAMEL_SINK_FTPS_ENDPOINT_ACTIVE_PORT_RANGE_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FTPS_ENDPOINT_ACTIVE_PORT_RANGE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FTPS_ENDPOINT_ACTIVE_PORT_RANGE_DOC);
         conf.define(CAMEL_SINK_FTPS_ENDPOINT_AUTO_CREATE_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_FTPS_ENDPOINT_AUTO_CREATE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FTPS_ENDPOINT_AUTO_CREATE_DOC);
-        conf.define(CAMEL_SINK_FTPS_ENDPOINT_BASIC_PROPERTY_BINDING_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_FTPS_ENDPOINT_BASIC_PROPERTY_BINDING_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FTPS_ENDPOINT_BASIC_PROPERTY_BINDING_DOC);
         conf.define(CAMEL_SINK_FTPS_ENDPOINT_BUFFER_SIZE_CONF, ConfigDef.Type.INT, CAMEL_SINK_FTPS_ENDPOINT_BUFFER_SIZE_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FTPS_ENDPOINT_BUFFER_SIZE_DOC);
         conf.define(CAMEL_SINK_FTPS_ENDPOINT_CONNECT_TIMEOUT_CONF, ConfigDef.Type.INT, CAMEL_SINK_FTPS_ENDPOINT_CONNECT_TIMEOUT_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FTPS_ENDPOINT_CONNECT_TIMEOUT_DOC);
         conf.define(CAMEL_SINK_FTPS_ENDPOINT_FTP_CLIENT_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FTPS_ENDPOINT_FTP_CLIENT_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FTPS_ENDPOINT_FTP_CLIENT_DOC);
@@ -259,19 +255,19 @@ public class CamelFtpsSinkConnectorConfig extends CamelSinkConnectorConfig {
         conf.define(CAMEL_SINK_FTPS_ENDPOINT_SYNCHRONOUS_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_FTPS_ENDPOINT_SYNCHRONOUS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FTPS_ENDPOINT_SYNCHRONOUS_DOC);
         conf.define(CAMEL_SINK_FTPS_ENDPOINT_THROW_EXCEPTION_ON_CONNECT_FAILED_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_FTPS_ENDPOINT_THROW_EXCEPTION_ON_CONNECT_FAILED_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FTPS_ENDPOINT_THROW_EXCEPTION_ON_CONNECT_FAILED_DOC);
         conf.define(CAMEL_SINK_FTPS_ENDPOINT_TIMEOUT_CONF, ConfigDef.Type.INT, CAMEL_SINK_FTPS_ENDPOINT_TIMEOUT_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FTPS_ENDPOINT_TIMEOUT_DOC);
-        conf.define(CAMEL_SINK_FTPS_ENDPOINT_ACCOUNT_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FTPS_ENDPOINT_ACCOUNT_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FTPS_ENDPOINT_ACCOUNT_DOC);
+        conf.define(CAMEL_SINK_FTPS_ENDPOINT_ACCOUNT_CONF, ConfigDef.Type.PASSWORD, CAMEL_SINK_FTPS_ENDPOINT_ACCOUNT_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FTPS_ENDPOINT_ACCOUNT_DOC);
         conf.define(CAMEL_SINK_FTPS_ENDPOINT_DISABLE_SECURE_DATA_CHANNEL_DEFAULTS_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_FTPS_ENDPOINT_DISABLE_SECURE_DATA_CHANNEL_DEFAULTS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FTPS_ENDPOINT_DISABLE_SECURE_DATA_CHANNEL_DEFAULTS_DOC);
         conf.define(CAMEL_SINK_FTPS_ENDPOINT_EXEC_PBSZ_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FTPS_ENDPOINT_EXEC_PBSZ_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FTPS_ENDPOINT_EXEC_PBSZ_DOC);
         conf.define(CAMEL_SINK_FTPS_ENDPOINT_EXEC_PROT_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FTPS_ENDPOINT_EXEC_PROT_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FTPS_ENDPOINT_EXEC_PROT_DOC);
         conf.define(CAMEL_SINK_FTPS_ENDPOINT_FTP_CLIENT_KEY_STORE_PARAMETERS_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FTPS_ENDPOINT_FTP_CLIENT_KEY_STORE_PARAMETERS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FTPS_ENDPOINT_FTP_CLIENT_KEY_STORE_PARAMETERS_DOC);
         conf.define(CAMEL_SINK_FTPS_ENDPOINT_FTP_CLIENT_TRUST_STORE_PARAMETERS_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FTPS_ENDPOINT_FTP_CLIENT_TRUST_STORE_PARAMETERS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FTPS_ENDPOINT_FTP_CLIENT_TRUST_STORE_PARAMETERS_DOC);
         conf.define(CAMEL_SINK_FTPS_ENDPOINT_IMPLICIT_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_FTPS_ENDPOINT_IMPLICIT_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FTPS_ENDPOINT_IMPLICIT_DOC);
-        conf.define(CAMEL_SINK_FTPS_ENDPOINT_PASSWORD_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FTPS_ENDPOINT_PASSWORD_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FTPS_ENDPOINT_PASSWORD_DOC);
+        conf.define(CAMEL_SINK_FTPS_ENDPOINT_PASSWORD_CONF, ConfigDef.Type.PASSWORD, CAMEL_SINK_FTPS_ENDPOINT_PASSWORD_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FTPS_ENDPOINT_PASSWORD_DOC);
         conf.define(CAMEL_SINK_FTPS_ENDPOINT_SECURITY_PROTOCOL_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FTPS_ENDPOINT_SECURITY_PROTOCOL_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FTPS_ENDPOINT_SECURITY_PROTOCOL_DOC);
         conf.define(CAMEL_SINK_FTPS_ENDPOINT_SSL_CONTEXT_PARAMETERS_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FTPS_ENDPOINT_SSL_CONTEXT_PARAMETERS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FTPS_ENDPOINT_SSL_CONTEXT_PARAMETERS_DOC);
-        conf.define(CAMEL_SINK_FTPS_ENDPOINT_USERNAME_CONF, ConfigDef.Type.STRING, CAMEL_SINK_FTPS_ENDPOINT_USERNAME_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FTPS_ENDPOINT_USERNAME_DOC);
+        conf.define(CAMEL_SINK_FTPS_ENDPOINT_USERNAME_CONF, ConfigDef.Type.PASSWORD, CAMEL_SINK_FTPS_ENDPOINT_USERNAME_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FTPS_ENDPOINT_USERNAME_DOC);
         conf.define(CAMEL_SINK_FTPS_COMPONENT_LAZY_START_PRODUCER_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_FTPS_COMPONENT_LAZY_START_PRODUCER_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FTPS_COMPONENT_LAZY_START_PRODUCER_DOC);
-        conf.define(CAMEL_SINK_FTPS_COMPONENT_BASIC_PROPERTY_BINDING_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_FTPS_COMPONENT_BASIC_PROPERTY_BINDING_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FTPS_COMPONENT_BASIC_PROPERTY_BINDING_DOC);
+        conf.define(CAMEL_SINK_FTPS_COMPONENT_AUTOWIRED_ENABLED_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_FTPS_COMPONENT_AUTOWIRED_ENABLED_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FTPS_COMPONENT_AUTOWIRED_ENABLED_DOC);
         conf.define(CAMEL_SINK_FTPS_COMPONENT_USE_GLOBAL_SSL_CONTEXT_PARAMETERS_CONF, ConfigDef.Type.BOOLEAN, CAMEL_SINK_FTPS_COMPONENT_USE_GLOBAL_SSL_CONTEXT_PARAMETERS_DEFAULT, ConfigDef.Importance.MEDIUM, CAMEL_SINK_FTPS_COMPONENT_USE_GLOBAL_SSL_CONTEXT_PARAMETERS_DOC);
         return conf;
     }

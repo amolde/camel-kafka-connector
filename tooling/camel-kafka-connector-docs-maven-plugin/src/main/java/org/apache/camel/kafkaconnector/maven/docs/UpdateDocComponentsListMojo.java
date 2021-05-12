@@ -113,7 +113,7 @@ public class UpdateDocComponentsListMojo extends AbstractMojo {
 
     protected void executeComponentsReadme() throws MojoExecutionException, MojoFailureException {
         CamelKafkaConnectorTableModel tableModel = new CamelKafkaConnectorTableModel();
-        ArrayList<CamelKafkaConnectorTableOptionModel> options = new ArrayList<CamelKafkaConnectorTableOptionModel>();
+        ArrayList<CamelKafkaConnectorTableOptionModel> options = new ArrayList<>();
 
         if (connectorsDir != null && connectorsDir.isDirectory()) {
             File[] files = connectorsDir.listFiles();
@@ -123,10 +123,10 @@ public class UpdateDocComponentsListMojo extends AbstractMojo {
                     if (file.isDirectory()) {
                         Collection sinkConnector = FileUtils.listFiles(file, new RegexFileFilter(".*SinkTask.*"), DirectoryFileFilter.DIRECTORY);
                         Collection sourceConnector = FileUtils.listFiles(file, new RegexFileFilter(".*SourceTask.*"), DirectoryFileFilter.DIRECTORY);
-                        if (sinkConnector.size() > 0 || sourceConnector.size() > 0) {
+                        if (!sinkConnector.isEmpty() || !sourceConnector.isEmpty()) {
                             CamelKafkaConnectorTableOptionModel singleConnector = new CamelKafkaConnectorTableOptionModel();
                             singleConnector.setName(file.getName());
-                            if (sinkConnector.size() > 0) {
+                            if (!sinkConnector.isEmpty()) {
                                 singleConnector.setSink(true);
                                 String connectorFinal = StringUtils.removeEnd(file.getName(), "kafka-connector");
                                 if (connectorFinal.equalsIgnoreCase("camel-coap-tcp-")) {
@@ -139,7 +139,7 @@ public class UpdateDocComponentsListMojo extends AbstractMojo {
                                     singleConnector.setDocsSink(XREF_CONNECTOR_LINK_PREFIX + connectorFinal + SINK_CONNECTOR_LINK_SUFFIX_ADOC);
                                 }
                             }
-                            if (sourceConnector.size() > 0) {
+                            if (!sourceConnector.isEmpty()) {
                                 singleConnector.setSource(true);
                                 String connectorFinal = StringUtils.removeEnd(file.getName(), "kafka-connector");
                                 if (connectorFinal.equalsIgnoreCase("camel-coap-tcp-")) {
@@ -152,9 +152,7 @@ public class UpdateDocComponentsListMojo extends AbstractMojo {
                                     singleConnector.setDocsSource(XREF_CONNECTOR_LINK_PREFIX + connectorFinal + SOURCE_CONNECTOR_LINK_SUFFIX_ADOC);
                                 }
                             }
-                            String downloadLinkZip = repositoryPath + singleConnector.getName() + "/" + lastReleasedVersion + "/" + singleConnector.getName() + "-" + lastReleasedVersion + "-package.zip[Download Zip]";
-                            String downloadLinkTar = repositoryPath + singleConnector.getName() + "/" + lastReleasedVersion + "/" + singleConnector.getName() + "-" + lastReleasedVersion + "-package.tar.gz[Download Tar.gz]";
-                            singleConnector.setDownloadLinkZip(downloadLinkZip);
+                            String downloadLinkTar = repositoryPath + singleConnector.getName() + "/" + lastReleasedVersion + "/" + singleConnector.getName() + "-" + lastReleasedVersion + "-package.tar.gz[Download]";
                             singleConnector.setDownloadLinkTar(downloadLinkTar);
                             options.add(singleConnector);
                         }
@@ -169,14 +167,21 @@ public class UpdateDocComponentsListMojo extends AbstractMojo {
                 tableModel.setOptions(options);
             }
         }
-        File docFolderWebsite = new File(projectBaseDir, "docs/modules/ROOT/pages/");
-        File docFileWebsite = new File(docFolderWebsite, "connectors.adoc");
+        File docFolderWebsite = new File(projectBaseDir, "docs/modules/ROOT/");
+        File docFileWebsite = new File(docFolderWebsite, "pages/connectors.adoc");
         String changed = templateConnnectorsTable(tableModel);
         boolean updated = updateConnectorsTable(docFileWebsite, changed);
         if (updated) {
             getLog().info("Updated connectors table file: " + docFileWebsite);
         } else {
             getLog().debug("No changes to connectors table file: " + docFileWebsite);
+        }
+        File navWebsite = new File(docFolderWebsite, "nav.adoc");
+        boolean navUpdated = updateNav(navWebsite, tableModel);
+        if (navUpdated) {
+            getLog().info("Updated nav file: " + navWebsite);
+        } else {
+            getLog().debug("No changes to nav file: " + navWebsite);
         }
     }
 
@@ -222,6 +227,44 @@ public class UpdateDocComponentsListMojo extends AbstractMojo {
                 getLog().warn("Add the following markers");
                 getLog().warn("\t// kafka-connectors list: START");
                 getLog().warn("\t// kafka-connectors list: END");
+                return false;
+            }
+        } catch (Exception e) {
+            throw new MojoExecutionException("Error reading file " + file + " Reason: " + e, e);
+        }
+    }
+
+    private boolean updateNav(File file, CamelKafkaConnectorTableModel model) throws MojoExecutionException {
+        String changed = null;
+        try {
+            String template = loadText(UpdateDocComponentsListMojo.class.getClassLoader().getResourceAsStream("nav.mvel"));
+            changed = (String)TemplateRuntime.eval(template, model, Collections.singletonMap("util", MvelHelper.INSTANCE));
+        } catch (Exception e) {
+            throw new MojoExecutionException("Error processing mvel template. Reason: " + e, e);
+        }
+
+        try {
+            String text = loadText(file);
+
+            String existing = Strings.between(text, "// connectors: START", "// connectors: END");
+            if (existing != null) {
+                // remove leading line breaks etc
+                existing = existing.trim();
+                changed = changed.trim();
+                if (existing.equals(changed)) {
+                    return false;
+                } else {
+                    String before = Strings.before(text, "// connectors: START");
+                    String after = Strings.after(text, "// connectors: END");
+                    text = before + "// connectors: START\n" + changed + "\n// connectors: END" + after;
+                    writeText(file, text);
+                    return true;
+                }
+            } else {
+                getLog().warn("Cannot find markers in file " + file);
+                getLog().warn("Add the following markers");
+                getLog().warn("\t// connectors: START");
+                getLog().warn("\t// connectors: END");
                 return false;
             }
         } catch (Exception e) {
