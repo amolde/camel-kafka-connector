@@ -1,0 +1,53 @@
+How to set environment variables like this?
+https://camel.apache.org/components/latest/servicenow-component.html
+through configmap and secrets?
+
+configmaps and secrets
+
+Salesforce
+CDC et al
+https://camel.apache.org/components/latest/salesforce-component.html
+
+
+JSONata component?
+Mustache
+https://camel.apache.org/components/latest/mustache-component.html?
+Freemarker
+https://camel.apache.org/components/latest/freemarker-component.html
+JsonPath
+https://camel.apache.org/components/latest/jsonpath-language.html
+JOLT
+https://camel.apache.org/components/latest/jolt-component.html
+
+
+XML2JSON
+https://camel.apache.org/components/latest/dozer-component.html
+
+
+scp/sftp/ftp/ftps
+https://camel.apache.org/components/latest/scp-component.html
+https://camel.apache.org/components/latest/sftp-component.html
+https://camel.apache.org/components/latest/ftp-component.html
+https://camel.apache.org/components/latest/ftps-component.html
+
+
+JDBC
+https://camel.apache.org/components/latest/jdbc-component.html
+
+
+PDF
+https://camel.apache.org/components/latest/fop-component.html
+https://xmlgraphics.apache.org/fop/index.html
+
+
+flink
+https://camel.apache.org/components/latest/flink-component.html
+
+
+SEDA
+https://en.wikipedia.org/wiki/Staged_event-driven_architecture
+https://camel.apache.org/components/latest/seda-component.html
+
+
+DynamoDB
+https://camel.apache.org/components/latest/aws2-ddb-component.html
