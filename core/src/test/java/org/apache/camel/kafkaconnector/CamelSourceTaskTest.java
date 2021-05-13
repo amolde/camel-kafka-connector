@@ -250,6 +250,60 @@ public class CamelSourceTaskTest {
     }
 
     @Test
+    public void testUrlPrecedenceOnComponentPropertyCustom() {
+        Map<String, String> props = new HashMap<>();
+        props.put(CamelSourceConnectorConfig.TOPIC_CONF, TOPIC_NAME);
+        props.put(CamelSourceConnectorConfig.CAMEL_SOURCE_URL_CONF, "timer:foo?period=10&repeatCount=2");
+        props.put(CamelSourceConnectorConfig.CAMEL_SOURCE_COMPONENT_CONF, "shouldNotBeUsed");
+        props.put("camel.routes.xml.dsl", "file:///Users/adeshmukh/kafka/camel-kafka-connector/route.xml");
+        props.put(CamelSourceTask.getCamelSourcePathConfigPrefix() + "timerName", "shouldNotBeUsed");
+        props.put(CamelSourceTask.getCamelSourceEndpointConfigPrefix() + "repeatCount", "999");
+
+        CamelSourceTask sourceTask = new CamelSourceTask();
+        sourceTask.start(props);
+
+        assertEquals(3, sourceTask.getCms().getEndpoints().size());
+
+        sourceTask.getCms().getEndpoints().stream()
+                .filter(e -> e.getEndpointUri().startsWith("timer"))
+                .forEach(e -> {
+                    assertTrue(e.getEndpointUri().contains("foo"));
+                    assertTrue(e.getEndpointUri().contains("period=10"));
+                    assertTrue(e.getEndpointUri().contains("repeatCount=2"));
+                });
+
+        sourceTask.stop();
+    }
+
+    @Test
+    public void testSourcePollingConsumerOptionsCustom() {
+        Map<String, String> props = new HashMap<>();
+        props.put(CamelSourceConnectorConfig.TOPIC_CONF, TOPIC_NAME);
+        props.put(CamelSourceConnectorConfig.CAMEL_SOURCE_COMPONENT_CONF, "timer");
+        props.put(CamelSourceConnectorConfig.CAMEL_SOURCE_MAX_BATCH_POLL_SIZE_CONF, "2");
+        props.put(CamelSourceConnectorConfig.CAMEL_SOURCE_MAX_POLL_DURATION_CONF, "10");
+        props.put(CamelSourceTask.getCamelSourcePathConfigPrefix() + "timerName", "foo");
+        props.put(CamelSourceTask.getCamelSourceEndpointConfigPrefix() + "period", "10");
+        props.put(CamelSourceTask.getCamelSourceEndpointConfigPrefix() + "repeatCount", "2");
+        props.put("camel.routes.xml.dsl", "file:///Users/adeshmukh/kafka/camel-kafka-connector/route.xml");    
+        
+        CamelSourceTask sourceTask = new CamelSourceTask();
+        sourceTask.start(props);
+
+        assertEquals(3, sourceTask.getCms().getEndpoints().size());
+
+        sourceTask.getCms().getEndpoints().stream()
+                .filter(e -> e.getEndpointUri().startsWith("timer"))
+                .forEach(e -> {
+                    assertTrue(e.getEndpointUri().contains("foo"));
+                    assertTrue(e.getEndpointUri().contains("period=10"));
+                    assertTrue(e.getEndpointUri().contains("repeatCount=2"));
+                });
+
+        sourceTask.stop();
+    }
+
+    @Test
     public void testSourcePollingConsumerOptions() {
         Map<String, String> props = new HashMap<>();
         props.put(CamelSourceConnectorConfig.TOPIC_CONF, TOPIC_NAME);

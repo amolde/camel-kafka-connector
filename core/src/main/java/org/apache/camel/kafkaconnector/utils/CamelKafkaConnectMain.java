@@ -38,8 +38,14 @@ import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.SensitiveUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 public class CamelKafkaConnectMain extends SimpleMain {
+    public static final String CAMEL_ROUTES_DSL = "camel.routes.xml.dsl";
+    public static final String CAMEL_SPRING_CONTEXT_BEAN_ID = "camelContext";
+    public static final String CAMEL_LAST_CUSTOM_ROUTE_ID = "direct:customRoute99";
+    public static final String CAMEL_FIRST_CUSTOM_ROUTE_ID = "direct:customRoute00";
     public static final String CAMEL_DATAFORMAT_PROPERTIES_PREFIX = "camel.dataformat.";
     private static final Logger LOG = LoggerFactory.getLogger(CamelKafkaConnectMain.class);
 
@@ -214,9 +220,32 @@ public class CamelKafkaConnectMain extends SimpleMain {
             return entry.getKey() + "=" + entry.getValue();
         }
 
+        private static String getCustomRoutesFile(Map<String, String> props) {
+            String customRoutesFile = props.get(CAMEL_ROUTES_DSL);
+            if(customRoutesFile != null && customRoutesFile.length() > 0) {
+                return customRoutesFile;
+            }
+            return null;
+        }
+        
+        private CamelContext getCustomCamelContext(CamelContext camelContext) {
+            String customRoutesFile = getCustomRoutesFile(props);
+            if(customRoutesFile != null) {
+                AbstractApplicationContext ctx = new FileSystemXmlApplicationContext(customRoutesFile);
+                CamelContext camelCtx = (CamelContext) ctx.getBean(CAMEL_SPRING_CONTEXT_BEAN_ID);
+                camelCtx.stop();
+                return camelCtx;
+            }
+            return camelContext == null ? new DefaultCamelContext() : camelContext;
+        }
 
+        private static boolean isSourceConnector(Map<String, String> props) {
+            String camelSourceUrl = props.get(CamelSourceConnectorConfig.CAMEL_SOURCE_URL_CONF);
+            return (camelSourceUrl != null && camelSourceUrl.length() > 0);
+        }
+    
         public CamelKafkaConnectMain build(CamelContext camelContext) {
-            CamelKafkaConnectMain camelMain = new CamelKafkaConnectMain(camelContext);
+            CamelKafkaConnectMain camelMain = new CamelKafkaConnectMain(getCustomCamelContext(camelContext));
             camelMain.configure().setAutoConfigurationLogSummary(false);
 
             Properties camelProperties = new Properties();
@@ -245,6 +274,16 @@ public class CamelKafkaConnectMain extends SimpleMain {
 
             //creating the actual route
             camelMain.configure().addRoutesBuilder(new RouteBuilder() {
+                private void setCustomRoute(RouteDefinition rd, String toUrl) {
+                    if(getCustomRoutesFile(props) != null) {
+                        rd.to(CAMEL_FIRST_CUSTOM_ROUTE_ID);
+                        if(isSourceConnector(props)) {
+                            from(CAMEL_LAST_CUSTOM_ROUTE_ID).to(toUrl);
+                        }
+                        return;
+                    }
+                    rd.to(toUrl);
+                }
                 public void configure() {
                     //from
                     RouteDefinition rd = from(from);
@@ -344,6 +383,7 @@ public class CamelKafkaConnectMain extends SimpleMain {
                             }
                         }
                     }
+                    setCustomRoute(rd, to);
                 }
             });
 
