@@ -250,6 +250,32 @@ public class CamelSourceTaskTest {
     }
 
     @Test
+    public void testUrlPrecedenceOnComponentPropertyCustom() {
+        Map<String, String> props = new HashMap<>();
+        props.put(CamelSourceConnectorConfig.TOPIC_CONF, TOPIC_NAME);
+        props.put(CamelSourceConnectorConfig.CAMEL_SOURCE_URL_CONF, "timer:foo?period=10&repeatCount=2");
+        props.put(CamelSourceConnectorConfig.CAMEL_SOURCE_COMPONENT_CONF, "shouldNotBeUsed");
+        props.put("camel.routes.xml.dsl", "file:///Users/adeshmukh/kafka/camel-kafka-connector/route.xml");
+        props.put(CamelSourceTask.getCamelSourcePathConfigPrefix() + "timerName", "shouldNotBeUsed");
+        props.put(CamelSourceTask.getCamelSourceEndpointConfigPrefix() + "repeatCount", "999");
+
+        CamelSourceTask sourceTask = new CamelSourceTask();
+        sourceTask.start(props);
+
+        assertEquals(3, sourceTask.getCms().getCamelContext().getEndpoints().size());
+
+        sourceTask.getCms().getCamelContext().getEndpoints().stream()
+                .filter(e -> e.getEndpointUri().startsWith("timer"))
+                .forEach(e -> {
+                    assertTrue(e.getEndpointUri().contains("foo"));
+                    assertTrue(e.getEndpointUri().contains("period=10"));
+                    assertTrue(e.getEndpointUri().contains("repeatCount=2"));
+                });
+
+        sourceTask.stop();
+    }
+
+    @Test
     public void testSourcePollingConsumerOptions() {
         Map<String, String> props = new HashMap<>();
         props.put(CamelSourceConnectorConfig.TOPIC_CONF, TOPIC_NAME);
@@ -262,6 +288,32 @@ public class CamelSourceTaskTest {
         sourceTask.start(props);
 
         assertEquals(2, sourceTask.getCms().getCamelContext().getEndpoints().size());
+
+        sourceTask.getCms().getCamelContext().getEndpoints().stream()
+                .filter(e -> e.getEndpointUri().startsWith("direct"))
+                .forEach(e -> {
+                    assertTrue(e.getEndpointUri().contains("end"));
+                    assertTrue(e.getEndpointUri().contains("pollingConsumerQueueSize=10"));
+                    assertTrue(e.getEndpointUri().contains("pollingConsumerBlockTimeout=10"));
+                    assertTrue(e.getEndpointUri().contains("pollingConsumerBlockWhenFull=false"));
+                });
+
+        sourceTask.stop();
+    }
+
+    @Test
+    public void testSourcePollingConsumerOptionsCustom() {
+        Map<String, String> props = new HashMap<>();
+        props.put(CamelSourceConnectorConfig.TOPIC_CONF, TOPIC_NAME);
+        props.put(CamelSourceConnectorConfig.CAMEL_SOURCE_URL_CONF, "timer:foo?period=10&repeatCount=2");
+        props.put(CamelSourceConnectorConfig.CAMEL_SOURCE_POLLING_CONSUMER_QUEUE_SIZE_CONF, "10");
+        props.put(CamelSourceConnectorConfig.CAMEL_SOURCE_POLLING_CONSUMER_BLOCK_TIMEOUT_CONF, "10");
+        props.put(CamelSourceConnectorConfig.CAMEL_SOURCE_POLLING_CONSUMER_BLOCK_WHEN_FULL_CONF, "false");
+        props.put("camel.routes.xml.dsl", "file:///Users/adeshmukh/kafka/camel-kafka-connector/route.xml");    
+        CamelSourceTask sourceTask = new CamelSourceTask();
+        sourceTask.start(props);
+
+        assertEquals(3, sourceTask.getCms().getCamelContext().getEndpoints().size());
 
         sourceTask.getCms().getCamelContext().getEndpoints().stream()
                 .filter(e -> e.getEndpointUri().startsWith("direct"))

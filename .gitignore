@@ -28,6 +28,7 @@ kafka_*
 .project
 .metadata
 .gopath
+.vscode
 
 # envrc
 .envrc

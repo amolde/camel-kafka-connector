@@ -52,6 +52,8 @@
         <module>buildingtools</module>
         <module>tooling</module>
         <module>connectors</module>
+        <!-- <module>transformers</module> -->
+        <module>custom-package</module>
         <module>archetypes</module>
         <module>camel-kafka-connector-catalog</module>
         <module>tests</module>
