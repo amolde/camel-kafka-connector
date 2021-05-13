@@ -39,7 +39,6 @@ import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.SensitiveUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.camel.kafkaconnector.CamelSourceConnectorConfig;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
@@ -238,6 +237,7 @@ public class CamelKafkaConnectMain extends SimpleMain {
             if(customRoutesFile != null) {
                 AbstractApplicationContext ctx = new FileSystemXmlApplicationContext(customRoutesFile);
                 CamelContext camelCtx = (CamelContext) ctx.getBean(CAMEL_SPRING_CONTEXT_BEAN_ID);
+                camelCtx.stop();
                 return camelCtx;
             }
             return camelContext == null ? new DefaultCamelContext() : camelContext;
