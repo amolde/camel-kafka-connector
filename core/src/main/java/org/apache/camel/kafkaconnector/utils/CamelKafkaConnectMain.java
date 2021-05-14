@@ -97,7 +97,7 @@ public class CamelKafkaConnectMain extends SimpleMain {
     }
 
     public static final class Builder {
-        private String from;
+        private final String from;
         private String to;
         private Map<String, String> props;
         private String marshallDataFormat;
