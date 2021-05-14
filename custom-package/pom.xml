@@ -46,12 +46,17 @@
     </dependency>
     <dependency>
       <groupId>org.apache.camel.kafkaconnector</groupId>
-      <artifactId>camel-aws-ddb-kafka-connector</artifactId>
+      <artifactId>camel-aws2-ddb-kafka-connector</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.camel.kafkaconnector</groupId>
-      <artifactId>camel-aws-s3-kafka-connector</artifactId>
+      <artifactId>camel-aws2-ddbstream-kafka-connector</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel.kafkaconnector</groupId>
+      <artifactId>camel-aws2-s3-kafka-connector</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
