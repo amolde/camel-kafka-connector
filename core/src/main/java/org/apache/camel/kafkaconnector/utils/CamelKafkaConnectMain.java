@@ -99,7 +99,6 @@ public class CamelKafkaConnectMain extends SimpleMain {
     public static final class Builder {
         private String from;
         private String to;
-        private String finalDestination;
         private Map<String, String> props;
         private String marshallDataFormat;
         private String unmarshallDataFormat;
@@ -238,7 +237,6 @@ public class CamelKafkaConnectMain extends SimpleMain {
             if(customRoutesFile != null) {
                 AbstractApplicationContext ctx = new FileSystemXmlApplicationContext(customRoutesFile);
                 CamelContext camelCtx = (CamelContext) ctx.getBean(CAMEL_SPRING_CONTEXT_BEAN_ID);
-                camelCtx.stop();
                 return camelCtx;
             }
             return camelContext == null ? new DefaultCamelContext() : camelContext;
