@@ -277,16 +277,6 @@ public class CamelKafkaConnectMain extends SimpleMain {
 
             //creating the actual route
             camelMain.configure().addRoutesBuilder(new RouteBuilder() {
-                private void setCustomRoute(RouteDefinition rd, String toUrl) {
-                    if(getCustomRoutesFile(props) != null) {
-                        rd.to(CAMEL_FIRST_CUSTOM_ROUTE_ID);
-                        if(isSourceConnector(props)) {
-                            from(CAMEL_LAST_CUSTOM_ROUTE_ID).to(toUrl);
-                        }
-                        return;
-                    }
-                    rd.to(toUrl);
-                }
                 public void configure() {
                     //from
                     RouteDefinition rd = from(from);
@@ -386,7 +376,6 @@ public class CamelKafkaConnectMain extends SimpleMain {
                             }
                         }
                     }
-                    setCustomRoute(rd, to);
                 }
             });
 
