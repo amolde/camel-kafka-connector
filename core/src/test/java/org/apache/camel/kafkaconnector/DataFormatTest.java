@@ -127,7 +127,6 @@ public class DataFormatTest {
         cms.stop();
     }
 
-    @Disabled("Disabled - don't have HL7 setup!")
     @Test
     public void testDataFormatConfiguration() throws Exception {
         Map<String, String> props = new HashMap<>();
