@@ -34,6 +34,17 @@
     <description>Camel Kafka Connector</description>
 
     <dependencies>
+        <!-- This is only for testing -->
+        <!-- <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-salesforce</artifactId>
+            <exclusions>
+                <exclusion>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-http</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>     -->
         <!--  Camel -->
         <dependency>
             <groupId>org.apache.camel</groupId>

@@ -225,6 +225,26 @@ public class CamelSourceTaskTest {
     }
 
     @Test
+    public void testRealRouteXML() {
+        Map<String, String> props = new HashMap<>();
+        props.put(CamelSourceConnectorConfig.TOPIC_CONF, TOPIC_NAME);
+        props.put(CamelSourceConnectorConfig.CAMEL_SOURCE_URL_CONF, "salesforce:data/ChangeEvents?replayId=-1&apiVersion=49.0&rawPayload=true");
+        props.put("camel.routes.xml.dsl", "file:///Users/adeshmukh/kafka/camel-kafka-connector/route3.xml");
+
+        CamelSourceTask sourceTask = new CamelSourceTask();
+        sourceTask.start(props);
+
+        List<SourceRecord> poll1 = sourceTask.poll();
+        assertEquals(1, poll1.size());
+        assertEquals("test", poll1.get(0).value());
+        assertEquals(Schema.Type.STRING, poll1.get(0).valueSchema().type());
+        assertNull(poll1.get(0).key());
+        assertNull(poll1.get(0).keySchema());
+
+        sourceTask.stop();
+    }
+
+    @Test
     public void testUrlPrecedenceOnComponentProperty() {
         Map<String, String> props = new HashMap<>();
         props.put(CamelSourceConnectorConfig.TOPIC_CONF, TOPIC_NAME);
