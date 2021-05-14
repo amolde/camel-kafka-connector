@@ -16,6 +16,8 @@ jenv version
 # 1.8.0.232 (set by /Users/adeshmukh/.jenv/version)
 mvn -version
 
+# g di 2d29bd779775d76e4bb57c74ed1abe6d76744efd v0.9.0
+
 . .env
 # cd custom-package
 # mvn camel-salesforce:generate -DcamelSalesforce.clientId=${clientId} -DcamelSalesforce.password=${password} -DcamelSalesforce.userName=${userName} -DcamelSalesforce.clientSecret=${clientSecret}
