@@ -24,6 +24,7 @@ import org.apache.camel.component.syslog.SyslogDataFormat;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.kafkaconnector.utils.CamelKafkaConnectMain;
 import org.apache.kafka.connect.errors.ConnectException;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -38,6 +39,7 @@ public class DataFormatTest {
         props.put("camel.source.url", "direct://test");
         props.put("topics", "mytopic");
         props.put("camel.source.marshal", "syslog");
+        // props.put("camel.routes.xml.dsl", "file:///Users/adeshmukh/kafka/camel-kafka-connector/route.xml");
         props.put("camel.source.unmarshal", "hl7");
 
         CamelSourceTask camelsourceTask = new CamelSourceTask();
@@ -50,6 +52,7 @@ public class DataFormatTest {
         Map<String, String> props = new HashMap<>();
         props.put("camel.sink.url", "direct://test");
         props.put("camel.sink.kafka.topic", "mytopic");
+        // props.put("camel.routes.xml.dsl", "file:///Users/adeshmukh/kafka/camel-kafka-connector/route.xml");
         props.put("camel.sink.unmarshal", "syslog");
         props.put("camel.source.marshal", "hl7");
 
@@ -105,6 +108,7 @@ public class DataFormatTest {
         Map<String, String> props = new HashMap<>();
         props.put("camel.source.url", "direct://test");
         props.put("topics", "mytopic");
+        // props.put("camel.routes.xml.dsl", "file:///Users/adeshmukh/kafka/camel-kafka-connector/route.xml");
         props.put("camel.source.marshal", "hl7");
 
         DefaultCamelContext dcc = new DefaultCamelContext();

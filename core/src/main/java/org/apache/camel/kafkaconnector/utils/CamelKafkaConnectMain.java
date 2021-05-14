@@ -27,6 +27,7 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.ConsumerTemplate;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.kafkaconnector.CamelConnectorConfig;
 import org.apache.camel.main.SimpleMain;
 import org.apache.camel.model.RouteDefinition;
@@ -38,8 +39,14 @@ import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.SensitiveUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.camel.kafkaconnector.CamelSourceConnectorConfig;
+import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 public class CamelKafkaConnectMain extends SimpleMain {
+    public static final String CAMEL_ROUTES_DSL = "camel.routes.xml.dsl";
+    public static final String CAMEL_SPRING_CONTEXT_BEAN_ID = "camelContext";
+    public static final String CAMEL_FIRST_CUSTOM_ROUTE_ID = "direct:customRoute00";
     public static final String CAMEL_DATAFORMAT_PROPERTIES_PREFIX = "camel.dataformat.";
     private static final Logger LOG = LoggerFactory.getLogger(CamelKafkaConnectMain.class);
 
@@ -90,8 +97,9 @@ public class CamelKafkaConnectMain extends SimpleMain {
     }
 
     public static final class Builder {
-        private final String from;
-        private final String to;
+        private String from;
+        private String to;
+        private String finalDestination;
         private Map<String, String> props;
         private String marshallDataFormat;
         private String unmarshallDataFormat;
@@ -118,6 +126,9 @@ public class CamelKafkaConnectMain extends SimpleMain {
 
         public Builder withProperties(Map<String, String> props) {
             this.props = new HashMap<>(props);
+            if(getCustomRoutesFile(props) != null) {
+                this.to = CAMEL_FIRST_CUSTOM_ROUTE_ID;
+            }
             return this;
         }
 
@@ -214,9 +225,32 @@ public class CamelKafkaConnectMain extends SimpleMain {
             return entry.getKey() + "=" + entry.getValue();
         }
 
+        private static String getCustomRoutesFile(Map<String, String> props) {
+            String customRoutesFile = props.get(CAMEL_ROUTES_DSL);
+            if(customRoutesFile != null && customRoutesFile.length() > 0) {
+                return customRoutesFile;
+            }
+            return null;
+        }
+        
+        private CamelContext getCustomCamelContext(CamelContext camelContext) {
+            String customRoutesFile = getCustomRoutesFile(props);
+            if(customRoutesFile != null) {
+                AbstractApplicationContext ctx = new FileSystemXmlApplicationContext(customRoutesFile);
+                CamelContext camelCtx = (CamelContext) ctx.getBean(CAMEL_SPRING_CONTEXT_BEAN_ID);
+                camelCtx.stop();
+                return camelCtx;
+            }
+            return camelContext == null ? new DefaultCamelContext() : camelContext;
+        }
 
+        private static boolean isSourceConnector(Map<String, String> props) {
+            String camelSourceUrl = props.get(CamelSourceConnectorConfig.CAMEL_SOURCE_URL_CONF);
+            return (camelSourceUrl != null && camelSourceUrl.length() > 0);
+        }
+    
         public CamelKafkaConnectMain build(CamelContext camelContext) {
-            CamelKafkaConnectMain camelMain = new CamelKafkaConnectMain(camelContext);
+            CamelKafkaConnectMain camelMain = new CamelKafkaConnectMain(getCustomCamelContext(camelContext));
             camelMain.configure().setAutoConfigurationLogSummary(false);
 
             Properties camelProperties = new Properties();

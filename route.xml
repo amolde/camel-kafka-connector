@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans 
+    xmlns="http://www.springframework.org/schema/beans" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
+    xmlns:util="http://www.springframework.org/schema/util"  
+    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+        http://www.springframework.org/schema/beans/spring-beans-4.2.xsd  
+        http://camel.apache.org/schema/spring 
+        http://camel.apache.org/schema/spring/camel-spring.xsd 
+        http://www.springframework.org/schema/util 
+        http://www.springframework.org/schema/util/spring-util-4.2.xsd">
+
+    <camelContext id="camelContext" xmlns="http://camel.apache.org/schema/spring">
+        <route xmlns="http://camel.apache.org/schema/spring" id="bar">
+            <from uri="direct:customRoute00"/>
+            <to uri="direct://end?pollingConsumerBlockTimeout=0&amp;pollingConsumerBlockWhenFull=true&amp;pollingConsumerQueueSize=1000"/>
+        </route>
+    </camelContext>
+</beans>
