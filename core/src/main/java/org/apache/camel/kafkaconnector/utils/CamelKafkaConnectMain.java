@@ -98,8 +98,9 @@ public class CamelKafkaConnectMain extends SimpleMain {
     }
 
     public static final class Builder {
-        private final String from;
-        private final String to;
+        private String from;
+        private String to;
+        private String finalDestination;
         private Map<String, String> props;
         private String marshallDataFormat;
         private String unmarshallDataFormat;
@@ -126,6 +127,9 @@ public class CamelKafkaConnectMain extends SimpleMain {
 
         public Builder withProperties(Map<String, String> props) {
             this.props = new HashMap<>(props);
+            if(getCustomRoutesFile(props) != null) {
+                this.to = CAMEL_FIRST_CUSTOM_ROUTE_ID;
+            }
             return this;
         }
 
