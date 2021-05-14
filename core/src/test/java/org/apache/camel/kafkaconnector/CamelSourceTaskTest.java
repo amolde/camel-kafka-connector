@@ -309,14 +309,14 @@ public class CamelSourceTaskTest {
         props.put(CamelSourceConnectorConfig.CAMEL_SOURCE_POLLING_CONSUMER_QUEUE_SIZE_CONF, "10");
         props.put(CamelSourceConnectorConfig.CAMEL_SOURCE_POLLING_CONSUMER_BLOCK_TIMEOUT_CONF, "10");
         props.put(CamelSourceConnectorConfig.CAMEL_SOURCE_POLLING_CONSUMER_BLOCK_WHEN_FULL_CONF, "false");
-        props.put("camel.routes.xml.dsl", "file:///Users/adeshmukh/kafka/camel-kafka-connector/route.xml");    
+        props.put("camel.routes.xml.dsl", "file:///Users/adeshmukh/kafka/camel-kafka-connector/route2.xml");    
         CamelSourceTask sourceTask = new CamelSourceTask();
         sourceTask.start(props);
 
         assertEquals(3, sourceTask.getCms().getCamelContext().getEndpoints().size());
 
         sourceTask.getCms().getCamelContext().getEndpoints().stream()
-                .filter(e -> e.getEndpointUri().startsWith("direct"))
+                .filter(e -> e.getEndpointUri().startsWith("seda"))
                 .forEach(e -> {
                     assertTrue(e.getEndpointUri().contains("end"));
                     assertTrue(e.getEndpointUri().contains("pollingConsumerQueueSize=10"));

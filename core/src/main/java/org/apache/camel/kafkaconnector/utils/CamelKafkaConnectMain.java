@@ -46,7 +46,6 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 public class CamelKafkaConnectMain extends SimpleMain {
     public static final String CAMEL_ROUTES_DSL = "camel.routes.xml.dsl";
     public static final String CAMEL_SPRING_CONTEXT_BEAN_ID = "camelContext";
-    public static final String CAMEL_LAST_CUSTOM_ROUTE_ID = "direct:customRoute99";
     public static final String CAMEL_FIRST_CUSTOM_ROUTE_ID = "direct:customRoute00";
     public static final String CAMEL_DATAFORMAT_PROPERTIES_PREFIX = "camel.dataformat.";
     private static final Logger LOG = LoggerFactory.getLogger(CamelKafkaConnectMain.class);
@@ -98,8 +97,8 @@ public class CamelKafkaConnectMain extends SimpleMain {
     }
 
     public static final class Builder {
-        private final String from;
-        private final String to;
+        private String from;
+        private String to;
         private Map<String, String> props;
         private String marshallDataFormat;
         private String unmarshallDataFormat;
@@ -126,6 +125,9 @@ public class CamelKafkaConnectMain extends SimpleMain {
 
         public Builder withProperties(Map<String, String> props) {
             this.props = new HashMap<>(props);
+            if(getCustomRoutesFile(props) != null) {
+                this.to = CAMEL_FIRST_CUSTOM_ROUTE_ID;
+            }
             return this;
         }
 
@@ -235,7 +237,6 @@ public class CamelKafkaConnectMain extends SimpleMain {
             if(customRoutesFile != null) {
                 AbstractApplicationContext ctx = new FileSystemXmlApplicationContext(customRoutesFile);
                 CamelContext camelCtx = (CamelContext) ctx.getBean(CAMEL_SPRING_CONTEXT_BEAN_ID);
-                camelCtx.stop();
                 return camelCtx;
             }
             return camelContext == null ? new DefaultCamelContext() : camelContext;

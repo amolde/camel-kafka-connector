@@ -13,7 +13,7 @@
     <camelContext id="camelContext" xmlns="http://camel.apache.org/schema/spring">
         <route xmlns="http://camel.apache.org/schema/spring" id="bar">
             <from uri="direct:customRoute00"/>
-            <to uri="seda:end?pollingConsumerQueueSize=1000&amp;pollingConsumerBlockTimeout=0&amp;pollingConsumerBlockWhenFull=true"/>
+            <to uri="seda:end?pollingConsumerQueueSize=10&amp;pollingConsumerBlockTimeout=10&amp;pollingConsumerBlockWhenFull=false"/>
         </route>
     </camelContext>
 </beans>
