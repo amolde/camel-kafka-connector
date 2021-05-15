@@ -37,6 +37,7 @@ mvn --projects custom-package --also-make clean package \
 rm custom-package/target/custom-camel-kafka-connector-0.9.0-package/share/java/custom-camel-kafka-connector/camel-spring-3.9.0.jar
 rm custom-package/target/custom-camel-kafka-connector-0.9.0-package/share/java/custom-camel-kafka-connector/camel-salesforce-3.9.0.jar
 cp ~/.m2/repository/org/apache/camel/camel-spring/3.8.0/camel-spring-3.8.0.jar custom-package/target/custom-camel-kafka-connector-0.9.0-package/share/java/custom-camel-kafka-connector/.
+cp ~/.m2/repository/org/apache/camel/camel-salesforce/3.8.0/camel-salesforce-3.8.0.jar custom-package/target/custom-camel-kafka-connector-0.9.0-package/share/java/custom-camel-kafka-connector/.
 
 # docker build -t amolde/strimzi-kafka-connect:${docker_tag} -t amolde/strimzi-kafka-connect:latest .
 docker build -t amolde/strimzi-kafka-connect:${docker_tag} .
