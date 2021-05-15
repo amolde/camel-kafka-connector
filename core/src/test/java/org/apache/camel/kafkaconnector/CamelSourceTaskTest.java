@@ -35,6 +35,7 @@ import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.header.Header;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
 
 import static org.apache.camel.util.CollectionHelper.mapOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,6 +44,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 public class CamelSourceTaskTest {
 
@@ -224,6 +226,7 @@ public class CamelSourceTaskTest {
         sourceTask.stop();
     }
 
+    @Disabled
     @Test
     public void testRealRouteXML() {
         Map<String, String> props = new HashMap<>();
