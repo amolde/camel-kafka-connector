@@ -81,12 +81,27 @@
     </dependency>
     <dependency>
       <groupId>org.apache.camel.kafkaconnector</groupId>
+      <artifactId>camel-jsonata-kafka-connector</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel.kafkaconnector</groupId>
       <artifactId>camel-jdbc-kafka-connector</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.camel.kafkaconnector</groupId>
       <artifactId>camel-jslt-kafka-connector</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel.kafkaconnector</groupId>
+      <artifactId>camel-smtp-kafka-connector</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel.kafkaconnector</groupId>
+      <artifactId>camel-smtps-kafka-connector</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -102,6 +117,21 @@
     <dependency>
       <groupId>org.apache.camel.kafkaconnector</groupId>
       <artifactId>camel-salesforce-kafka-connector</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel.kafkaconnector</groupId>
+      <artifactId>camel-servicenow-kafka-connector</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel.kafkaconnector</groupId>
+      <artifactId>camel-twilio-kafka-connector</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel.kafkaconnector</groupId>
+      <artifactId>camel-workday-kafka-connector</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -122,6 +152,11 @@
     <dependency>
       <groupId>org.apache.camel.kafkaconnector</groupId>
       <artifactId>camel-xslt-saxon-kafka-connector</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel.kafkaconnector</groupId>
+      <artifactId>camel-yammer-kafka-connector</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
