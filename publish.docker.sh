@@ -23,6 +23,9 @@ mvn -version
 # mvn camel-salesforce:generate -DcamelSalesforce.clientId=${clientId} -DcamelSalesforce.password=${password} -DcamelSalesforce.userName=${userName} -DcamelSalesforce.clientSecret=${clientSecret}
 
 # mvn --projects custom-package --also-make clean package -DcamelSalesforce.clientId=${clientId} -DcamelSalesforce.password=${password} -DcamelSalesforce.userName=${userName} -DcamelSalesforce.clientSecret=${clientSecret}
+
+
+echo "NEED TO BE ON VPN!!!!!!!"
 mvn --projects custom-package --also-make clean package \
     -DcamelSalesforce.clientId=${clientId} \
     -DcamelSalesforce.version="49.0" \
