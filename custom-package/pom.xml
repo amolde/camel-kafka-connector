@@ -30,7 +30,7 @@
   <description>Custom Camel Kafka Connector</description>
   <properties>
     <confluent.version>6.1.1</confluent.version>
-    <confluent.maven.repo>http://packages.confluent.io/maven/</confluent.maven.repo>
+    <confluent.maven.repo>https://packages.confluent.io/maven/</confluent.maven.repo>
   </properties>
 
   <dependencies>

@@ -232,7 +232,7 @@ public class CamelSourceTaskTest {
         Map<String, String> props = new HashMap<>();
         props.put(CamelSourceConnectorConfig.TOPIC_CONF, TOPIC_NAME);
         props.put(CamelSourceConnectorConfig.CAMEL_SOURCE_URL_CONF, "salesforce:data/ChangeEvents?replayId=-1&apiVersion=49.0&rawPayload=true");
-        props.put("camel.routes.xml.dsl", "file:///Users/adeshmukh/kafka/camel-kafka-connector/route3.xml");
+        props.put("camel.routes.xml.dsl", "file:///Users/a.deshmukh/work/java/camel-kafka-connector/route3.xml");
 
         CamelSourceTask sourceTask = new CamelSourceTask();
         sourceTask.start(props);
@@ -278,7 +278,7 @@ public class CamelSourceTaskTest {
         props.put(CamelSourceConnectorConfig.TOPIC_CONF, TOPIC_NAME);
         props.put(CamelSourceConnectorConfig.CAMEL_SOURCE_URL_CONF, "timer:foo?period=10&repeatCount=2");
         props.put(CamelSourceConnectorConfig.CAMEL_SOURCE_COMPONENT_CONF, "shouldNotBeUsed");
-        props.put("camel.routes.xml.dsl", "file:///Users/adeshmukh/kafka/camel-kafka-connector/route.xml");
+        props.put("camel.routes.xml.dsl", "file:///Users/a.deshmukh/work/java/camel-kafka-connector/route.xml");
         props.put(CamelSourceTask.getCamelSourcePathConfigPrefix() + "timerName", "shouldNotBeUsed");
         props.put(CamelSourceTask.getCamelSourceEndpointConfigPrefix() + "repeatCount", "999");
 
@@ -332,7 +332,7 @@ public class CamelSourceTaskTest {
         props.put(CamelSourceConnectorConfig.CAMEL_SOURCE_POLLING_CONSUMER_QUEUE_SIZE_CONF, "10");
         props.put(CamelSourceConnectorConfig.CAMEL_SOURCE_POLLING_CONSUMER_BLOCK_TIMEOUT_CONF, "10");
         props.put(CamelSourceConnectorConfig.CAMEL_SOURCE_POLLING_CONSUMER_BLOCK_WHEN_FULL_CONF, "false");
-        props.put("camel.routes.xml.dsl", "file:///Users/adeshmukh/kafka/camel-kafka-connector/route2.xml");    
+        props.put("camel.routes.xml.dsl", "file:///Users/a.deshmukh/work/java/camel-kafka-connector/route2.xml");    
         CamelSourceTask sourceTask = new CamelSourceTask();
         sourceTask.start(props);
 
