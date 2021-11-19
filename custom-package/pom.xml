@@ -110,6 +110,11 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+        <groupId>com.ibm.jsonata4java</groupId>
+        <artifactId>JSONata4Java</artifactId>
+        <version>1.5.8</version>
+    </dependency>
+    <dependency>
       <groupId>org.apache.camel.kafkaconnector</groupId>
       <artifactId>camel-jdbc-kafka-connector</artifactId>
       <version>${project.version}</version>
