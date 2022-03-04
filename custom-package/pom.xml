@@ -22,7 +22,7 @@
   <parent>
     <groupId>org.apache.camel.kafkaconnector</groupId>
     <artifactId>connectors</artifactId>
-    <version>0.9.0</version>
+    <version>0.11.6-SNAPSHOT</version>
     <relativePath>../connectors/pom.xml</relativePath>
   </parent>
   <artifactId>custom-camel-kafka-connector</artifactId>
@@ -30,7 +30,7 @@
   <description>Custom Camel Kafka Connector</description>
   <properties>
     <confluent.version>6.1.1</confluent.version>
-    <confluent.maven.repo>http://packages.confluent.io/maven/</confluent.maven.repo>
+    <confluent.maven.repo>https://packages.confluent.io/maven/</confluent.maven.repo>
   </properties>
 
   <dependencies>

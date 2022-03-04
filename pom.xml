@@ -36,6 +36,7 @@
 
     <properties>
         <failIfNoTests>false</failIfNoTests>
+        <camel-version>3.11.5</camel-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
         <maven-deploy-plugin.version>3.0.0-M1</maven-deploy-plugin.version>
@@ -52,7 +53,7 @@
         <module>buildingtools</module>
         <module>tooling</module>
         <module>connectors</module>
-        <module>transformers</module>
+        <!-- <module>transformers</module> -->
         <module>custom-package</module>
         <module>archetypes</module>
         <module>camel-kafka-connector-catalog</module>
@@ -98,7 +99,7 @@
         <connection>scm:git:http://gitbox.apache.org/repos/asf/camel-kafka-connector.git</connection>
         <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/camel-kafka-connector.git</developerConnection>
         <url>https://gitbox.apache.org/repos/asf?p=camel-kafka-connector.git;a=summary</url>
-        <tag>HEAD</tag>
+        <tag>camel-kafka-connector-0.11.6-SNAPSHOT</tag>
     </scm>
 
     <issueManagement>
