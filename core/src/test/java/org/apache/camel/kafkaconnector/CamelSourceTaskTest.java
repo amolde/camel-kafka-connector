@@ -225,7 +225,6 @@ public class CamelSourceTaskTest {
         sourceTask.stop();
     }
 
-    @Disabled
     @Test
     public void testRealRouteXML() {
         Map<String, String> props = new HashMap<>();
