@@ -57,6 +57,7 @@ import org.apache.camel.kafkaconnector.model.CamelKafkaConnectorOptionModel;
 import org.apache.camel.tooling.model.BaseOptionModel;
 import org.apache.camel.tooling.model.ComponentModel;
 import org.apache.camel.tooling.model.JsonMapper;
+import org.apache.camel.tooling.util.Strings;
 import org.apache.camel.tooling.util.srcgen.JavaClass;
 import org.apache.camel.tooling.util.srcgen.Method;
 import org.apache.camel.util.TimeUtils;
@@ -700,6 +701,43 @@ public class CamelKafkaConnectorUpdateMojo extends AbstractCamelComponentKafkaCo
         File docFolder = new File(connectorDir, "src/generated/descriptors/");
         File docFile = new File(docFolder, "connector-" + ct.name().toLowerCase() + ".properties");
         updateFile(docFile, title + "-" + ct.name().toLowerCase());
+    }
+
+    private boolean updateAutoConfigureOptions(File file, String changed) throws MojoExecutionException {
+        try {
+            if (!file.exists()) {
+                // include markers for new files
+                changed = "// kafka-connector options: START\n" + changed + "\n// kafka-connector options: END\n";
+                writeText(file, changed);
+                return true;
+            }
+
+            String text = loadText(new FileInputStream(file));
+
+            String existing = Strings.between(text, "// kafka-connector options: START", "// kafka-connector options: END");
+            if (existing != null) {
+                // remove leading line breaks etc
+                existing = existing.trim();
+                changed = changed.trim();
+                if (existing.equals(changed)) {
+                    return false;
+                } else {
+                    String before = Strings.before(text, "// kafka-connector options: START");
+                    String after = Strings.after(text, "// kafka-connector options: END");
+                    text = before + "// kafka-connector options: START\n" + changed + "\n// kafka-connector options: END" + after;
+                    writeText(file, text);
+                    return true;
+                }
+            } else {
+                getLog().warn("Cannot find markers in file " + file);
+                getLog().warn("Add the following markers");
+                getLog().warn("\t// kafka-connector options: START");
+                getLog().warn("\t// kafka-connector options: END");
+                return false;
+            }
+        } catch (Exception e) {
+            throw new MojoExecutionException("Error reading file " + file + " Reason: " + e, e);
+        }
     }
 
     private boolean updateFile(File file, String changed) throws MojoExecutionException {
