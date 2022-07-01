@@ -46,7 +46,7 @@ mvn --projects custom-package --also-make clean package \
 #cp ~/.m2/repository/org/apache/camel/camel-spring/3.8.0/camel-spring-3.8.0.jar custom-package/target/custom-camel-kafka-connector-${myversion}-package/share/java/custom-camel-kafka-connector/.
 #cp ~/.m2/repository/org/apache/camel/camel-salesforce/3.8.0/camel-salesforce-3.8.0.jar custom-package/target/custom-camel-kafka-connector-${myversion}-package/share/java/custom-camel-kafka-connector/.
 
-cp ~/.m2/repository/org/postgresql/postgresql/42.3.3/postgresql-42.3.3.jar custom-package/target/custom-camel-kafka-connector-${myversion}-package/share/java/custom-camel-kafka-connector/.
+cp ~/.m2/repository/org/postgresql/postgresql/42.4.0/postgresql-42.4.0.jar custom-package/target/custom-camel-kafka-connector-${myversion}-package/share/java/custom-camel-kafka-connector/.
 
 docker_tag=${myversion}.0
 
