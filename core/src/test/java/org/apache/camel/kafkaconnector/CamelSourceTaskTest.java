@@ -258,6 +258,8 @@ public class CamelSourceTaskTest {
         CamelSourceTask sourceTask = new CamelSourceTask();
         sourceTask.start(props);
 
+        assertEquals(7, sourceTask.getCms().getCamelContext().getEndpoints().size());
+
         sourceTask.getCms().getCamelContext().getEndpoints().stream()
                 .filter(e -> e.getEndpointUri().startsWith("timer"))
                 .forEach(e -> {
@@ -306,6 +308,8 @@ public class CamelSourceTaskTest {
 
         CamelSourceTask sourceTask = new CamelSourceTask();
         sourceTask.start(props);
+
+        assertEquals(7, sourceTask.getCms().getCamelContext().getEndpoints().size());
 
         sourceTask.getCms().getCamelContext().getEndpoints().stream()
                 .filter(e -> e.getEndpointUri().startsWith("seda"))
