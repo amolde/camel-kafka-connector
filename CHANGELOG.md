@@ -2,31 +2,21 @@
 
 ## [Unreleased](https://github.com/apache/camel-kafka-connector/tree/HEAD)
 
-[Full Changelog](https://github.com/apache/camel-kafka-connector/compare/camel-kafka-connector-0.11.0...HEAD)
-
-**Fixed bugs:**
-
-- Error with Syslog Source Connector [\#665](https://github.com/apache/camel-kafka-connector/issues/665)
+[Full Changelog](https://github.com/apache/camel-kafka-connector/compare/camel-kafka-connector-0.11.5...HEAD)
 
 **Closed issues:**
 
-- Update Antora usage [\#1308](https://github.com/apache/camel-kafka-connector/issues/1308)
-- CamelAws2s3SinkConnector not processing kafka null \(deleted\) messages [\#1300](https://github.com/apache/camel-kafka-connector/issues/1300)
-- Fails to create CamelAws2sqsSourceConnector [\#1293](https://github.com/apache/camel-kafka-connector/issues/1293)
-- Problem with line breaks kafka-hdfs sink connector [\#1291](https://github.com/apache/camel-kafka-connector/issues/1291)
-- The pre-release salesforce source connector, how does the query field work? [\#1289](https://github.com/apache/camel-kafka-connector/issues/1289)
-- Cannot findr camel-salesforce-source-kafka-connector in maven repository [\#1284](https://github.com/apache/camel-kafka-connector/issues/1284)
-- Using kinesis sink with STS assumeRole credentials? [\#1272](https://github.com/apache/camel-kafka-connector/issues/1272)
-- Salesforce Camel Kafka Source Connector not converting to JSON [\#1271](https://github.com/apache/camel-kafka-connector/issues/1271)
-- java.lang.NullPointerException in kinesis sink connector if headers not present  [\#1268](https://github.com/apache/camel-kafka-connector/issues/1268)
-- AWS SQS Source Message Delete [\#1266](https://github.com/apache/camel-kafka-connector/issues/1266)
-- Modular packaging of connectors? [\#1264](https://github.com/apache/camel-kafka-connector/issues/1264)
-- Bearer Token with HTTP sink? [\#1255](https://github.com/apache/camel-kafka-connector/issues/1255)
-- One file per message \(kafka hdfs sink connector\) [\#1222](https://github.com/apache/camel-kafka-connector/issues/1222)
-- Run slow tests on Apache CI [\#786](https://github.com/apache/camel-kafka-connector/issues/786)
+- camel-salesforce cosumer: message id not in sequence for platform events [\#1343](https://github.com/apache/camel-kafka-connector/issues/1343)
 
 **Merged pull requests:**
 
+- fix \#1332 : CameHeader value is wrongly interpreted as BigDecimal and… [\#1336](https://github.com/apache/camel-kafka-connector/pull/1336) ([valdar](https://github.com/valdar))
+- fix \#1333: camel-kafka-connector-catalog version 1.0.0 is missing des… [\#1334](https://github.com/apache/camel-kafka-connector/pull/1334) ([valdar](https://github.com/valdar))
+- camel-website \#701 camel-kafka-connector RI table improvement \(main\) [\#1327](https://github.com/apache/camel-kafka-connector/pull/1327) ([djencks](https://github.com/djencks))
+- camel-website \#701: RI info in table \(main\) [\#1320](https://github.com/apache/camel-kafka-connector/pull/1320) ([djencks](https://github.com/djencks))
+- camel-website \#701: RI info \(main\) [\#1315](https://github.com/apache/camel-kafka-connector/pull/1315) ([djencks](https://github.com/djencks))
+- Depfix [\#1314](https://github.com/apache/camel-kafka-connector/pull/1314) ([valdar](https://github.com/valdar))
+- Camel kafka connector 1.0.x [\#1313](https://github.com/apache/camel-kafka-connector/pull/1313) ([valdar](https://github.com/valdar))
 - 1.0.0release [\#1312](https://github.com/apache/camel-kafka-connector/pull/1312) ([valdar](https://github.com/valdar))
 - \#1308 update Antora structure \(main\) [\#1309](https://github.com/apache/camel-kafka-connector/pull/1309) ([djencks](https://github.com/djencks))
 - Fix Maven IT failures due to doc generation removal [\#1307](https://github.com/apache/camel-kafka-connector/pull/1307) ([tadayosi](https://github.com/tadayosi))
@@ -356,6 +346,54 @@
 - Upgrade to Strimzi 0.20.0 and kafka-2.6.0 [\#642](https://github.com/apache/camel-kafka-connector/pull/642) ([oscerd](https://github.com/oscerd))
 - Minor changes to docs - correct the camel-log and camel-timer properties file names, verbiage change on untar/unzip section. [\#639](https://github.com/apache/camel-kafka-connector/pull/639) ([cunningt](https://github.com/cunningt))
 - Decouple the Elasticsearch client from the service to simplify moving the services to Camel core [\#638](https://github.com/apache/camel-kafka-connector/pull/638) ([orpiske](https://github.com/orpiske))
+
+## [camel-kafka-connector-0.11.5](https://github.com/apache/camel-kafka-connector/tree/camel-kafka-connector-0.11.5) (2022-02-23)
+
+[Full Changelog](https://github.com/apache/camel-kafka-connector/compare/camel-kafka-connector-1.0.0...camel-kafka-connector-0.11.5)
+
+**Fixed bugs:**
+
+- CameHeader value is wrongly interpreted as BigDecimal and causes ClassCastException [\#1332](https://github.com/apache/camel-kafka-connector/issues/1332)
+
+**Closed issues:**
+
+- UNAUTHENTICATED: Credentials require channel with PRIVACY\_AND\_INTEGRITY security level. Observed security level: NONE [\#1337](https://github.com/apache/camel-kafka-connector/issues/1337)
+- Use SNS Aws2 connector with AWS Default Credential Provider [\#1335](https://github.com/apache/camel-kafka-connector/issues/1335)
+- `camel-kafka-connector-catalog` version 1.0.0 is missing `descriptor/` direcotry [\#1333](https://github.com/apache/camel-kafka-connector/issues/1333)
+- UNAUTHENTICATED: Credentials require channel with PRIVACY\_AND\_INTEGRITY security level. Observed security level: NONE [\#1330](https://github.com/apache/camel-kafka-connector/issues/1330)
+- Connectors Webpage Links to Older Version [\#1326](https://github.com/apache/camel-kafka-connector/issues/1326)
+- Do Camel Kafka Connectors support "Dead Letter Queue" and "Connect Reporter" features of Kafka Connect? [\#1323](https://github.com/apache/camel-kafka-connector/issues/1323)
+- Pubsub kafka connector error: java.net.UnknownHostException: pubsub.googleapis.com: Name or service not known [\#1319](https://github.com/apache/camel-kafka-connector/issues/1319)
+- camel-salesforce-kafka-connector-0.11.0 There is an Exception during HANDSHAKE: Invalid protocol null [\#1304](https://github.com/apache/camel-kafka-connector/issues/1304)
+- Upgrade to Kamelets 0.6.0 [\#1303](https://github.com/apache/camel-kafka-connector/issues/1303)
+- Upgrade to Camel 3.14.0 [\#1302](https://github.com/apache/camel-kafka-connector/issues/1302)
+- \[Security\] Workflow daily-java-next.yml is using vulnerable action actions/checkout [\#1301](https://github.com/apache/camel-kafka-connector/issues/1301)
+- How can I capture the HTTP response from camel-http-kafka-connector \(sink\)?   [\#1296](https://github.com/apache/camel-kafka-connector/issues/1296)
+
+## [camel-kafka-connector-1.0.0](https://github.com/apache/camel-kafka-connector/tree/camel-kafka-connector-1.0.0) (2022-01-14)
+
+[Full Changelog](https://github.com/apache/camel-kafka-connector/compare/camel-kafka-connector-0.11.0...camel-kafka-connector-1.0.0)
+
+**Fixed bugs:**
+
+- Error with Syslog Source Connector [\#665](https://github.com/apache/camel-kafka-connector/issues/665)
+
+**Closed issues:**
+
+- Update Antora usage [\#1308](https://github.com/apache/camel-kafka-connector/issues/1308)
+- CamelAws2s3SinkConnector not processing kafka null \(deleted\) messages [\#1300](https://github.com/apache/camel-kafka-connector/issues/1300)
+- Fails to create CamelAws2sqsSourceConnector [\#1293](https://github.com/apache/camel-kafka-connector/issues/1293)
+- Problem with line breaks kafka-hdfs sink connector [\#1291](https://github.com/apache/camel-kafka-connector/issues/1291)
+- The pre-release salesforce source connector, how does the query field work? [\#1289](https://github.com/apache/camel-kafka-connector/issues/1289)
+- Cannot findr camel-salesforce-source-kafka-connector in maven repository [\#1284](https://github.com/apache/camel-kafka-connector/issues/1284)
+- Using kinesis sink with STS assumeRole credentials? [\#1272](https://github.com/apache/camel-kafka-connector/issues/1272)
+- Salesforce Camel Kafka Source Connector not converting to JSON [\#1271](https://github.com/apache/camel-kafka-connector/issues/1271)
+- java.lang.NullPointerException in kinesis sink connector if headers not present  [\#1268](https://github.com/apache/camel-kafka-connector/issues/1268)
+- AWS SQS Source Message Delete [\#1266](https://github.com/apache/camel-kafka-connector/issues/1266)
+- Modular packaging of connectors? [\#1264](https://github.com/apache/camel-kafka-connector/issues/1264)
+- Bearer Token with HTTP sink? [\#1255](https://github.com/apache/camel-kafka-connector/issues/1255)
+- One file per message \(kafka hdfs sink connector\) [\#1222](https://github.com/apache/camel-kafka-connector/issues/1222)
+- Run slow tests on Apache CI [\#786](https://github.com/apache/camel-kafka-connector/issues/786)
 
 ## [camel-kafka-connector-0.11.0](https://github.com/apache/camel-kafka-connector/tree/camel-kafka-connector-0.11.0) (2021-09-21)
 
