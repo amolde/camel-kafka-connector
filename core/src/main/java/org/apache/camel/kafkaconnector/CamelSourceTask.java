@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
 
 
 public class CamelSourceTask extends SourceTask {
+    public static final String KAMELET_SOURCE_TEMPLATE_PARAMETERS_PREFIX = "camel.kamelet.ckcSource.";
     public static final String HEADER_CAMEL_PREFIX = "CamelHeader.";
     public static final String PROPERTY_CAMEL_PREFIX = "CamelProperty.";
 
@@ -57,6 +58,7 @@ public class CamelSourceTask extends SourceTask {
     private static final String CAMEL_SOURCE_PATH_PROPERTIES_PREFIX = "camel.source.path.";
 
     private static final String LOCAL_URL = "seda:end";
+    private static final String DEFAULT_KAMELET_CKC_SOURCE = "kamelet:ckcSource";
 
     private CamelKafkaConnectMain cms;
     private PollingConsumer consumer;
@@ -99,6 +101,7 @@ public class CamelSourceTask extends SourceTask {
             camelMessageHeaderKey = config.getString(CamelSourceConnectorConfig.CAMEL_SOURCE_MESSAGE_HEADER_KEY_CONF);
 
             String remoteUrl = config.getString(CamelSourceConnectorConfig.CAMEL_SOURCE_URL_CONF);
+            final String componentSchema = config.getString(CamelSourceConnectorConfig.CAMEL_SOURCE_COMPONENT_CONF);
             final String unmarshaller = config.getString(CamelSourceConnectorConfig.CAMEL_SOURCE_UNMARSHAL_CONF);
             final String marshaller = config.getString(CamelSourceConnectorConfig.CAMEL_SOURCE_MARSHAL_CONF);
             final int size = config.getInt(CamelSourceConnectorConfig.CAMEL_CONNECTOR_AGGREGATE_SIZE_CONF);
@@ -138,14 +141,19 @@ public class CamelSourceTask extends SourceTask {
             exchangesWaitingForAck = new Exchange[freeSlots.capacity()];
 
             CamelContext camelContext = new DefaultCamelContext();
-            if (remoteUrl == null) {
+            // componentSchema can legitimately be null in case of kamelet connectors, in that case KAMELET_SOURCE_TEMPLATE_PARAMETERS_PREFIX + "fromUrl" property is ignored
+            if (remoteUrl == null && componentSchema != null) {
                 remoteUrl = TaskHelper.buildUrl(camelContext,
                                                 actualProps,
-                                                config.getString(CamelSourceConnectorConfig.CAMEL_SOURCE_COMPONENT_CONF), CAMEL_SOURCE_ENDPOINT_PROPERTIES_PREFIX,
+                                                componentSchema,
+                                                CAMEL_SOURCE_ENDPOINT_PROPERTIES_PREFIX,
                                                 CAMEL_SOURCE_PATH_PROPERTIES_PREFIX);
             }
+            if (remoteUrl != null) {
+                actualProps.put(KAMELET_SOURCE_TEMPLATE_PARAMETERS_PREFIX + "fromUrl", remoteUrl);
+            }
 
-            cms = CamelKafkaConnectMain.builder(remoteUrl, localUrl)
+            cms = CamelKafkaConnectMain.builder(getSourceKamelet(), localUrl)
                 .withProperties(actualProps)
                 .withUnmarshallDataFormat(unmarshaller)
                 .withMarshallDataFormat(marshaller)
@@ -170,10 +178,15 @@ public class CamelSourceTask extends SourceTask {
             consumer.start();
 
             cms.start();
+
             LOG.info("CamelSourceTask connector task started");
         } catch (Exception e) {
             throw new ConnectException("Failed to create and start Camel context", e);
         }
+    }
+
+    protected String getSourceKamelet() {
+        return DEFAULT_KAMELET_CKC_SOURCE;
     }
 
     private long remaining(long startPollEpochMilli, long maxPollDuration)  {

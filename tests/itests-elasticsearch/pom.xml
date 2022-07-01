@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.apache.camel.kafkaconnector</groupId>
         <artifactId>itests-parent</artifactId>
-        <version>0.11.6-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
         <relativePath>../itests-parent/pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -57,6 +57,24 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-elasticsearch-rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-bean</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-jackson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel.k</groupId>
+            <artifactId>camel-k-kamelet-reify</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jboss.slf4j</groupId>
+                    <artifactId>slf4j-jboss-logmanager</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 

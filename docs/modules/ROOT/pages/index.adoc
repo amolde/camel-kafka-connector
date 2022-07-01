@@ -7,7 +7,7 @@ This version ({page-component-display-version}) of {page-component-title} depend
 
 * https://kafka.apache.org[Apache Kafka] at version {kafka-version}
 * xref:{camel-docs-version}@components::index.adoc[Camel] at version {camel-version}
-//* xref:{camel-kamelets-docs-version}@camel-kamelets::index.adoc[Camel Kamelets] at version {camel-kamelets-version}
+* xref:{camel-kamelets-docs-version}@camel-kamelets::index.adoc[Camel Kamelets] at version {camel-kamelets-version}
 
 ifdef::lts[This long term service release will be supported until {lts}.]
 ifndef::lts[]

@@ -5,7 +5,7 @@
 		"groupId": "org.apache.camel.kafkaconnector",
 		"id": "camel-json-validator-sink",
 		"type": "sink",
-		"version": "0.11.6-SNAPSHOT",
+		"version": "0.12.0-SNAPSHOT",
 		"description": "Validate JSON payloads using NetworkNT JSON Schema."
 	},
 	"properties": {
@@ -62,9 +62,9 @@
 			"priority": "MEDIUM",
 			"required": "false"
 		},
-		"camel.sink.endpoint.schemaLoader": {
-			"name": "camel.sink.endpoint.schemaLoader",
-			"description": "To use a custom schema loader allowing for adding custom format validation. The default implementation will create a schema loader with draft v4 support.",
+		"camel.sink.endpoint.uriSchemaLoader": {
+			"name": "camel.sink.endpoint.uriSchemaLoader",
+			"description": "To use a custom schema loader allowing for adding custom format validation. The default implementation will create a schema loader that tries to determine the schema version from the $schema property of the specified schema.",
 			"priority": "MEDIUM",
 			"required": "false"
 		},

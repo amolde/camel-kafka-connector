@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.apache.camel.kafkaconnector</groupId>
         <artifactId>itests-parent</artifactId>
-        <version>0.11.6-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
         <relativePath>../itests-parent/pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -58,7 +58,10 @@
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-sql</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-jackson</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.testcontainers</groupId>
@@ -69,6 +72,11 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-dbcp2</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

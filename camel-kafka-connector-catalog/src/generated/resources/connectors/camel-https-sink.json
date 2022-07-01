@@ -5,7 +5,7 @@
 		"groupId": "org.apache.camel.kafkaconnector",
 		"id": "camel-https-sink",
 		"type": "sink",
-		"version": "0.11.6-SNAPSHOT",
+		"version": "0.12.0-SNAPSHOT",
 		"description": "Send requests to external HTTP servers using Apache HTTP Client 4.x."
 	},
 	"properties": {
@@ -14,6 +14,13 @@
 			"description": "The url of the HTTP endpoint to call.",
 			"priority": "HIGH",
 			"required": "true"
+		},
+		"camel.sink.endpoint.chunked": {
+			"name": "camel.sink.endpoint.chunked",
+			"description": "If this option is false the Servlet will disable the HTTP streaming and set the content-length header on the response",
+			"defaultValue": "true",
+			"priority": "MEDIUM",
+			"required": "false"
 		},
 		"camel.sink.endpoint.disableStreamCache": {
 			"name": "camel.sink.endpoint.disableStreamCache",
@@ -38,13 +45,6 @@
 			"name": "camel.sink.endpoint.bridgeEndpoint",
 			"description": "If the option is true, HttpProducer will ignore the Exchange.HTTP_URI header, and use the endpoint's URI for request. You may also set the option throwExceptionOnFailure to be false to let the HttpProducer send all the fault response back.",
 			"defaultValue": "false",
-			"priority": "MEDIUM",
-			"required": "false"
-		},
-		"camel.sink.endpoint.chunked": {
-			"name": "camel.sink.endpoint.chunked",
-			"description": "If this option is false the Servlet will disable the HTTP streaming and set the content-length header on the response",
-			"defaultValue": "true",
 			"priority": "MEDIUM",
 			"required": "false"
 		},
@@ -170,6 +170,12 @@
 			"name": "camel.sink.endpoint.skipResponseHeaders",
 			"description": "Whether to skip mapping all the HTTP response headers to Camel headers. If there are no data needed from HTTP headers then this can avoid parsing overhead with many object allocations for the JVM garbage collector.",
 			"defaultValue": "false",
+			"priority": "MEDIUM",
+			"required": "false"
+		},
+		"camel.sink.endpoint.userAgent": {
+			"name": "camel.sink.endpoint.userAgent",
+			"description": "To set a custom HTTP User-Agent request header",
 			"priority": "MEDIUM",
 			"required": "false"
 		},

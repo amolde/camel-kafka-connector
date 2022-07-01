@@ -58,7 +58,7 @@ public class CamelKafkaConnectorDeleteMojo extends AbstractCamelKafkaConnectorMo
         try {
             deleteConnector();
         } catch (Exception e) {
-            throw new MojoFailureException("Fail to create connector " + name, e);
+            throw new MojoFailureException("Fail to delete connector " + name, e);
         }
     }
 

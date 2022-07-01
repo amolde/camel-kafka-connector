@@ -5,7 +5,7 @@
 		"groupId": "org.apache.camel.kafkaconnector",
 		"id": "camel-resteasy-sink",
 		"type": "sink",
-		"version": "0.11.6-SNAPSHOT",
+		"version": "0.12.0-SNAPSHOT",
 		"description": "Expose REST endpoints and access external REST servers."
 	},
 	"properties": {
@@ -165,6 +165,12 @@
 			"name": "camel.sink.endpoint.skipResponseHeaders",
 			"description": "Whether to skip mapping all the HTTP response headers to Camel headers. If there are no data needed from HTTP headers then this can avoid parsing overhead with many object allocations for the JVM garbage collector.",
 			"defaultValue": "false",
+			"priority": "MEDIUM",
+			"required": "false"
+		},
+		"camel.sink.endpoint.userAgent": {
+			"name": "camel.sink.endpoint.userAgent",
+			"description": "To set a custom HTTP User-Agent request header",
 			"priority": "MEDIUM",
 			"required": "false"
 		},

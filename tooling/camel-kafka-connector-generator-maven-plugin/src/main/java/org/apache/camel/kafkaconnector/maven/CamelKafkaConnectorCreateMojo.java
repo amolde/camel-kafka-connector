@@ -42,7 +42,7 @@ import static org.apache.camel.kafkaconnector.maven.utils.MavenUtils.writeXmlFor
 
 @Mojo(name = "camel-kafka-connector-create", threadSafe = true,
         defaultPhase = LifecyclePhase.GENERATE_RESOURCES)
-public class CamelKafkaConnectorCreateMojo extends AbstractCamelKafkaConnectorMojo {
+public class CamelKafkaConnectorCreateMojo extends AbstractCamelComponentKafkaConnectorMojo {
 
     @Parameter(property = "name", required = true)
     protected String name;
@@ -115,7 +115,7 @@ public class CamelKafkaConnectorCreateMojo extends AbstractCamelKafkaConnectorMo
         props.put("componentDescription", name);
         try {
             Document pom = MavenUtils.createCrateXmlDocumentFromTemplate(pomTemplate, props);
-            // Write the starter pom
+            // Write the connector pom
             File pomFile = new File(directory, "pom.xml");
             writeXmlFormatted(pom, pomFile, getLog());
         } catch (Exception e) {

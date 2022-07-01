@@ -5,7 +5,7 @@
 		"groupId": "org.apache.camel.kafkaconnector",
 		"id": "camel-google-pubsub-source",
 		"type": "source",
-		"version": "0.11.6-SNAPSHOT",
+		"version": "0.12.0-SNAPSHOT",
 		"description": "Send and receive messages to\/from Google Cloud Platform PubSub Service."
 	},
 	"properties": {
@@ -21,6 +21,13 @@
 			"priority": "HIGH",
 			"required": "true"
 		},
+		"camel.source.endpoint.authenticate": {
+			"name": "camel.source.endpoint.authenticate",
+			"description": "Use Credentials when interacting with PubSub service (no authentication is required when using emulator).",
+			"defaultValue": "true",
+			"priority": "MEDIUM",
+			"required": "false"
+		},
 		"camel.source.endpoint.loggerId": {
 			"name": "camel.source.endpoint.loggerId",
 			"description": "Logger ID to use when a match to the parent route required",
@@ -30,8 +37,8 @@
 		"camel.source.endpoint.serviceAccountKey": {
 			"name": "camel.source.endpoint.serviceAccountKey",
 			"description": "The Service account key that can be used as credentials for the PubSub publisher\/subscriber. It can be loaded by default from classpath, but you can prefix with classpath:, file:, or http: to load the resource from different systems.",
-			"priority": "HIGH",
-			"required": "true"
+			"priority": "MEDIUM",
+			"required": "false"
 		},
 		"camel.source.endpoint.ackMode": {
 			"name": "camel.source.endpoint.ackMode",
@@ -89,6 +96,13 @@
 				"InOptionalOut"
 			]
 		},
+		"camel.component.google-pubsub.authenticate": {
+			"name": "camel.component.google-pubsub.authenticate",
+			"description": "Use Credentials when interacting with PubSub service (no authentication is required when using emulator).",
+			"defaultValue": "true",
+			"priority": "MEDIUM",
+			"required": "false"
+		},
 		"camel.component.google-pubsub.endpoint": {
 			"name": "camel.component.google-pubsub.endpoint",
 			"description": "Endpoint to use with local Pub\/Sub emulator.",
@@ -98,8 +112,8 @@
 		"camel.component.google-pubsub.serviceAccountKey": {
 			"name": "camel.component.google-pubsub.serviceAccountKey",
 			"description": "The Service account key that can be used as credentials for the PubSub publisher\/subscriber. It can be loaded by default from classpath, but you can prefix with classpath:, file:, or http: to load the resource from different systems.",
-			"priority": "HIGH",
-			"required": "true"
+			"priority": "MEDIUM",
+			"required": "false"
 		},
 		"camel.component.google-pubsub.bridgeErrorHandler": {
 			"name": "camel.component.google-pubsub.bridgeErrorHandler",

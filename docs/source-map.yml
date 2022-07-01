@@ -21,5 +21,5 @@
         - url: 'https://github.com/apache/camel-kafka-connector.git'
           mapped-url: './../camel-kafka-connector'
           branches:
-            - branch: camel-kafka-connector-0.11.x
+            - branch: main
               mapped-branch: HEAD

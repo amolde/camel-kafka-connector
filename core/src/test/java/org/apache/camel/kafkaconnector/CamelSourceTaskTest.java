@@ -47,7 +47,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 public class CamelSourceTaskTest {
-
     private static final String DIRECT_URI = "direct:start";
     private static final String TOPIC_NAME = "my-topic";
 
@@ -248,7 +247,7 @@ public class CamelSourceTaskTest {
     }
 
     @Test
-    public void testUrlPrecedenceOnComponentProperty() {
+    public void testUrlPrecedenceOnComponentProperty() throws InterruptedException {
         Map<String, String> props = new HashMap<>();
         props.put(CamelSourceConnectorConfig.TOPIC_CONF, TOPIC_NAME);
         props.put(CamelSourceConnectorConfig.CAMEL_SOURCE_URL_CONF, "timer:foo?period=10&repeatCount=2");
@@ -258,8 +257,6 @@ public class CamelSourceTaskTest {
 
         CamelSourceTask sourceTask = new CamelSourceTask();
         sourceTask.start(props);
-
-        assertEquals(2, sourceTask.getCms().getCamelContext().getEndpoints().size());
 
         sourceTask.getCms().getCamelContext().getEndpoints().stream()
                 .filter(e -> e.getEndpointUri().startsWith("timer"))
@@ -310,10 +307,8 @@ public class CamelSourceTaskTest {
         CamelSourceTask sourceTask = new CamelSourceTask();
         sourceTask.start(props);
 
-        assertEquals(2, sourceTask.getCms().getCamelContext().getEndpoints().size());
-
         sourceTask.getCms().getCamelContext().getEndpoints().stream()
-                .filter(e -> e.getEndpointUri().startsWith("direct"))
+                .filter(e -> e.getEndpointUri().startsWith("seda"))
                 .forEach(e -> {
                     assertTrue(e.getEndpointUri().contains("end"));
                     assertTrue(e.getEndpointUri().contains("pollingConsumerQueueSize=10"));

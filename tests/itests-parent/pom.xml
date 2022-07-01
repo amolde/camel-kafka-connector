@@ -20,7 +20,7 @@
     <parent>
         <artifactId>tests</artifactId>
         <groupId>org.apache.camel.kafkaconnector</groupId>
-        <version>0.11.6-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -37,7 +37,7 @@
         <failsafe.args.jul>-Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager</failsafe.args.jul>
         <failsafe.args.strimzi>-Ditest.strimzi.container.image=${itest.strimzi.container.image} -Ditest.zookeeper.container.image=${itest.zookeeper.container.image}</failsafe.args.strimzi>
 
-        <common.failsafe.args>${failsafe.args.jul} ${failsafe.args.basedir} ${failsafe.args.strimzi}</common.failsafe.args>
+        <common.failsafe.args>${failsafe.args.jul} ${failsafe.args.basedir} ${failsafe.args.strimzi} -Dmongodb.container=mongo:5.0.2</common.failsafe.args>
     </properties>
 
     <dependencies>
@@ -55,6 +55,10 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-direct</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-yaml-dsl</artifactId>
         </dependency>
 
         <dependency>

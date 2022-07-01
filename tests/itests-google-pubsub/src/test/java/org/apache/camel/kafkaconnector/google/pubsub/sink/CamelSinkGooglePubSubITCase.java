@@ -53,7 +53,7 @@ public class CamelSinkGooglePubSubITCase extends CamelSinkTestSupport {
 
     @Override
     protected String[] getConnectorsInTest() {
-        return new String[]{"camel-google-pubsub-kafka-connector"};
+        return new String[]{"camel-google-pubsub-sink-kafka-connector"};
     }
 
 
@@ -76,7 +76,14 @@ public class CamelSinkGooglePubSubITCase extends CamelSinkTestSupport {
 
     @AfterEach
     public void tearDown() {
-        easyClient.shutdown();
+        try {
+            easyClient.deleteSubscription(testSubscription);
+            easyClient.deleteTopic(googlePubSubTopic);
+        } catch (InterruptedException | IOException e) {
+            fail(e.getMessage());
+        } finally {
+            easyClient.shutdown();
+        }
     }
 
     @Override
@@ -92,7 +99,7 @@ public class CamelSinkGooglePubSubITCase extends CamelSinkTestSupport {
     protected void verifyMessages(CountDownLatch latch) throws InterruptedException {
         List<String> receivedMessages = easyClient.getReceivedMessages();
 
-        if (latch.await(40, TimeUnit.SECONDS)) {
+        if (latch.await(120, TimeUnit.SECONDS)) {
             assertEquals(expected, receivedMessages.size(), "Did not receive as many messages as was sent");
         } else {
             fail("Failed to receive the messages within the specified time");
@@ -112,19 +119,4 @@ public class CamelSinkGooglePubSubITCase extends CamelSinkTestSupport {
 
         runTest(connectorPropertyFactory, topicName, expected);
     }
-
-    @Test
-    public void testBasicSendReceiveUrl() throws Exception {
-        String topicName = getTopicForTest(this);
-
-        ConnectorPropertyFactory connectorPropertyFactory = CamelGooglePubSubPropertyFactory
-                .basic()
-                .withTopics(topicName)
-                .withEndpoint(service.getServiceAddress())
-                .withUrl(project, googlePubSubTopic)
-                .buildUrl();
-
-        runTest(connectorPropertyFactory, topicName, expected);
-    }
-
 }

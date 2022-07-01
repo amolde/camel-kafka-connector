@@ -91,7 +91,7 @@ import static org.apache.camel.tooling.util.PackageHelper.writeText;
 requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME, 
 requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, 
 defaultPhase = LifecyclePhase.GENERATE_RESOURCES)
-public class CamelKafkaConnectorUpdateMojo extends AbstractCamelKafkaConnectorMojo {
+public class CamelKafkaConnectorUpdateMojo extends AbstractCamelComponentKafkaConnectorMojo {
 
     private static final String GENERATED_SECTION_START = "START OF GENERATED CODE";
     private static final String GENERATED_SECTION_START_COMMENT = "<!--" + GENERATED_SECTION_START + "-->";
@@ -195,7 +195,7 @@ public class CamelKafkaConnectorUpdateMojo extends AbstractCamelKafkaConnectorMo
 
     private void updateConnector() throws Exception {
         String sanitizedName = sanitizeMavenArtifactId(name);
-        // create the starter directory
+        // create the connector directory
         File connectorDir = new File(projectDir, "camel-" + sanitizedName + KAFKA_CONNECTORS_SUFFIX);
         if (!connectorDir.exists() || !connectorDir.isDirectory()) {
             getLog().info("Connector " + name + " can not be updated since directory " + connectorDir.getAbsolutePath() + " dose not exist.");
@@ -205,12 +205,12 @@ public class CamelKafkaConnectorUpdateMojo extends AbstractCamelKafkaConnectorMo
         // create the base pom.xml
         Document pom = createBasePom(connectorDir);
 
-        // Apply changes to the starter pom
+        // Apply changes to the connector pom
         fixExcludedDependencies(pom);
         fixAdditionalDependencies(pom, additionalDependencies);
         fixAdditionalRepositories(pom);
 
-        // Write the starter pom
+        // Write the connector pom
         File pomFile = new File(connectorDir, "pom.xml");
         writeXmlFormatted(pom, pomFile, getLog());
 
@@ -293,7 +293,7 @@ public class CamelKafkaConnectorUpdateMojo extends AbstractCamelKafkaConnectorMo
         }
 
         if (!deps.isEmpty()) {
-            getLog().debug("The following dependencies will be added to the starter: " + deps);
+            getLog().debug("The following dependencies will be added to the connector: " + deps);
             MavenUtils.addDependencies(pom, deps, GENERATED_SECTION_START, GENERATED_SECTION_END);
         }
     }
@@ -345,7 +345,7 @@ public class CamelKafkaConnectorUpdateMojo extends AbstractCamelKafkaConnectorMo
                         pom = builder.parse(contentIn);
                     }
 
-                    getLog().debug("Reusing the existing pom.xml for the starter");
+                    getLog().debug("Reusing the existing pom.xml for the connector");
                     return pom;
                 } else {
                     getLog().error("Cannot use the existing pom.xml file since it is not editable. It does not contain " + GENERATED_SECTION_START_COMMENT);

@@ -5,7 +5,7 @@
 		"groupId": "org.apache.camel.kafkaconnector",
 		"id": "camel-graphql-sink",
 		"type": "sink",
-		"version": "0.11.6-SNAPSHOT",
+		"version": "0.12.0-SNAPSHOT",
 		"description": "Send GraphQL queries and mutations to external systems."
 	},
 	"properties": {
@@ -46,9 +46,21 @@
 			"priority": "MEDIUM",
 			"required": "false"
 		},
+		"camel.sink.endpoint.queryHeader": {
+			"name": "camel.sink.endpoint.queryHeader",
+			"description": "The name of a header containing the GraphQL query.",
+			"priority": "MEDIUM",
+			"required": "false"
+		},
 		"camel.sink.endpoint.variables": {
 			"name": "camel.sink.endpoint.variables",
 			"description": "The JsonObject instance containing the operation variables.",
+			"priority": "MEDIUM",
+			"required": "false"
+		},
+		"camel.sink.endpoint.variablesHeader": {
+			"name": "camel.sink.endpoint.variablesHeader",
+			"description": "The name of a header containing a JsonObject instance containing the operation variables.",
 			"priority": "MEDIUM",
 			"required": "false"
 		},

@@ -1,0 +1,37 @@
+{
+	"connector": {
+		"class": "org.apache.camel.kafkaconnector.awscloudwatchsink.CamelAwscloudwatchsinkSinkConnector",
+		"artifactId": "camel-aws-cloudwatch-sink-kafka-connector",
+		"groupId": "org.apache.camel.kafkaconnector",
+		"id": "camel-aws-cloudwatch-sink-sink",
+		"type": "sink",
+		"version": "0.12.0-SNAPSHOT",
+		"description": "Send messages to AWS CloudWatch metrics.\n\nThere are several properties you can set in the headers, such as:\n\n`metric-name` \/ `ce-metricname` for the metric name.\n`metric-value` \/ `ce-metricvalue` for the metric value.\n`metric-unit` \/ `ce-metricunit` for the metric unit.\n`metric-timestamp` \/ `ce-metrictimestamp` for the metric timestamp.\n`metric-dimension-name` \/ `ce-metricdimensionname` for the dimension name.\n`metric-dimension-value` \/ `ce-metricdimensionvalue` for the dimension value."
+	},
+	"properties": {
+		"camel.kamelet.aws-cloudwatch-sink.cwNamespace": {
+			"name": "camel.kamelet.aws-cloudwatch-sink.cwNamespace",
+			"description": "The cloud watch metric namespace.",
+			"priority": "HIGH",
+			"required": "true"
+		},
+		"camel.kamelet.aws-cloudwatch-sink.accessKey": {
+			"name": "camel.kamelet.aws-cloudwatch-sink.accessKey",
+			"description": "The access key obtained from AWS.",
+			"priority": "HIGH",
+			"required": "true"
+		},
+		"camel.kamelet.aws-cloudwatch-sink.secretKey": {
+			"name": "camel.kamelet.aws-cloudwatch-sink.secretKey",
+			"description": "The secret key obtained from AWS.",
+			"priority": "HIGH",
+			"required": "true"
+		},
+		"camel.kamelet.aws-cloudwatch-sink.region": {
+			"name": "camel.kamelet.aws-cloudwatch-sink.region",
+			"description": "The AWS region to connect to. Example: eu-west-1",
+			"priority": "HIGH",
+			"required": "true"
+		}
+	}
+}

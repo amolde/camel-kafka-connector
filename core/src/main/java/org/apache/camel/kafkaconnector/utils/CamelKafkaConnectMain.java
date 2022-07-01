@@ -22,15 +22,17 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import org.apache.camel.AggregationStrategy;
 import org.apache.camel.CamelContext;
 import org.apache.camel.ConsumerTemplate;
 import org.apache.camel.ProducerTemplate;
+import org.apache.camel.builder.DefaultErrorHandlerBuilder;
+import org.apache.camel.builder.ErrorHandlerBuilderRef;
+import org.apache.camel.builder.NoErrorHandlerBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.kafkaconnector.CamelConnectorConfig;
 import org.apache.camel.main.SimpleMain;
-import org.apache.camel.model.RouteDefinition;
+import org.apache.camel.model.ProcessorDefinition;
 import org.apache.camel.processor.idempotent.kafka.KafkaIdempotentRepository;
 import org.apache.camel.spi.IdempotentRepository;
 import org.apache.camel.support.processor.idempotent.MemoryIdempotentRepository;
@@ -46,7 +48,12 @@ public class CamelKafkaConnectMain extends SimpleMain {
     public static final String CAMEL_ROUTES_DSL = "camel.routes.xml.dsl";
     public static final String CAMEL_SPRING_CONTEXT_BEAN_ID = "camelContext";
     public static final String CAMEL_FIRST_CUSTOM_ROUTE_ID = "direct:customRoute00";
-    public static final String CAMEL_DATAFORMAT_PROPERTIES_PREFIX = "camel.dataformat.";
+    public static final String KAMELET_MARSHAL_TEMPLATE_PARAMETERS_PREFIX = "camel.kamelet.ckcMarshal.";
+    public static final String KAMELET_UNMARSHAL_TEMPLATE_PARAMETERS_PREFIX = "camel.kamelet.ckcUnMarshal.";
+    public static final String KAMELET_AGGREGATORL_TEMPLATE_PARAMETERS_PREFIX = "camel.kamelet.ckcAggregator.";
+    public static final String KAMELET_IDEMPOTENT_TEMPLATE_PARAMETERS_PREFIX = "camel.kamelet.ckcIdempotent.";
+    public static final String KAMELET_REMOVEHEADER_TEMPLATE_PARAMETERS_PREFIX = "camel.kamelet.ckcRemoveHeader.";
+
     private static final Logger LOG = LoggerFactory.getLogger(CamelKafkaConnectMain.class);
 
     protected volatile ConsumerTemplate consumerTemplate;
@@ -149,67 +156,67 @@ public class CamelKafkaConnectMain extends SimpleMain {
             this.aggregationTimeout = aggregationTimeout;
             return this;
         }
-        
+
         public Builder withErrorHandler(String errorHandler) {
             this.errorHandler = errorHandler;
             return this;
         }
-        
+
         public Builder withMaxRedeliveries(int maxRedeliveries) {
             this.maxRedeliveries = maxRedeliveries;
             return this;
         }
-        
+
         public Builder withRedeliveryDelay(long redeliveryDelay) {
             this.redeliveryDelay = redeliveryDelay;
             return this;
         }
-        
+
         public Builder withIdempotencyEnabled(boolean idempotencyEnabled) {
             this.idempotencyEnabled = idempotencyEnabled;
             return this;
         }
-        
+
         public Builder withExpressionType(String expressionType) {
             this.expressionType = expressionType;
             return this;
         }
-        
+
         public Builder withExpressionHeader(String expressionHeader) {
             this.expressionHeader = expressionHeader;
             return this;
         }
-        
+
         public Builder withMemoryDimension(int memoryDimension) {
             this.memoryDimension = memoryDimension;
             return this;
         }
-        
+
         public Builder withIdempotentRepositoryType(String idempotentRepositoryType) {
             this.idempotentRepositoryType = idempotentRepositoryType;
             return this;
         }
-        
+
         public Builder withIdempotentRepositoryTopicName(String idempotentRepositoryTopicName) {
             this.idempotentRepositoryTopicName = idempotentRepositoryTopicName;
             return this;
         }
-        
+
         public Builder withIdempotentRepositoryKafkaServers(String idempotentRepositoryKafkaServers) {
             this.idempotentRepositoryKafkaServers = idempotentRepositoryKafkaServers;
             return this;
         }
-        
+
         public Builder withIdempotentRepositoryKafkaMaxCacheSize(int idempotentRepositoryKafkaMaxCacheSize) {
             this.idempotentRepositoryKafkaMaxCacheSize = idempotentRepositoryKafkaMaxCacheSize;
             return this;
         }
-        
+
         public Builder withIdempotentRepositoryKafkaPollDuration(int idempotentRepositoryKafkaPollDuration) {
             this.idempotentRepositoryKafkaPollDuration = idempotentRepositoryKafkaPollDuration;
             return this;
         }
-        
+
         public Builder withHeadersExcludePattern(String headersExcludePattern) {
             this.headersExcludePattern = headersExcludePattern;
             return this;
@@ -244,17 +251,56 @@ public class CamelKafkaConnectMain extends SimpleMain {
         public CamelKafkaConnectMain build(CamelContext camelContext) {
             CamelKafkaConnectMain camelMain = new CamelKafkaConnectMain(getCustomCamelContext(camelContext));
             camelMain.configure().setAutoConfigurationLogSummary(false);
+            //TODO: make it configurable
+            camelMain.configure().setDumpRoutes(true);
 
             Properties camelProperties = new Properties();
             camelProperties.putAll(props);
 
-            List<String> filteredProps = camelProperties.entrySet().stream().map(this::filterSensitive).collect(Collectors.toList());
+            //error handler
+            camelMain.getCamelContext().getRegistry().bind("ckcErrorHandler", new DefaultErrorHandlerBuilder());
+            if (errorHandler != null) {
+                switch (errorHandler) {
+                    case "no":
+                        camelMain.getCamelContext().getRegistry().bind("ckcErrorHandler", new NoErrorHandlerBuilder());
+                        break;
+                    case "default":
+                        camelMain.getCamelContext().getRegistry().bind("ckcErrorHandler", new DefaultErrorHandlerBuilder().maximumRedeliveries(maxRedeliveries).redeliveryDelay(redeliveryDelay));
+                        break;
+                    default:
+                        break;
+                }
+            }
 
-            LOG.info("Setting initial properties in Camel context: [{}]", filteredProps);
-            camelMain.setInitialProperties(camelProperties);
-            
-            // Instantianting the idempotent Repository here and inject it in registry to be referenced
+            //dataformats
+            if (!ObjectHelper.isEmpty(marshallDataFormat)) {
+                camelProperties.put(KAMELET_MARSHAL_TEMPLATE_PARAMETERS_PREFIX + "marshal", marshallDataFormat);
+            }
+            if (!ObjectHelper.isEmpty(unmarshallDataFormat)) {
+                camelProperties.put(KAMELET_UNMARSHAL_TEMPLATE_PARAMETERS_PREFIX + "unmarshal", unmarshallDataFormat);
+            }
+
+            //aggregator
+            if (!ObjectHelper.isEmpty(aggregationSize)) {
+                camelProperties.put(KAMELET_AGGREGATORL_TEMPLATE_PARAMETERS_PREFIX + "aggregationSize", String.valueOf(aggregationSize));
+            }
+            if (!ObjectHelper.isEmpty(aggregationTimeout)) {
+                camelProperties.put(KAMELET_AGGREGATORL_TEMPLATE_PARAMETERS_PREFIX + "aggregationTimeout", String.valueOf(aggregationTimeout));
+            }
+
+            //idempotency
             if (idempotencyEnabled) {
+                switch (expressionType) {
+                    case "body":
+                        camelProperties.put(KAMELET_IDEMPOTENT_TEMPLATE_PARAMETERS_PREFIX + "idempotentExpression", "${body}");
+                        break;
+                    case "header":
+                        camelProperties.put(KAMELET_IDEMPOTENT_TEMPLATE_PARAMETERS_PREFIX + "idempotentExpression", "${headers." + expressionHeader + "}");
+                        break;
+                    default:
+                        break;
+                }
+                // Instantiating the idempotent Repository here and inject it in registry to be referenced
                 IdempotentRepository idempotentRepo = null;
                 switch (idempotentRepositoryType) {
                     case "memory":
@@ -266,110 +312,97 @@ public class CamelKafkaConnectMain extends SimpleMain {
                     default:
                         break;
                 }
-                camelMain.getCamelContext().getRegistry().bind("idempotentRepository", idempotentRepo);
+                camelMain.getCamelContext().getRegistry().bind("ckcIdempotentRepository", idempotentRepo);
             }
 
-            //creating the actual route
+            //remove headers
+            if (!ObjectHelper.isEmpty(headersExcludePattern)) {
+                camelProperties.put(KAMELET_REMOVEHEADER_TEMPLATE_PARAMETERS_PREFIX + "headersExcludePattern", headersExcludePattern);
+            }
+
+            // log filtered properties and set initial camel properties
+            List<String> filteredProps = camelProperties.entrySet().stream().map(this::filterSensitive).collect(Collectors.toList());
+            LOG.info("Setting initial properties in Camel context: [{}]", filteredProps);
+            camelMain.setInitialProperties(camelProperties);
+
             camelMain.configure().addRoutesBuilder(new RouteBuilder() {
                 public void configure() {
-                    //from
-                    RouteDefinition rd = from(from);
-                    LOG.info("Creating Camel route from({})", from);
-                    
-                    if (!ObjectHelper.isEmpty(errorHandler)) {
-                        switch (errorHandler) {
-                            case "no":
-                                rd.errorHandler(noErrorHandler());
-                                break;
-                            case "default":
-                                rd.errorHandler(defaultErrorHandler().maximumRedeliveries(maxRedeliveries).redeliveryDelay(redeliveryDelay));
-                                break;
-                            default:
-                                break;
-                        }
-                    }
 
-                    //dataformats
+                    //create marshal template
+                    routeTemplate("ckcMarshal")
+                            .templateParameter("marshal", "dummyDataformat")
+                            .from("kamelet:source")
+                            .marshal("{{marshal}}")
+                            .to("kamelet:sink");
+
+                    //create unmarshal template
+                    routeTemplate("ckcUnMarshal")
+                            .templateParameter("unmarshal", "dummyDataformat")
+                            .from("kamelet:source")
+                            .marshal("{{unmarshal}}")
+                            .to("kamelet:sink");
+
+                    //create aggregator template
+                    routeTemplate("ckcAggregator")
+                            //TODO: change CamelConnectorConfig.CAMEL_CONNECTOR_AGGREGATE_NAME to ckcAggregationStrategy?
+                            .templateParameter("aggregationStrategy", CamelConnectorConfig.CAMEL_CONNECTOR_AGGREGATE_NAME)
+                            .templateParameter("aggregationSize", "1")
+                            .templateParameter("aggregationTimeout", String.valueOf(Long.MAX_VALUE))
+                            .from("kamelet:source")
+                            .aggregate(constant(true))
+                                .aggregationStrategyRef("{{aggregationStrategy}}")
+                                .completionSize("{{aggregationSize}}")
+                                .completionTimeout("{{aggregationTimeout}}")
+                                .to("kamelet:sink")
+                            .end();
+
+                    //create idempotent template
+                    routeTemplate("ckcIdempotent")
+                            .templateParameter("idempotentExpression", "dummyExpression")
+                            .templateParameter("idempotentRepository", "ckcIdempotentRepository")
+                            .from("kamelet:source")
+                            .idempotentConsumer(simple("{{idempotentExpression}}")).messageIdRepositoryRef("{{idempotentRepository}}")
+                            .to("kamelet:sink");
+
+                    //create removeHeader template
+                    routeTemplate("ckcRemoveHeader")
+                            .templateParameter("headersExcludePattern", "(?!)")
+                            .from("kamelet:source")
+                            .removeHeaders("{{headersExcludePattern}}")
+                            .to("kamelet:sink");
+
+                    //creating source template
+                    routeTemplate("ckcSource")
+                            .templateParameter("fromUrl")
+                            .templateParameter("errorHandler", "ckcErrorHandler")
+                            .from("{{fromUrl}}")
+                            .errorHandler(new ErrorHandlerBuilderRef("{{errorHandler}}"))
+                            .to("kamelet:sink");
+
+                    //creating sink template
+                    routeTemplate("ckcSink")
+                            .templateParameter("toUrl")
+                            .templateParameter("errorHandler", "ckcErrorHandler")
+                            .from("kamelet:source")
+                            .errorHandler(new ErrorHandlerBuilderRef("{{errorHandler}}"))
+                            .to("{{toUrl}}");
+
+                    //creating the actual route
+                    ProcessorDefinition<?> rd = from(from);
                     if (!ObjectHelper.isEmpty(marshallDataFormat)) {
-                        LOG.info(".marshal({})", marshallDataFormat);
-                        rd.marshal(marshallDataFormat);
+                        rd = rd.kamelet("ckcMarshal");
                     }
                     if (!ObjectHelper.isEmpty(unmarshallDataFormat)) {
-                        LOG.info(".unmarshal({})", unmarshallDataFormat);
-                        rd.unmarshal(unmarshallDataFormat);
+                        rd = rd.kamelet("ckcUnMarshal");
                     }
                     if (getContext().getRegistry().lookupByName("aggregate") != null) {
-                        //aggregation
-                        AggregationStrategy s = getContext().getRegistry().lookupByNameAndType(CamelConnectorConfig.CAMEL_CONNECTOR_AGGREGATE_NAME, AggregationStrategy.class);
-                        if (idempotencyEnabled) {
-                            switch (expressionType) {
-                                case "body":
-                                    LOG.info(".aggregate({}).constant(true).completionSize({}).completionTimeout({}).idempotentConsumer(body(), + "
-                                           + "MemoryIdempotentRepository.memoryIdempotentRepository({}))", s, aggregationSize, aggregationTimeout, memoryDimension);
-                                    LOG.info(".to({})", to);
-                                    if (ObjectHelper.isEmpty(headersExcludePattern)) {
-                                        rd.aggregate(s).constant(true).completionSize(aggregationSize).completionTimeout(aggregationTimeout).idempotentConsumer(body()).messageIdRepositoryRef("idempotentRepository").toD(to);
-                                    } else {
-                                        rd.aggregate(s).constant(true).completionSize(aggregationSize).completionTimeout(aggregationTimeout)
-                                            .idempotentConsumer(body()).messageIdRepositoryRef("idempotentRepository").removeHeaders(headersExcludePattern).toD(to);
-                                    }
-                                    break;
-                                case "header":
-                                    LOG.info(".aggregate({}).constant(true).completionSize({}).completionTimeout({}).idempotentConsumer(header(expressionHeader), + "
-                                           + "MemoryIdempotentRepository.memoryIdempotentRepository({}))", s, aggregationSize, aggregationTimeout, memoryDimension);
-                                    LOG.info(".to({})", to);
-                                    if (ObjectHelper.isEmpty(headersExcludePattern)) {
-                                        rd.aggregate(s).constant(true).completionSize(aggregationSize).completionTimeout(aggregationTimeout)
-                                            .idempotentConsumer(header(expressionHeader)).messageIdRepositoryRef("idempotentRepository").toD(to);
-                                    } else {
-                                        rd.aggregate(s).constant(true).completionSize(aggregationSize).completionTimeout(aggregationTimeout)
-                                            .idempotentConsumer(header(expressionHeader)).messageIdRepositoryRef("idempotentRepository").removeHeaders(headersExcludePattern).toD(to);
-                                    }
-                                    break;
-                                default:
-                                    break;
-                            }
-                        } else {
-                            LOG.info(".aggregate({}).constant(true).completionSize({}).completionTimeout({})", s, aggregationSize, aggregationTimeout);
-                            LOG.info(".to({})", to);
-                            if (ObjectHelper.isEmpty(headersExcludePattern)) {
-                                rd.aggregate(s).constant(true).completionSize(aggregationSize).completionTimeout(aggregationTimeout).toD(to);
-                            } else {
-                                rd.aggregate(s).constant(true).completionSize(aggregationSize).completionTimeout(aggregationTimeout).removeHeaders(headersExcludePattern).toD(to);
-                            }
-                        }
-                    } else {
-                        if (idempotencyEnabled) {
-                            switch (expressionType) {
-                                case "body":
-                                    LOG.info("idempotentConsumer(body(), MemoryIdempotentRepository.memoryIdempotentRepository({})).to({})", memoryDimension, to);
-                                    if (ObjectHelper.isEmpty(headersExcludePattern)) {
-                                        rd.idempotentConsumer(body()).messageIdRepositoryRef("idempotentRepository").toD(to);
-                                    } else {
-                                        rd.idempotentConsumer(body()).messageIdRepositoryRef("idempotentRepository").removeHeaders(headersExcludePattern).toD(to);
-                                    }
-                                    break;
-                                case "header":
-                                    LOG.info("idempotentConsumer(header(expressionHeader), MemoryIdempotentRepository.memoryIdempotentRepository({})).to({})", memoryDimension, to);
-                                    if (ObjectHelper.isEmpty(headersExcludePattern)) {
-                                        rd.idempotentConsumer(header(expressionHeader)).messageIdRepositoryRef("idempotentRepository").toD(to);
-                                    } else {
-                                        rd.idempotentConsumer(header(expressionHeader)).messageIdRepositoryRef("idempotentRepository").removeHeaders(headersExcludePattern).toD(to);
-                                    }
-                                    break;
-                                default:
-                                    break;
-                            }
-                        } else {
-                            //to
-                            LOG.info(".to({})", to);
-                            if (ObjectHelper.isEmpty(headersExcludePattern)) {
-                                rd.toD(to);
-                            } else {
-                                rd.removeHeaders(headersExcludePattern).toD(to);
-                            }
-                        }
+                        rd = rd.kamelet("ckcAggregator");
                     }
+                    if (idempotencyEnabled) {
+                        rd = rd.kamelet("ckcIdempotent");
+                    }
+                    rd = rd.kamelet("ckcRemoveHeader");
+                    rd.toD(to);
                 }
             });
 

@@ -19,20 +19,18 @@
 
 name: camel-kafka-connector
 title: Camel Kafka Connector
-version: 0.11.x
-display_version: 0.11.x (LTS)
-
+version: 1.0.x
+display_version: 1.0.x (LTS)
 nav:
 - modules/ROOT/nav.adoc
 
 asciidoc:
   attributes:
     requires: "'util=camel-website-util,ckc=xref:js/ckc.js'"
-#    based on vote thread https://lists.apache.org/thread/957zf5r8gwd5r0pmrot9j451s065jgmz 9/24/2021 (or 24/9/2021)
-    lts: September 2022
-    camel-version: 3.11.5
-    camel-docs-version: 3.11.x
-#    camel-kamelets-version: 0.6.0
-#    camel-kamelets-docs-version: 0.6.x
+    LTS: January 2023
+    camel-version: 3.14.0
+    camel-docs-version: 3.14.x
+    camel-kamelets-version: 0.6.0
+    camel-kamelets-docs-version: 0.6.x
     kafka-version: 2.8.0
     kafka-docs-version: 28

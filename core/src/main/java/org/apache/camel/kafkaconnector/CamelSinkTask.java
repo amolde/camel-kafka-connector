@@ -42,6 +42,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CamelSinkTask extends SinkTask {
+    public static final String KAMELET_SINK_TEMPLATE_PARAMETERS_PREFIX = "camel.kamelet.ckcSink.";
+
     public static final String KAFKA_RECORD_KEY_HEADER = "camel.kafka.connector.record.key";
     public static final String HEADER_CAMEL_PREFIX = "CamelHeader.";
     public static final String PROPERTY_CAMEL_PREFIX = "CamelProperty.";
@@ -52,6 +54,7 @@ public class CamelSinkTask extends SinkTask {
     private static final Logger LOG = LoggerFactory.getLogger(CamelSinkTask.class);
 
     private static final String LOCAL_URL = "direct:start";
+    private static final String DEFAULT_KAMELET_CKC_SINK = "kamelet:ckcSink";
     private ErrantRecordReporter reporter;
 
     private CamelKafkaConnectMain cms;
@@ -91,6 +94,7 @@ public class CamelSinkTask extends SinkTask {
             }
 
             String remoteUrl = config.getString(CamelSinkConnectorConfig.CAMEL_SINK_URL_CONF);
+            final String componentSchema = config.getString(CamelSinkConnectorConfig.CAMEL_SINK_COMPONENT_CONF);
             final String marshaller = config.getString(CamelSinkConnectorConfig.CAMEL_SINK_MARSHAL_CONF);
             final String unmarshaller = config.getString(CamelSinkConnectorConfig.CAMEL_SINK_UNMARSHAL_CONF);
             final int size = config.getInt(CamelSinkConnectorConfig.CAMEL_CONNECTOR_AGGREGATE_SIZE_CONF);
@@ -112,15 +116,19 @@ public class CamelSinkTask extends SinkTask {
             mapHeaders = config.getBoolean(CamelSinkConnectorConfig.CAMEL_CONNECTOR_MAP_HEADERS_CONF);
             
             CamelContext camelContext = new DefaultCamelContext();
-            if (remoteUrl == null) {
+            // componentSchema can legitimately be null in case of kamelet connectors, in that case KAMELET_SINK_TEMPLATE_PARAMETERS_PREFIX + "toUrl" property is ignored
+            if (remoteUrl == null && componentSchema != null) {
                 remoteUrl = TaskHelper.buildUrl(camelContext,
                                                 actualProps,
-                                                config.getString(CamelSinkConnectorConfig.CAMEL_SINK_COMPONENT_CONF),
+                                                componentSchema,
                                                 CAMEL_SINK_ENDPOINT_PROPERTIES_PREFIX,
                                                 CAMEL_SINK_PATH_PROPERTIES_PREFIX);
             }
+            if (remoteUrl != null) {
+                actualProps.put(KAMELET_SINK_TEMPLATE_PARAMETERS_PREFIX + "toUrl", remoteUrl);
+            }
 
-            cms = CamelKafkaConnectMain.builder(LOCAL_URL, remoteUrl)
+            cms = CamelKafkaConnectMain.builder(LOCAL_URL, getSinkKamelet())
                 .withProperties(actualProps)
                 .withUnmarshallDataFormat(unmarshaller)
                 .withMarshallDataFormat(marshaller)
@@ -141,7 +149,6 @@ public class CamelSinkTask extends SinkTask {
                 .withHeadersExcludePattern(headersRemovePattern)
                 .build(camelContext);
 
-
             cms.start();
 
             producer = cms.getProducerTemplate();
@@ -151,6 +158,10 @@ public class CamelSinkTask extends SinkTask {
         } catch (Exception e) {
             throw new ConnectException("Failed to create and start Camel context", e);
         }
+    }
+
+    protected String getSinkKamelet() {
+        return DEFAULT_KAMELET_CKC_SINK;
     }
 
     protected CamelSinkConnectorConfig getCamelSinkConnectorConfig(Map<String, String> props) {

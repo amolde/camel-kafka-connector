@@ -21,7 +21,7 @@ mvn -version
 # Default locale: en_US, platform encoding: UTF-8
 # OS name: "mac os x", version: "11.5.2", arch: "x86_64", family: "mac"
 
-myversion=0.11.6-SNAPSHOT
+myversion=1.1.0-SNAPSHOT
 . .env
 # cd custom-package
 # mvn camel-salesforce:generate -DcamelSalesforce.clientId=${clientId} -DcamelSalesforce.password=${password} -DcamelSalesforce.userName=${userName} -DcamelSalesforce.clientSecret=${clientSecret}

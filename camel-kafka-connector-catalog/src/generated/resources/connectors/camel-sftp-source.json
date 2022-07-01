@@ -5,7 +5,7 @@
 		"groupId": "org.apache.camel.kafkaconnector",
 		"id": "camel-sftp-source",
 		"type": "source",
-		"version": "0.11.6-SNAPSHOT",
+		"version": "0.12.0-SNAPSHOT",
 		"description": "Upload and download files to\/from SFTP servers."
 	},
 	"properties": {
@@ -405,7 +405,7 @@
 		},
 		"camel.source.endpoint.idempotentRepository": {
 			"name": "camel.source.endpoint.idempotentRepository",
-			"description": "A pluggable repository org.apache.camel.spi.IdempotentRepository which by default use MemoryMessageIdRepository if none is specified and idempotent is true.",
+			"description": "A pluggable repository org.apache.camel.spi.IdempotentRepository which by default use MemoryIdempotentRepository if none is specified and idempotent is true.",
 			"priority": "MEDIUM",
 			"required": "false"
 		},

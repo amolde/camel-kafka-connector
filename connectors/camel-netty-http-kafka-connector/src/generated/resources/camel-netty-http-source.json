@@ -5,7 +5,7 @@
 		"groupId": "org.apache.camel.kafkaconnector",
 		"id": "camel-netty-http-source",
 		"type": "source",
-		"version": "0.11.6-SNAPSHOT",
+		"version": "0.12.0-SNAPSHOT",
 		"description": "Netty HTTP server and client using the Netty 4.x."
 	},
 	"properties": {
@@ -564,6 +564,13 @@
 		"camel.component.netty-http.clientMode": {
 			"name": "camel.component.netty-http.clientMode",
 			"description": "If the clientMode is true, netty consumer will connect the address as a TCP client.",
+			"defaultValue": "false",
+			"priority": "MEDIUM",
+			"required": "false"
+		},
+		"camel.component.netty-http.muteException": {
+			"name": "camel.component.netty-http.muteException",
+			"description": "If enabled and an Exchange failed processing on the consumer side the response's body won't contain the exception's stack trace.",
 			"defaultValue": "false",
 			"priority": "MEDIUM",
 			"required": "false"

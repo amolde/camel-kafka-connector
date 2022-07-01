@@ -17,38 +17,39 @@
 
 package org.apache.camel.kafkaconnector.google.pubsub.sink;
 
-import org.apache.camel.kafkaconnector.common.EndpointUrlBuilder;
 import org.apache.camel.kafkaconnector.common.SinkConnectorPropertyFactory;
 
 public class CamelGooglePubSubPropertyFactory extends SinkConnectorPropertyFactory<CamelGooglePubSubPropertyFactory> {
 
     public CamelGooglePubSubPropertyFactory withProjectId(String value) {
-        return setProperty("camel.sink.path.projectId", value);
+        return setProperty("camel.kamelet.google-pubsub-sink.projectId", value);
     }
 
     public CamelGooglePubSubPropertyFactory withDestinationName(String value) {
-        return setProperty("camel.sink.path.destinationName", value);
+        return setProperty("camel.kamelet.google-pubsub-sink.destinationName", value);
+    }
+
+    public CamelGooglePubSubPropertyFactory withServiceAccountKey(String value) {
+        return setProperty("camel.kamelet.google-pubsub-sink.serviceAccountKey", value);
     }
 
     public CamelGooglePubSubPropertyFactory withEndpoint(String value) {
         return setProperty("camel.component.google-pubsub.endpoint", value);
     }
 
-
-    public EndpointUrlBuilder<CamelGooglePubSubPropertyFactory> withUrl(String projectId, String destinationName) {
-        String queueUrl = String.format("google-pubsub:%s:%s", projectId, destinationName);
-
-        return new EndpointUrlBuilder<>(this::withSinkUrl, queueUrl);
+    public CamelGooglePubSubPropertyFactory withAuthenticate(boolean authenticationEnabled) {
+        return setProperty("camel.component.google-pubsub.authenticate", authenticationEnabled);
     }
 
     public static CamelGooglePubSubPropertyFactory basic() {
         return new CamelGooglePubSubPropertyFactory()
                     .withTasksMax(1)
+                    .withAuthenticate(false)
+                    .withServiceAccountKey("dummy")
                     .withName("CamelGooglePubSub")
-                    .withConnectorClass("org.apache.camel.kafkaconnector.googlepubsub.CamelGooglepubsubSinkConnector")
+                    .withConnectorClass("org.apache.camel.kafkaconnector.googlepubsubsink.CamelGooglepubsubsinkSinkConnector")
                     .withKeyConverterClass("org.apache.kafka.connect.storage.StringConverter")
-                    .withValueConverterClass("org.apache.kafka.connect.storage.StringConverter");
-
+                    .withValueConverterClass("org.apache.kafka.connect.storage.StringConverter")
+                    .setProperty("camel.component.kamelet.location", "kamelets");
     }
-
 }
