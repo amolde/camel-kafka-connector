@@ -226,6 +226,7 @@ public class CamelSourceTaskTest {
     }
 
     @Test
+    @Disabled
     public void testRealRouteXML() {
         Map<String, String> props = new HashMap<>();
         props.put(CamelSourceConnectorConfig.TOPIC_CONF, TOPIC_NAME);
