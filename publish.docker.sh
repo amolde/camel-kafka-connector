@@ -48,8 +48,8 @@ mvn --projects custom-package --also-make clean package \
 
 cp ~/.m2/repository/org/postgresql/postgresql/42.4.0/postgresql-42.4.0.jar custom-package/target/custom-camel-kafka-connector-${myversion}-package/share/java/custom-camel-kafka-connector/.
 
-docker_tag=${myversion}.2
-
+mydockerversion=1.1.0-SNAPSHOT-01
+docker_tag=${mydockerversion}.4
 # docker build -t amolde/strimzi-kafka-connect:${docker_tag} -t amolde/strimzi-kafka-connect:latest .
 docker build -t amolde/strimzi-kafka-connect:${docker_tag} .
 docker login

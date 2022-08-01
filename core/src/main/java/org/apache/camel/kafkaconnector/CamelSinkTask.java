@@ -45,6 +45,8 @@ public class CamelSinkTask extends SinkTask {
     public static final String KAMELET_SINK_TEMPLATE_PARAMETERS_PREFIX = "camel.kamelet.ckcSink.";
 
     public static final String KAFKA_RECORD_KEY_HEADER = "camel.kafka.connector.record.key";
+    public static final String KAFKA_RECORD_PARTITION_HEADER = "camel.kafka.connector.record.partition";
+    public static final String KAFKA_RECORD_OFFSET_HEADER = "camel.kafka.connector.record.offset";
     public static final String HEADER_CAMEL_PREFIX = "CamelHeader.";
     public static final String PROPERTY_CAMEL_PREFIX = "CamelProperty.";
 
@@ -188,6 +190,8 @@ public class CamelSinkTask extends SinkTask {
             Exchange exchange = new DefaultExchange(producer.getCamelContext());
             exchange.getMessage().setBody(record.value());
             exchange.getMessage().setHeader(KAFKA_RECORD_KEY_HEADER, record.key());
+            exchange.getMessage().setHeader(KAFKA_RECORD_PARTITION_HEADER, record.kafkaPartition());
+            exchange.getMessage().setHeader(KAFKA_RECORD_OFFSET_HEADER, record.kafkaOffset());
 
             for (Header header : record.headers()) {
                 if (header.key().startsWith(HEADER_CAMEL_PREFIX)) {
