@@ -1,6 +1,6 @@
 
 myversion="1.1.0-SNAPSHOT"
-docker_tag="${myversion}-01.5-xpath"
+docker_tag="${myversion}-2.0"
 
 jenv disable-plugin maven
 jenv enable-plugin maven
