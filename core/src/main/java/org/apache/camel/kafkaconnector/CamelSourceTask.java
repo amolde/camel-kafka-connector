@@ -26,6 +26,7 @@ import java.util.Map;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
+import org.apache.camel.ExtendedExchange;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.PollingConsumer;
 import org.apache.camel.StreamCache;
@@ -268,7 +269,7 @@ public class CamelSourceTask extends SourceTask {
         LOG.debug("Committing record with claim check number: {}", claimCheck);
         Exchange correlatedExchange = exchangesWaitingForAck[claimCheck];
         try {
-            UnitOfWorkHelper.doneSynchronizations(correlatedExchange, correlatedExchange.getExchangeExtension().handoverCompletions());
+            UnitOfWorkHelper.doneSynchronizations(correlatedExchange, correlatedExchange.adapt(ExtendedExchange.class).handoverCompletions(), LOG);
             LOG.debug("Record with claim check number: {} committed.", claimCheck);
         } catch (Throwable t) {
             LOG.error("Exception during Unit Of Work completion: {} caused by: {}", t.getMessage(), t.getCause());

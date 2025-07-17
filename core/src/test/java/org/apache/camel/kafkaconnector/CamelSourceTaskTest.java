@@ -35,6 +35,7 @@ import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.header.Header;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
 
 import static org.apache.camel.util.CollectionHelper.mapOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,6 +44,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 public class CamelSourceTaskTest {
     private static final String DIRECT_URI = "direct:start";
@@ -224,6 +226,27 @@ public class CamelSourceTaskTest {
     }
 
     @Test
+    @Disabled
+    public void testRealRouteXML() {
+        Map<String, String> props = new HashMap<>();
+        props.put(CamelSourceConnectorConfig.TOPIC_CONF, TOPIC_NAME);
+        props.put(CamelSourceConnectorConfig.CAMEL_SOURCE_URL_CONF, "salesforce:data/ChangeEvents?replayId=-1&apiVersion=49.0&rawPayload=true");
+        props.put("camel.routes.xml.dsl", "file:///Users/a.deshmukh/work/java/camel-kafka-connector/route3.xml");
+
+        CamelSourceTask sourceTask = new CamelSourceTask();
+        sourceTask.start(props);
+
+        List<SourceRecord> poll1 = sourceTask.poll();
+        assertEquals(1, poll1.size());
+        assertEquals("test", poll1.get(0).value());
+        assertEquals(Schema.Type.STRING, poll1.get(0).valueSchema().type());
+        assertNull(poll1.get(0).key());
+        assertNull(poll1.get(0).keySchema());
+
+        sourceTask.stop();
+    }
+
+    @Test
     public void testUrlPrecedenceOnComponentProperty() throws InterruptedException {
         Map<String, String> props = new HashMap<>();
         props.put(CamelSourceConnectorConfig.TOPIC_CONF, TOPIC_NAME);
@@ -234,6 +257,34 @@ public class CamelSourceTaskTest {
 
         CamelSourceTask sourceTask = new CamelSourceTask();
         sourceTask.start(props);
+
+        assertEquals(7, sourceTask.getCms().getCamelContext().getEndpoints().size());
+
+        sourceTask.getCms().getCamelContext().getEndpoints().stream()
+                .filter(e -> e.getEndpointUri().startsWith("timer"))
+                .forEach(e -> {
+                    assertTrue(e.getEndpointUri().contains("foo"));
+                    assertTrue(e.getEndpointUri().contains("period=10"));
+                    assertTrue(e.getEndpointUri().contains("repeatCount=2"));
+                });
+
+        sourceTask.stop();
+    }
+
+    @Test
+    public void testUrlPrecedenceOnComponentPropertyCustom() {
+        Map<String, String> props = new HashMap<>();
+        props.put(CamelSourceConnectorConfig.TOPIC_CONF, TOPIC_NAME);
+        props.put(CamelSourceConnectorConfig.CAMEL_SOURCE_URL_CONF, "timer:foo?period=10&repeatCount=2");
+        props.put(CamelSourceConnectorConfig.CAMEL_SOURCE_COMPONENT_CONF, "shouldNotBeUsed");
+        props.put("camel.routes.xml.dsl", "file:///Users/a.deshmukh/work/java/camel-kafka-connector/route.xml");
+        props.put(CamelSourceTask.getCamelSourcePathConfigPrefix() + "timerName", "shouldNotBeUsed");
+        props.put(CamelSourceTask.getCamelSourceEndpointConfigPrefix() + "repeatCount", "999");
+
+        CamelSourceTask sourceTask = new CamelSourceTask();
+        sourceTask.start(props);
+
+        assertEquals(8, sourceTask.getCms().getCamelContext().getEndpoints().size());
 
         sourceTask.getCms().getCamelContext().getEndpoints().stream()
                 .filter(e -> e.getEndpointUri().startsWith("timer"))
@@ -257,6 +308,34 @@ public class CamelSourceTaskTest {
 
         CamelSourceTask sourceTask = new CamelSourceTask();
         sourceTask.start(props);
+
+        assertEquals(7, sourceTask.getCms().getCamelContext().getEndpoints().size());
+
+        sourceTask.getCms().getCamelContext().getEndpoints().stream()
+                .filter(e -> e.getEndpointUri().startsWith("seda"))
+                .forEach(e -> {
+                    assertTrue(e.getEndpointUri().contains("end"));
+                    assertTrue(e.getEndpointUri().contains("pollingConsumerQueueSize=10"));
+                    assertTrue(e.getEndpointUri().contains("pollingConsumerBlockTimeout=10"));
+                    assertTrue(e.getEndpointUri().contains("pollingConsumerBlockWhenFull=false"));
+                });
+
+        sourceTask.stop();
+    }
+
+    @Test
+    public void testSourcePollingConsumerOptionsCustom() {
+        Map<String, String> props = new HashMap<>();
+        props.put(CamelSourceConnectorConfig.TOPIC_CONF, TOPIC_NAME);
+        props.put(CamelSourceConnectorConfig.CAMEL_SOURCE_URL_CONF, "timer:foo?period=10&repeatCount=2");
+        props.put(CamelSourceConnectorConfig.CAMEL_SOURCE_POLLING_CONSUMER_QUEUE_SIZE_CONF, "10");
+        props.put(CamelSourceConnectorConfig.CAMEL_SOURCE_POLLING_CONSUMER_BLOCK_TIMEOUT_CONF, "10");
+        props.put(CamelSourceConnectorConfig.CAMEL_SOURCE_POLLING_CONSUMER_BLOCK_WHEN_FULL_CONF, "false");
+        props.put("camel.routes.xml.dsl", "file:///Users/a.deshmukh/work/java/camel-kafka-connector/route2.xml");    
+        CamelSourceTask sourceTask = new CamelSourceTask();
+        sourceTask.start(props);
+
+        assertEquals(8, sourceTask.getCms().getCamelContext().getEndpoints().size());
 
         sourceTask.getCms().getCamelContext().getEndpoints().stream()
                 .filter(e -> e.getEndpointUri().startsWith("seda"))
@@ -454,11 +533,11 @@ public class CamelSourceTaskTest {
 
             for (int i = 0; i < size / chunkSize; i++) {
                 assertThat(records)
-                .element(i)
-                .hasFieldOrPropertyWithValue(
-                    "value",
-                    IntStream.range(i * chunkSize, (i * chunkSize) + chunkSize).mapToObj(Integer::toString).collect(Collectors.joining("|"))
-                );
+                    .element(i)
+                    .hasFieldOrPropertyWithValue(
+                        "value",
+                        IntStream.range(i * chunkSize, (i * chunkSize) + chunkSize).mapToObj(Integer::toString).collect(Collectors.joining("|"))
+                    );
             }
 
         } finally {

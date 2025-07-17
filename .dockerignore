@@ -1,0 +1,13 @@
+.git
+docs
+config
+target
+examples
+core
+connectors
+transformers
+
+parent
+tooling
+tests
+buildingtools
