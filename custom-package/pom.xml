@@ -175,11 +175,11 @@
       <artifactId>camel-aws-s3-streaming-upload-sink-kafka-connector</artifactId>
       <version>${project.version}</version>
     </dependency> -->
-    <dependency>
+    <!-- <dependency>
       <groupId>org.apache.camel</groupId>
-      <artifactId>camel-dozer</artifactId>
+      <artifactId>camel-dozer</artifactId> -->
       <!-- <version>${camel-version}</version> -->
-    </dependency>
+    <!-- </dependency> -->
     <!-- <dependency>
       <groupId>org.apache.camel.kafkaconnector</groupId>
       <artifactId>camel-dozer-kafka-connector</artifactId>
@@ -402,9 +402,9 @@
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
-      <artifactId>camel-elasticsearch-rest</artifactId>
+      <artifactId>camel-elasticsearch</artifactId>
       <!-- <version>${camel-version}</version> -->
-    </dependency>    
+    </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-file</artifactId>
@@ -420,15 +420,20 @@
       <!-- <version>${camel-version}</version> -->
     </dependency>
     <dependency>
-      <groupId>org.apache.camel</groupId>
-      <artifactId>camel-rabbitmq</artifactId>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-spring-rabbitmq</artifactId>
       <!-- <version>${camel-version}</version> -->
     </dependency>    
     <dependency>
       <groupId>org.apache.camel</groupId>
-      <artifactId>camel-xstream</artifactId>
+      <artifactId>camel-jacksonxml</artifactId>
       <!-- <version>${camel-version}</version> -->
     </dependency>
+    <!-- <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-xstream</artifactId>
+      <!- - <version>${camel-version}</version> - ->
+    </dependency> -->
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-jackson</artifactId>
