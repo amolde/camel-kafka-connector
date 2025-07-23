@@ -47,7 +47,7 @@ function prepare_truststore {
     done
 }
 
-prepare_truststore "/tmp/cluster.truststore.p12" "$CERTS_STORE_PASSWORD" "/opt/kafka/connect-certs" "*/ca.crt"
+prepare_truststore "/tmp/cluster.truststore.p12" "$CERTS_STORE_PASSWORD" "/mnt/kafka/external-configuration/kafka-cluster-secrets/ca.crt"
 STORE=/tmp/cluster.keystore.p12
 rm -f "$STORE"
 crtfile=`find /opt/kafka/connect-certs -name 'user.crt' | head -1`
